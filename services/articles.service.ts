@@ -21,15 +21,24 @@ export interface Article {
   description: string;
   content: string;
   slug: string;
-  coverImage?: string;
+  backgroundImage?: string;
+  imagesAttached?: string[];
   publishedAt: string;
   authorId: string;
+  status: string;
 }
 
 export const articlesService = {
   getTopArticles: async (limit: number = 10): Promise<{ success: boolean, data: Article[] }> => {
     return apiFetch<{ success: boolean, data: Article[] }>(`/articles?limit=${limit}&status=published`, {
       method: 'GET',
+    });
+  },
+
+  publish: (id: string, token: string) => {
+    return apiFetch<{ success: boolean; data: Article }>(`/articles/${id}/publish`, {
+      method: 'POST',
+      token,
     });
   },
   createArticle: (data: CreateArticleData, token: string) => {

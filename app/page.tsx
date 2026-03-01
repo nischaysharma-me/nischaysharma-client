@@ -16,9 +16,9 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.1, 1, 1.1]);
 
-  // Fallback to extract first image from content if coverImage is missing
+  // Fallback to extract first image from content if backgroundImage is missing
   const getCoverImage = (article: Article) => {
-    if (article.coverImage) return article.coverImage;
+    if (article.backgroundImage) return article.backgroundImage;
     const match = article.content.match(/<img[^>]+src="([^">]+)"/);
     return match ? match[1] : '/architectural-concrete-monument.png';
   };
