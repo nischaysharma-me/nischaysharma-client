@@ -60,7 +60,14 @@ export const articlesService = {
   },
 
   getArticleBySlug: (slug: string, token?: string) => {
-    return apiFetch<any>(`/articles/${slug}`, {
+    return apiFetch<{ success: boolean, data: Article }>(`/articles/${slug}`, {
+      method: 'GET',
+      token,
+    });
+  },
+
+  getById: (id: string, token: string) => {
+    return apiFetch<{ success: boolean, data: Article }>(`/articles/fetch/${id}`, {
       method: 'GET',
       token,
     });
