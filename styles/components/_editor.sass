@@ -7,52 +7,128 @@
   background-color: $color-white
   overflow: hidden
   margin-top: $spacing-md
+  display: flex
+  flex-direction: column
 
 .editor-toolbar
-  padding: $spacing-sm
+  padding: 0.5rem
   border-bottom: 1px solid $color-border
   background-color: $color-bg-primary
   display: flex
   flex-wrap: wrap
+  align-items: center
   gap: 0.5rem
 
-  button
-    padding: 0.5rem 0.75rem
-    font-size: 0.75rem
-    font-weight: 600
+  &__group
+    display: flex
+    gap: 2px
+    background-color: rgba(0,0,0,0.05)
+    padding: 2px
     border-radius: $radius-md
+
+  button
+    min-width: 2rem
+    height: 2rem
+    padding: 0 0.5rem
+    font-size: 0.7rem
+    font-weight: 700
+    border-radius: $radius-sm
     background-color: $color-white
-    border: 1px solid $color-border
-    @include transition(background-color, color)
+    border: 1px solid transparent
+    display: flex
+    align-items: center
+    justify-content: center
+    @include transition(background-color, color, transform)
 
     &:hover
       background-color: $color-bg-tertiary
+      transform: translateY(-1px)
 
     &.is-active
       background-color: $color-text-primary
       color: $color-white
       border-color: $color-text-primary
 
+.editor-body
+  flex: 1
+  display: flex
+  flex-direction: column
+
 .tiptap-content
   padding: $spacing-lg
-  min-height: 400px
+  min-height: 500px
+  max-height: 700px
+  overflow-y: auto
   outline: none
   font-family: $font-sans
-  line-height: 1.6
+  line-height: 1.7
+  color: $color-text-primary
+
+  &--raw
+    width: 100%
+    border: none
+    resize: none
+    font-family: monospace
+    font-size: 0.85rem
+    background-color: #1e1e1e
+    color: #dcdcdc
+    padding: 1.5rem
 
   h1
-    font-size: 2rem
-    margin-bottom: 1rem
+    font-size: 2.25rem
+    margin: 1.5rem 0 1rem
+    font-weight: 800
   
   h2
-    font-size: 1.5rem
-    margin-top: 1.5rem
-    margin-bottom: 0.75rem
+    font-size: 1.75rem
+    margin: 1.5rem 0 0.75rem
+    font-weight: 700
+
+  h3
+    font-size: 1.25rem
+    margin: 1.25rem 0 0.5rem
+    font-weight: 600
 
   p
-    margin-bottom: 1rem
+    margin-bottom: 1.25rem
 
-  ul
+  ul, ol
     padding-left: 1.5rem
-    margin-bottom: 1rem
-    list-style-type: disc
+    margin-bottom: 1.25rem
+    
+    li
+      margin-bottom: 0.5rem
+
+  .editor-image
+    max-width: 100%
+    height: auto
+    border-radius: $radius-md
+    margin: 2rem auto
+    display: block
+    box-shadow: $shadow-premium
+
+  .editor-link
+    color: #2563eb
+    text-decoration: underline
+    cursor: pointer
+
+  pre
+    background: #0d0d0d
+    color: #fff
+    font-family: 'JetBrainsMono', monospace
+    padding: 0.75rem 1rem
+    border-radius: 0.5rem
+    margin: 1.5rem 0
+
+    code
+      color: inherit
+      padding: 0
+      background: none
+      font-size: 0.8rem
+
+  blockquote
+    padding-left: 1rem
+    border-left: 3px solid rgba(#000, 0.1)
+    font-style: italic
+    color: $color-text-secondary
+    margin: 1.5rem 0
