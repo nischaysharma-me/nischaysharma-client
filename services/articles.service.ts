@@ -15,7 +15,23 @@ export interface GenerateArticleData {
   templateId?: string;
 }
 
+export interface Article {
+  id: string;
+  title: string;
+  description: string;
+  content: string;
+  slug: string;
+  coverImage?: string;
+  publishedAt: string;
+  authorId: string;
+}
+
 export const articlesService = {
+  getTopArticles: async (limit: number = 10): Promise<{ success: boolean, data: Article[] }> => {
+    return apiFetch<{ success: boolean, data: Article[] }>(`/articles?limit=${limit}&status=published`, {
+      method: 'GET',
+    });
+  },
   createArticle: (data: CreateArticleData, token: string) => {
     return apiFetch<any>('/articles', {
       method: 'POST',

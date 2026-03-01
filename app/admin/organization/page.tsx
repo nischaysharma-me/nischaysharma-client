@@ -21,16 +21,11 @@ export default function OrganizationPage() {
   
   // Modal states
   const [showAddMember, setShowAddMember] = useState(false);
-  const [showAddClient, setShowAddClient] = useState(false);
   const [showEditOrg, setShowEditOrg] = useState(false);
   
   // New member state
   const [newMemberId, setNewMemberId] = useState('');
   const [newMemberRole, setNewMemberRole] = useState('user');
-  
-  // New client state
-  const [newClientUrl, setNewClientUrl] = useState('');
-  const [newClientApis, setNewClientApis] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -128,32 +123,6 @@ export default function OrganizationPage() {
         setOrganization(response.data);
         setShowAddMember(false);
         setNewMemberId('');
-      }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleAddClient = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!organization?.id) return;
-    try {
-      setActionLoading(true);
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) throw new Error('No authentication token');
-
-      const response = await organizationsService.addClient(organization.id, {
-        url: newClientUrl,
-        whitelistedApis: newClientApis.split(',').map(s => s.trim()).filter(s => s !== '')
-      }, token);
-
-      if (response.success) {
-        setOrganization(response.data);
-        setShowAddClient(false);
-        setNewClientUrl('');
-        setNewClientApis('');
       }
     } catch (err: any) {
       setError(err.message);
@@ -289,7 +258,7 @@ export default function OrganizationPage() {
     <div className="organization">
       <div className="dashboard__title">
         <h2>Organization Settings</h2>
-        <p>Manage <strong>{organization.name}</strong>, members, and API access.</p>
+        <p>Manage <strong>{organization.name}</strong> and team members.</p>
       </div>
 
       <div className="dashboard__grid-layout">
@@ -334,40 +303,6 @@ export default function OrganizationPage() {
             </div>
           )}
 
-          {/* Add Client Form */}
-          {showAddClient && (
-            <div className="card card--padded" style={{ marginBottom: '2rem', border: '1px solid #000' }}>
-              <h3 className="dashboard__recent-item-title" style={{ marginBottom: '1.5rem' }}>Whitelist New Client</h3>
-              <form onSubmit={handleAddClient} className="auth__fields">
-                <div className="organization__form-group">
-                  <label className="label">Client URL</label>
-                  <Input 
-                    placeholder="https://example.com" 
-                    value={newClientUrl} 
-                    onChange={(e) => setNewClientUrl(e.target.value)} 
-                    required
-                  />
-                </div>
-                <div className="organization__form-group">
-                  <label className="label">Whitelisted APIs (comma separated)</label>
-                  <Input 
-                    placeholder="articles, users, jobs" 
-                    value={newClientApis} 
-                    onChange={(e) => setNewClientApis(e.target.value)}
-                  />
-                </div>
-                <div className="organization__actions">
-                  <Button type="submit" variant="primary" className="btn--full" disabled={actionLoading}>
-                    {actionLoading ? 'Whitelisting...' : 'Add Client'}
-                  </Button>
-                  <Button type="button" variant="secondary" className="btn--full" onClick={() => setShowAddClient(false)}>
-                    Cancel
-                  </Button>
-                </div>
-              </form>
-            </div>
-          )}
-
           {/* Members List */}
           <div className="card dashboard__recent" style={{ marginBottom: '2rem' }}>
             <div className="dashboard__recent-header">
@@ -392,49 +327,6 @@ export default function OrganizationPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Clients List */}
-          <div className="card dashboard__recent">
-            <div className="dashboard__recent-header">
-              <h3>Whitelisted Clients</h3>
-              <button className="btn btn--secondary" style={{ padding: '0.5rem 1rem', height: 'auto' }} onClick={() => setShowAddClient(true)}>
-                + Add Client
-              </button>
-            </div>
-            <div className="dashboard__recent-list">
-              {organization.clients && organization.clients.length > 0 ? (
-                organization.clients.map((client, i) => (
-                  <div key={i} className="dashboard__recent-item">
-                    <div className="dashboard__recent-item-info">
-                      <div className="dashboard__recent-item-title">{client.url}</div>
-                      <div className="dashboard__recent-item-meta">
-                        <span>{client.whitelistedApis?.join(', ') || 'All'} APIs allowed</span>
-                      </div>
-                    </div>
-                    <button 
-                      className="btn btn--ghost" 
-                      style={{ color: '#ff6b6b', padding: '0.5rem' }}
-                      onClick={async () => {
-                        if (confirm('Are you sure?')) {
-                          const token = await auth.currentUser?.getIdToken();
-                          if (token && organization.id) {
-                            await organizationsService.removeClient(organization.id, client.url, token);
-                            fetchData();
-                          }
-                        }
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <div style={{ padding: '2rem', textAlign: 'center', color: '#737373', fontSize: '0.875rem' }}>
-                  No whitelisted clients yet.
-                </div>
-              )}
             </div>
           </div>
         </div>
