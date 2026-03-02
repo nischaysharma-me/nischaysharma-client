@@ -5,6 +5,13 @@ interface Template {
   name: string;
   category: string;
   description?: string;
+  aiInstructions?: string;
+  isPublic?: boolean;
+  structure?: {
+    heading: string;
+    contentBrief: string;
+    imagePrompt?: string;
+  }[];
 }
 
 interface TemplateConfig {
