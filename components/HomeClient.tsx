@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import Menu from '@/components/Menu';
 import { Article } from '@/services/articles.service';
@@ -18,16 +18,22 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
     restDelta: 0.001
   });
 
-  const yOffset = useTransform(smoothProgress, [0, 1], ["0%", "30%"]);
-  const scale = useTransform(smoothProgress, [0, 0.5, 1], [1.1, 1, 1.1]);
+  // Visual effects
+  const yOffset = useTransform(smoothProgress, [0, 1], ["0%", "25%"]);
+  const scale = useTransform(smoothProgress, [0, 0.5, 1], [1.05, 1, 1.05]);
   const opacity = useTransform(smoothProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
-  const textY = useTransform(smoothProgress, [0, 1], [100, -100]);
 
   const getCoverImage = (article: Article) => {
     if (article.backgroundImage) return article.backgroundImage;
     const match = article.content.match(/<img[^>]+src="([^">]+)"/);
     return match ? match[1] : '/architectural-concrete-monument.png';
   };
+
+  // Strip HTML for the preview
+  const plainTextPreview = article.content
+    .replace(/<[^>]*>?/gm, ' ')
+    .trim()
+    .substring(0, 350) + '...';
 
   return (
     <section 
@@ -40,37 +46,58 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
       </motion.div>
       
       <motion.div 
-        style={{ opacity, y: textY }} 
+        style={{ opacity }} 
         className="articles-parallax__content"
       >
-        <motion.span 
-          initial={{ opacity: 0, letterSpacing: "1em" }}
-          whileInView={{ opacity: 1, letterSpacing: "0.4em" }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="articles-parallax__eyebrow"
-        >
-          Curated Editorial
-        </motion.span>
-        
-        <motion.h2 
-          className="articles-parallax__title"
-        >
-          {article.title}
-          <span>Perspective Series</span>
-        </motion.h2>
-        
-        <motion.p 
-          className="articles-parallax__description"
-        >
-          {article.description || "An in-depth exploration into the intersection of technology and human intuition, brought to you by the TaughtCode editorial team."}
-        </motion.p>
-        
-        <div className="articles-parallax__footer">
-          <a href={`/articles/${article.slug}`} className="articles-parallax__link">
-            Open Journal
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
-          <span className="articles-parallax__read-time">Volume 0{index + 1} — 12 Min Read</span>
+        <div className="articles-parallax__main-info">
+          <motion.span 
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="articles-parallax__eyebrow"
+          >
+            Editorial No. 0{index + 1}
+          </motion.span>
+          
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="articles-parallax__title"
+          >
+            {article.title}
+          </motion.h2>
+          
+          <motion.p 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.4 }}
+            className="articles-parallax__description"
+          >
+            {article.description || "An in-depth exploration into technical architecture and digital ecosystems."}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
+            <a href={`/articles/${article.slug}`} className="articles-parallax__link">
+              View Full Article
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </motion.div>
+        </div>
+
+        <div className="articles-parallax__preview-col">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="articles-parallax__preview-text"
+          >
+            {plainTextPreview}
+          </motion.div>
         </div>
       </motion.div>
     </section>
