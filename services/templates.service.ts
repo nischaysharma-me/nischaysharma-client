@@ -6,6 +6,12 @@ export interface GenerateTemplateData {
 }
 
 export const templatesService = {
+  getTemplateConfig: () => {
+    return apiFetch<any>('/articles/templates/config', {
+      method: 'GET',
+    });
+  },
+
   generateTemplate: (data: GenerateTemplateData, token: string) => {
     return apiFetch<any>('/articles/templates/generate', {
       method: 'POST',

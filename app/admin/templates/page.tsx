@@ -9,23 +9,37 @@ import AdminLoading from '@/app/admin/loading';
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<any[]>([]);
+  const [templateConfig, setTemplateConfig] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  
+  // Form states
   const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('blog-post');
 
   useEffect(() => {
-    fetchTemplates();
+    fetchInitialData();
   }, []);
 
-  const fetchTemplates = async () => {
+  const fetchInitialData = async () => {
     try {
       setLoading(true);
-      const response = await templatesService.listTemplates();
-      if (response.success) {
-        setTemplates(response.data);
+      const [templatesRes, configRes] = await Promise.all([
+        templatesService.listTemplates(),
+        templatesService.getTemplateConfig()
+      ]);
+
+      if (templatesRes.success) {
+        setTemplates(templatesRes.data);
+      }
+      if (configRes.success) {
+        setTemplateConfig(configRes.data);
+        if (configRes.data.categories?.length > 0) {
+          setCategory(configRes.data.categories[0].id);
+        }
       }
     } catch (err) {
-      console.error('Error fetching templates:', err);
+      console.error('Error fetching template data:', err);
     } finally {
       setLoading(false);
     }
@@ -40,7 +54,7 @@ export default function TemplatesPage() {
 
       const response = await templatesService.generateTemplate({
         description,
-        category: 'general'
+        category: category
       }, token);
 
       if (response.success) {
@@ -101,14 +115,36 @@ export default function TemplatesPage() {
                 <label className="label">Template Description</label>
                 <textarea 
                   className="input" 
-                  placeholder="Describe the type of article you want a template for (e.g. A technical comparison of databases)"
+                  placeholder="Describe the type of article (e.g. A technical comparison of databases)"
                   style={{ height: '100px', resize: 'none', padding: '0.75rem' }}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   required
                 />
               </div>
-              <Button type="submit" variant="primary" className="btn--full" disabled={generating}>
+
+              <div className="organization__form-group" style={{ marginTop: '1.5rem' }}>
+                <label className="label">Category</label>
+                <select 
+                  className="input" 
+                  value={category} 
+                  onChange={(e) => setCategory(e.target.value)}
+                  style={{ background: '#fff' }}
+                >
+                  {templateConfig?.categories?.map((cat: any) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+                {templateConfig?.categories?.find((c: any) => c.id === category)?.description && (
+                  <p style={{ fontSize: '0.65rem', color: '#737373', marginTop: '0.5rem', lineHeight: 1.4 }}>
+                    {templateConfig.categories.find((c: any) => c.id === category).description}
+                  </p>
+                )}
+              </div>
+
+              <Button type="submit" variant="primary" className="btn--full" style={{ marginTop: '1rem' }} disabled={generating}>
                 {generating ? 'Requesting...' : 'Generate Template'}
               </Button>
             </form>
