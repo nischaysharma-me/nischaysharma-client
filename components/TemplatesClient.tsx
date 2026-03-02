@@ -31,16 +31,6 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(templateConfig?.categories?.[0]?.id || 'blog-post');
 
-  // Edit Modal State
-  const [editingTemplate, setEditingTemplate] = useState<any | null>(null);
-  const [editName, setEditName] = useState('');
-  const [editDescription, setEditDescription] = useState('');
-  const [editCategory, setEditCategory] = useState('');
-  const [editAiInstructions, setEditAiInstructions] = useState('');
-  const [editIsPublic, setEditIsPublic] = useState(false);
-  const [editStructure, setEditStructure] = useState<{heading: string, contentBrief: string, imagePrompt?: string}[]>([]);
-  const [actionLoading, setActionLoading] = useState(false);
-
   // Hydrate store on mount
   useEffect(() => {
     if (initialTemplates) setTemplates(initialTemplates);
