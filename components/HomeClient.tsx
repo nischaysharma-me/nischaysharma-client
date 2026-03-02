@@ -15,35 +15,36 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
   });
 
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 80,
-    damping: 25,
+    stiffness: 100,
+    damping: 30,
     restDelta: 0.001
   });
 
   // Background Parallax & Scaling
-  const scale = useTransform(smoothProgress, [0, 0.5, 1], [1.1, 1, 1.1]);
-  const bgY = useTransform(smoothProgress, [0, 1], ["-5%", "5%"]);
+  const scale = useTransform(smoothProgress, [0, 0.5, 1], [1.15, 1, 1.15]);
+  const bgY = useTransform(smoothProgress, [0, 1], ["-8%", "8%"]);
 
-  // Content entrance/exit animations
-  const contentOpacity = useTransform(smoothProgress, [0.1, 0.3, 0.7, 0.9], [0, 1, 1, 0]);
-  const contentY = useTransform(smoothProgress, [0.1, 0.5, 0.9], [40, 0, -40]);
+  // Content Visibility: ensure it's fully opaque when the section is "active" (stuck at top)
+  // When stuck, progress is around 0.5. We use a wide window to be safe.
+  const contentOpacity = useTransform(smoothProgress, [0.1, 0.25, 0.75, 0.9], [0, 1, 1, 0]);
+  const contentY = useTransform(smoothProgress, [0.1, 0.5, 0.9], [100, 0, -100]);
 
   const getCoverImage = (article: Article) => {
     if (article.backgroundImage) return article.backgroundImage;
-    // Extract first image from content as fallback
+    if (!article.content) return '/architectural-concrete-monument.png';
     const match = article.content.match(/<img[^>]+src="([^">]+)"/);
     return match ? match[1] : '/architectural-concrete-monument.png';
   };
 
   const plainTextPreview = article.content
-    ? article.content.replace(/<[^>]*>?/gm, ' ').trim().substring(0, 450) + '...'
+    ? article.content.replace(/<[^>]*>?/gm, ' ').trim().substring(0, 500) + '...'
     : 'Explore this curated piece by Nischay Sharma...';
 
   return (
     <section 
       ref={ref} 
       className="articles-parallax__section"
-      style={{ zIndex: index + 5 }}
+      style={{ zIndex: index + 10 }}
     >
       <motion.div 
         className="articles-parallax__container"
@@ -55,21 +56,29 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
       />
       
       <motion.div 
-        style={{ opacity: contentOpacity, y: contentY }} 
+        style={{ 
+          opacity: contentOpacity, 
+          y: contentY,
+          pointerEvents: 'auto' // Ensure buttons are clickable
+        }} 
         className="articles-parallax__content"
       >
         {/* Column 1: Title and Description */}
         <div className="articles-parallax__main-info">
-          <span className="articles-parallax__eyebrow">
-            Curated Story / Vol. 0{index + 1}
-          </span>
+          <motion.span 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 0.5 }}
+            className="articles-parallax__eyebrow"
+          >
+            Editorial Volume / 0{index + 1}
+          </motion.span>
           
           <h2 className="articles-parallax__title">
             {article.title}
           </h2>
           
           <p className="articles-parallax__description">
-            {article.description || "A deep-dive into the technical and creative intersection of modern digital ecosystems."}
+            {article.description || "A technical deep-dive into the evolving digital landscape, curated for those who seek inspiration in complexity."}
           </p>
         </div>
 
@@ -81,7 +90,7 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
           
           <div className="articles-parallax__footer">
             <a href={`/articles/${article.slug}`} className="articles-parallax__link">
-              Read Full Story
+              View Full Article
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
           </div>
@@ -99,7 +108,7 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
       <Menu isOpen={isMenuOpen} onClose={() => toggleMenu()} />
       
       <div className="articles-parallax">
-        {/* --- Hero Section --- */}
+        {/* --- Modern Hero Section --- */}
         <section className="landing" style={{ zIndex: 1, height: '100vh', position: 'relative' }}>
           <div className="landing__bg" />
           <header className="landing__header">
@@ -138,7 +147,7 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
         </section>
 
         {/* --- Parallax Articles --- */}
-        {articles.length > 0 ? (
+        {articles && articles.length > 0 ? (
           articles.map((article, index) => (
             <ArticleSection key={article.id} article={article} index={index} />
           ))
