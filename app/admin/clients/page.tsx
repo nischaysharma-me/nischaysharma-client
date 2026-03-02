@@ -5,6 +5,7 @@ import { auth } from '@/lib/firebase';
 import { clientAppsService, ClientApp, ClientPermission } from '@/services/clientApps.service';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import AdminLoading from '@/app/admin/loading';
 
 export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
@@ -97,7 +98,7 @@ export default function ClientsPage() {
     }
   };
 
-  if (loading) return <div className="loading">Loading API clients...</div>;
+  if (loading) return <AdminLoading />;
 
   return (
     <div className="clients">

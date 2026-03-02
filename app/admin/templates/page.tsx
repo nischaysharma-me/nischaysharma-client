@@ -5,6 +5,7 @@ import { auth } from '@/lib/firebase';
 import { templatesService } from '@/services/templates.service';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import AdminLoading from '@/app/admin/loading';
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<any[]>([]);
@@ -53,7 +54,7 @@ export default function TemplatesPage() {
     }
   };
 
-  if (loading) return <div className="loading">Loading templates...</div>;
+  if (loading) return <AdminLoading />;
 
   return (
     <div className="templates">

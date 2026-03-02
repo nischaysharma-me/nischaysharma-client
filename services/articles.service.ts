@@ -2,6 +2,7 @@ import { apiFetch } from './apiClient';
 
 export interface CreateArticleData {
   title: string;
+  description: string;
   content: string;
   tags?: string[];
   status?: string;

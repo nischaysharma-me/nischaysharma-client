@@ -10,6 +10,7 @@ import {
   updateOrganizationAction 
 } from '@/actions/organizations';
 import { organizationsService } from '@/services/organizations.service';
+import AdminLoading from '@/app/admin/loading';
 
 interface OrganizationClientProps {
   initialOrg: OrganizationData | null;
@@ -106,6 +107,10 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
       setActionLoading(false);
     }
   };
+
+  if (actionLoading) {
+    return <AdminLoading />;
+  }
 
   if (!organization) {
      return (

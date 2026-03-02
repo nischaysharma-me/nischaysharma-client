@@ -5,6 +5,7 @@ import { auth } from '@/lib/firebase';
 import { usersService } from '@/services/users.service';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import AdminLoading from '@/app/admin/loading';
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
@@ -54,7 +55,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <div className="loading">Loading profile...</div>;
+  if (loading) return <AdminLoading />;
 
   return (
     <div className="profile">

@@ -7,6 +7,7 @@ import { articlesService } from '@/services/articles.service';
 import TiptapEditor from '@/components/editor/TiptapEditor';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import ArticlesLoading from '@/app/admin/articles/loading';
 
 export default function CreateArticlePage() {
   const router = useRouter();

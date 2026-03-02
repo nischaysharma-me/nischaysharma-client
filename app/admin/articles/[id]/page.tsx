@@ -8,6 +8,7 @@ import TiptapEditor from '@/components/editor/TiptapEditor';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import Image from 'next/image';
+import ArticlesLoading from '@/app/admin/articles/loading';
 
 export default function ArticleEditPage() {
   const { id } = useParams() as { id: string };
@@ -91,7 +92,7 @@ export default function ArticleEditPage() {
     }
   };
 
-  if (loading) return <div className="loading">Loading article editor...</div>;
+  if (loading) return <ArticlesLoading />;
   if (!article) return <div className="error">Article not found</div>;
 
   return (
