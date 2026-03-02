@@ -1,16 +1,25 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 import Menu from '@/components/Menu';
 import { Article } from '@/services/articles.service';
 import { useStore } from '@/store/useStore';
 
-const ArticleSection = ({ article, index }: { article: Article, index: number }) => {
-  const ref = useRef(null);
+const ArticleSection = ({ 
+  article, 
+  index, 
+  containerRef 
+}: { 
+  article: Article, 
+  index: number,
+  containerRef: React.RefObject<HTMLDivElement | null>
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
   
   const { scrollYProgress } = useScroll({
     target: ref,
+    container: containerRef,
     offset: ["start end", "end start"]
   });
 
@@ -22,12 +31,11 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
 
   // Background Parallax & Scaling
   const scale = useTransform(smoothProgress, [0, 0.5, 1], [1.15, 1, 1.15]);
-  const bgY = useTransform(smoothProgress, [0, 1], ["-8%", "8%"]);
+  const bgY = useTransform(smoothProgress, [0, 1], ["-10%", "10%"]);
 
-  // Content Visibility: ensure it's fully opaque when the section is "active" (stuck at top)
-  // When stuck, progress is around 0.5. We use a wide window to be safe.
-  const contentOpacity = useTransform(smoothProgress, [0.1, 0.25, 0.75, 0.9], [0, 1, 1, 0]);
-  const contentY = useTransform(smoothProgress, [0.1, 0.5, 0.9], [100, 0, -100]);
+  // Content Visibility
+  const contentOpacity = useTransform(smoothProgress, [0.15, 0.4, 0.6, 0.85], [0, 1, 1, 0]);
+  const contentY = useTransform(smoothProgress, [0.15, 0.5, 0.85], [80, 0, -80]);
 
   const getCoverImage = (article: Article) => {
     if (article.backgroundImage) return article.backgroundImage;
@@ -59,26 +67,22 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
         style={{ 
           opacity: contentOpacity, 
           y: contentY,
-          pointerEvents: 'auto' // Ensure buttons are clickable
+          pointerEvents: 'auto'
         }} 
         className="articles-parallax__content"
       >
         {/* Column 1: Title and Description */}
         <div className="articles-parallax__main-info">
-          <motion.span 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 0.5 }}
-            className="articles-parallax__eyebrow"
-          >
-            Editorial Volume / 0{index + 1}
-          </motion.span>
+          <span className="articles-parallax__eyebrow">
+            Curated Edition / Vol. 0{index + 1}
+          </span>
           
           <h2 className="articles-parallax__title">
             {article.title}
           </h2>
           
           <p className="articles-parallax__description">
-            {article.description || "A technical deep-dive into the evolving digital landscape, curated for those who seek inspiration in complexity."}
+            {article.description || "An immersive technical study designed for the modern reader."}
           </p>
         </div>
 
@@ -90,7 +94,7 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
           
           <div className="articles-parallax__footer">
             <a href={`/articles/${article.slug}`} className="articles-parallax__link">
-              View Full Article
+              Open Magazine
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
           </div>
@@ -102,13 +106,17 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
 
 export default function HomeClient({ articles }: { articles: Article[] }) {
   const { isMenuOpen, toggleMenu } = useStore();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Fallback check to ensure content is visible if scroll container logic has issues
+  // But primarily we fix the container reference.
 
   return (
     <div className="landing-container">
       <Menu isOpen={isMenuOpen} onClose={() => toggleMenu()} />
       
-      <div className="articles-parallax">
-        {/* --- Modern Hero Section --- */}
+      <div ref={containerRef} className="articles-parallax">
+        {/* --- Hero Section --- */}
         <section className="landing" style={{ zIndex: 1, height: '100vh', position: 'relative' }}>
           <div className="landing__bg" />
           <header className="landing__header">
@@ -149,7 +157,12 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
         {/* --- Parallax Articles --- */}
         {articles && articles.length > 0 ? (
           articles.map((article, index) => (
-            <ArticleSection key={article.id} article={article} index={index} />
+            <ArticleSection 
+              key={article.id} 
+              article={article} 
+              index={index} 
+              containerRef={containerRef}
+            />
           ))
         ) : (
           <div className="flex h-screen items-center justify-center bg-black text-white/20 text-[10px] uppercase tracking-widest font-bold">
