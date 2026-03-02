@@ -1,18 +1,11 @@
 import React from 'react';
 import HomeClient from '@/components/HomeClient';
-import { articlesService } from '@/services/articles.service';
+import { getTopArticlesAction } from '@/actions/articles';
 
-// This is a Server Component by default in Next.js 13+ App Router
+// This is a Server Component
 export default async function Home() {
-  let articles = [];
-  try {
-    const response = await articlesService.getTopArticles(10);
-    if (response.success) {
-      articles = response.data;
-    }
-  } catch (err) {
-    console.error('Error fetching articles on server:', err);
-  }
+  const response = await getTopArticlesAction(10);
+  const articles = response.success ? response.data : [];
 
   return <HomeClient articles={articles} />;
 }

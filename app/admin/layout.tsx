@@ -1,16 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { primaryNavItems, secondaryNavItems } from '@/config/adminNav';
+import { useStore } from '@/store/useStore';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { user, setUser, activeAdminTab, setActiveAdminTab } = useStore();
+  const [loading, setLoading] = React.useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -25,16 +26,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, [router, setUser]);
 
-  // Close sidebar on path change (mobile)
+  // Sync active tab with pathname
   useEffect(() => {
+    const activeItem = [...primaryNavItems, ...secondaryNavItems].find(item => item.href === pathname);
+    if (activeItem) {
+      setActiveAdminTab(activeItem.name);
+    }
     setIsSidebarOpen(false);
-  }, [pathname]);
+  }, [pathname, setActiveAdminTab]);
 
   if (loading) return null;
 
-  // Do not wrap login page in dashboard layout
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
@@ -52,7 +56,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* --- Sidebar --- */}
       <aside className={`dashboard__sidebar ${isSidebarOpen ? 'dashboard__sidebar--open' : ''}`}>
-        {/* Logo */}
         <div className="dashboard__logo">
           <Link href="/admin" style={{ textDecoration: 'none', color: 'inherit' }}>
             <h1>TaughtCode<span>.</span></h1>
@@ -62,7 +65,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
         </div>
 
-        {/* Navigation */}
         <nav className="dashboard__nav">
           {primaryNavItems.map((item) => (
             <Link 
@@ -93,7 +95,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="dashboard__profile">
           <div className="dashboard__profile-info">
             <div className="dashboard__profile-avatar">
-              {user?.displayName?.[0] || 'A'}
+              {user?.email?.[0].toUpperCase() || 'A'}
             </div>
             <div className="dashboard__profile-text">
               <div className="name">{user?.displayName || 'Administrator'}</div>
@@ -108,8 +110,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* --- Main Content --- */}
       <main className="dashboard__main">
-        
-        {/* Header */}
         <header className="dashboard__header">
           <button className="dashboard__menu-toggle" onClick={() => setIsSidebarOpen(true)}>
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1.5rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
