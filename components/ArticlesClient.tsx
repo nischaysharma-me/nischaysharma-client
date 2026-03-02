@@ -67,11 +67,19 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
       <div className="card dashboard__recent">
         <div className="dashboard__recent-header">
           <h3>All Articles ({articles.length})</h3>
-          <Link href="/admin/articles/create">
-            <Button variant="primary" style={{ padding: '0.5rem 1rem', height: 'auto' }}>
-              + New Article
-            </Button>
-          </Link>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <Link href="/admin/articles/generate">
+              <Button variant="secondary" style={{ padding: '0.5rem 1rem', height: 'auto' }}>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.8rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                AI Generate
+              </Button>
+            </Link>
+            <Link href="/admin/articles/create">
+              <Button variant="primary" style={{ padding: '0.5rem 1rem', height: 'auto' }}>
+                + New Article
+              </Button>
+            </Link>
+          </div>
         </div>
         
         <div className="dashboard__recent-list">
