@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Poppins, Playfair_Display } from "next/font/google";
 import "../styles/globals.sass";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
+import { Toaster } from "sonner";
+import RealtimeNotificationHandler from "@/components/RealtimeNotificationHandler";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -30,6 +32,8 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${playfair.variable} font-sans antialiased`}
       >
+        <Toaster position="top-right" richColors expand closeButton />
+        <RealtimeNotificationHandler />
         <SmoothScrollProvider>
           {children}
         </SmoothScrollProvider>
