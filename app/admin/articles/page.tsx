@@ -68,9 +68,11 @@ export default function ArticlesPage() {
       <div className="card dashboard__recent">
         <div className="dashboard__recent-header">
           <h3>All Articles ({articles.length})</h3>
-          <Button variant="primary" style={{ padding: '0.5rem 1rem', height: 'auto' }}>
-            + New Article
-          </Button>
+          <Link href="/admin/articles/create">
+            <Button variant="primary" style={{ padding: '0.5rem 1rem', height: 'auto' }}>
+              + New Article
+            </Button>
+          </Link>
         </div>
         
         <div className="dashboard__recent-list">
