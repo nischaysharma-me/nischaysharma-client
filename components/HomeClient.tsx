@@ -7,10 +7,8 @@ import { useStore } from '@/store/useStore';
 
 const ScrollIndicator = () => (
   <div className="articles-parallax__scroll-indicator">
-    <span>Scroll</span>
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7-7-7m14-8l-7 7-7-7"></path>
-    </svg>
+    <span className="articles-parallax__scroll-text">Explore</span>
+    <div className="articles-parallax__scroll-line"></div>
   </div>
 );
 
