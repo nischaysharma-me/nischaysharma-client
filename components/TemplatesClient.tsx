@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { generateTemplateAction } from '@/actions/templates';
 import AdminLoading from '@/app/admin/loading';
+import { useTemplateStore } from '@/store/admin/useTemplateStore';
 
 interface TemplatesClientProps {
   initialTemplates: any[];
@@ -13,12 +14,24 @@ interface TemplatesClientProps {
 }
 
 export default function TemplatesClient({ initialTemplates, templateConfig }: TemplatesClientProps) {
-  const [templates, setTemplates] = useState<any[]>(initialTemplates);
-  const [generating, setGenerating] = useState(false);
-  
-  // Form states
+  const { 
+    templates, 
+    setTemplates, 
+    templateConfig: storeConfig, 
+    setTemplateConfig,
+    generating,
+    setGenerating
+  } = useTemplateStore();
+
+  // Form states remain local to the component for immediate UI feedback
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(templateConfig?.categories?.[0]?.id || 'blog-post');
+
+  // Hydrate store on mount
+  useEffect(() => {
+    if (initialTemplates) setTemplates(initialTemplates);
+    if (templateConfig) setTemplateConfig(templateConfig);
+  }, [initialTemplates, templateConfig, setTemplates, setTemplateConfig]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,15 +121,15 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
                   onChange={(e) => setCategory(e.target.value)}
                   style={{ background: '#fff' }}
                 >
-                  {templateConfig?.categories?.map((cat: any) => (
+                  {storeConfig?.categories?.map((cat: any) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.label}
                     </option>
                   ))}
                 </select>
-                {templateConfig?.categories?.find((c: any) => c.id === category)?.description && (
+                {storeConfig?.categories?.find((c: any) => c.id === category)?.description && (
                   <p style={{ fontSize: '0.65rem', color: '#737373', marginTop: '0.5rem', lineHeight: 1.4 }}>
-                    {templateConfig.categories.find((c: any) => c.id === category).description}
+                    {storeConfig.categories.find((c: any) => c.id === category).description}
                   </p>
                 )}
               </div>
