@@ -21,7 +21,7 @@ const ArticleSection = ({
         setIsVisible(entry.isIntersecting);
       },
       { 
-        threshold: 0.4, // Reveal when 40% of the section is in view
+        threshold: 0.5, // Trigger when 50% is visible
         rootMargin: "0px" 
       }
     );
@@ -41,7 +41,7 @@ const ArticleSection = ({
   };
 
   const plainTextPreview = article.content
-    ? article.content.replace(/<[^>]*>?/gm, ' ').trim().substring(0, 500) + '...'
+    ? article.content.replace(/<[^>]*>?/gm, ' ').trim().substring(0, 450) + '...'
     : 'Dive into this curated story by Nischay Sharma...';
 
   return (
@@ -58,10 +58,10 @@ const ArticleSection = ({
       />
       
       <div className="articles-parallax__content">
-        {/* Column 1: Title and Description */}
+        {/* Centered Content Block */}
         <div className="articles-parallax__main-info">
           <span className="articles-parallax__eyebrow">
-            Editorial Volume / 0{index + 1}
+            Curated Edition / Vol. 0{index + 1}
           </span>
           
           <h2 className="articles-parallax__title">
@@ -73,18 +73,15 @@ const ArticleSection = ({
           </p>
         </div>
 
-        {/* Column 2: Faded Preview and Button */}
         <div className="articles-parallax__preview-col">
           <div className="articles-parallax__preview-text">
             {plainTextPreview}
           </div>
           
-          <div className="articles-parallax__footer">
-            <a href={`/articles/${article.slug}`} className="articles-parallax__link">
-              Open Journal
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
-          </div>
+          <a href={`/articles/${article.slug}`} className="articles-parallax__link">
+            Open Journal
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
         </div>
       </div>
     </section>
@@ -133,7 +130,7 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
           </footer>
         </section>
 
-        {/* --- Parallax Articles --- */}
+        {/* --- Articles --- */}
         {articles && articles.length > 0 ? (
           articles.map((article, index) => (
             <ArticleSection 

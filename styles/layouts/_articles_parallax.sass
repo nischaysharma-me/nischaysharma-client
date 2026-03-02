@@ -11,15 +11,16 @@
     width: 100%
     height: 100vh
     overflow: hidden
+    display: flex
+    align-items: center
+    justify-content: center
     background-color: $color-black
-    // The stacking effect: shadow on the top edge
-    box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.6)
+    box-shadow: 0 -30px 60px rgba(0, 0, 0, 0.8)
     
-    // Initial state for entrance
     &.is-visible
       .articles-parallax__content
         opacity: 1
-        transform: translateY(0)
+        transform: scale(1) translateY(0)
       
       .articles-parallax__container
         opacity: 1
@@ -32,15 +33,15 @@
     background-size: cover
     background-position: center
     background-repeat: no-repeat
-    opacity: 0.8
-    transform: scale(1.05)
-    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease-out
+    opacity: 0.6
+    transform: scale(1.1)
+    transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.5s ease-out
     
     &::before
       content: ''
       position: absolute
       inset: 0
-      background: rgba(0,0,0,0.3)
+      background: rgba(0,0,0,0.5)
       z-index: 1
 
     &::after
@@ -48,43 +49,33 @@
       position: absolute
       inset: 0
       z-index: 2
-      background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)
+      background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%)
 
   &__content
     position: relative
     z-index: 10
-    max-width: 1440px
+    max-width: 800px // Narrower for centered look
     width: 100%
-    height: 100%
-    padding: 4rem 6rem
+    padding: 2rem
     color: $color-white
-    display: grid
-    grid-template-columns: 1.2fr 1fr
+    display: flex
+    flex-direction: column
     align-items: center
-    gap: 6rem
+    justify-content: center
+    text-align: center
+    gap: 2rem
     
-    // Clean, stable entrance
+    // Smooth centered entrance
     opacity: 0
-    transform: translateY(30px)
+    transform: scale(0.95) translateY(20px)
     transition: opacity 1s ease-out, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)
     transition-delay: 0.2s
-
-    @include mobile
-      display: flex
-      flex-direction: column
-      justify-content: center
-      padding: 2rem
-      text-align: center
-      gap: 2rem
 
   &__main-info
     display: flex
     flex-direction: column
     gap: 1.5rem
-    align-items: flex-start
-
-    @include mobile
-      align-items: center
+    align-items: center
 
   &__eyebrow
     font-size: 0.625rem
@@ -92,12 +83,11 @@
     text-transform: uppercase
     letter-spacing: 0.6em
     color: $color-white
-    opacity: 0.4
-    margin-bottom: 0.5rem
+    opacity: 0.5
 
   &__title
     font-family: $font-serif
-    font-size: clamp(2.5rem, 7vw, 4.5rem)
+    font-size: clamp(2.5rem, 8vw, 5rem)
     line-height: 1
     font-weight: 400
     letter-spacing: -0.04em
@@ -109,27 +99,23 @@
     font-size: 1.125rem
     line-height: 1.6
     color: rgba(255, 255, 255, 0.7)
-    max-width: 480px
+    max-width: 600px
     font-weight: 400
 
   &__preview-col
     display: flex
     flex-direction: column
-    gap: 3rem
-    border-left: 1px solid rgba(255,255,255,0.1)
-    padding-left: 6rem
-
-    @include mobile
-      border-left: none
-      padding-left: 0
+    align-items: center
+    gap: 2.5rem
+    margin-top: 1rem
 
   &__preview-text
     font-size: 0.875rem
     line-height: 2
     color: rgba(255, 255, 255, 0.2)
     font-weight: 300
-    mask-image: linear-gradient(to bottom, black 50%, transparent 95%)
-    max-height: 280px
+    mask-image: linear-gradient(to bottom, black 30%, transparent 90%)
+    max-height: 160px // Shorter centered preview
     overflow: hidden
 
     @include mobile
@@ -139,7 +125,7 @@
     display: inline-flex
     align-items: center
     gap: 1rem
-    padding: 1.25rem 2.5rem
+    padding: 1.25rem 3rem
     background-color: $color-white
     color: $color-black
     border-radius: $radius-pill
@@ -153,7 +139,7 @@
     &:hover
       background-color: rgba(255, 255, 255, 1)
       transform: translateY(-5px)
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4)
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5)
 
     svg
       width: 1.25rem
