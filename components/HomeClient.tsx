@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import Menu from '@/components/Menu';
 import { Article } from '@/services/articles.service';
@@ -13,20 +13,20 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
     offset: ["start end", "end start"]
   });
 
+  // Use a simpler spring for snappier feedback
   const smoothProgress = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001
   });
 
-  // Visual effects: Stacking & Parallax
-  const yOffset = useTransform(smoothProgress, [0, 1], ["0%", "40%"]);
+  // Background Parallax
+  const yOffset = useTransform(smoothProgress, [0, 1], ["0%", "30%"]);
   const scale = useTransform(smoothProgress, [0, 0.5, 1], [1.1, 1, 1.1]);
   
-  // Content animations: ensure high visibility
-  // We use scroll offset from start start to end start for sticky sections
-  const contentOpacity = useTransform(smoothProgress, [0, 0.2, 0.7, 1], [0, 1, 1, 0]);
-  const contentY = useTransform(smoothProgress, [0, 0.5, 1], [100, 0, -100]);
+  // Content visibility: simplified to ensure it shows up reliably
+  const contentOpacity = useTransform(smoothProgress, [0.1, 0.35, 0.65, 0.9], [0, 1, 1, 0]);
+  const contentY = useTransform(smoothProgress, [0.1, 0.5, 0.9], [40, 0, -40]);
 
   const getCoverImage = (article: Article) => {
     if (article.backgroundImage) return article.backgroundImage;
@@ -42,7 +42,7 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
     <section 
       ref={ref} 
       className="articles-parallax__section"
-      style={{ zIndex: index + 5 }}
+      style={{ zIndex: index + 10 }}
     >
       <motion.div style={{ y: yOffset, scale }} className="articles-parallax__bg">
         <img src={getCoverImage(article)} alt={article.title} />
@@ -54,7 +54,7 @@ const ArticleSection = ({ article, index }: { article: Article, index: number })
       >
         <div className="articles-parallax__main-info">
           <span className="articles-parallax__eyebrow">
-            Editorial / Volume 0{index + 1}
+            Curated Perspective / Volume 0{index + 1}
           </span>
           
           <h2 className="articles-parallax__title">
@@ -130,9 +130,15 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
         </section>
 
         {/* --- Parallax Articles --- */}
-        {articles.map((article, index) => (
-          <ArticleSection key={article.id} article={article} index={index} />
-        ))}
+        {articles.length > 0 ? (
+          articles.map((article, index) => (
+            <ArticleSection key={article.id} article={article} index={index} />
+          ))
+        ) : (
+          <div className="flex h-screen items-center justify-center bg-black text-white/30 text-[10px] uppercase tracking-widest">
+            The collection is currently empty
+          </div>
+        )}
       </div>
     </div>
   );
