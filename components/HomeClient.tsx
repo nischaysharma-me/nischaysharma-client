@@ -18,13 +18,12 @@ const ArticleSection = ({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        } else {
-          setIsVisible(false);
-        }
+        setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.5 } // Trigger when half the page is visible
+      { 
+        threshold: 0.4, // Reveal when 40% of the section is in view
+        rootMargin: "0px" 
+      }
     );
 
     if (sectionRef.current) {
@@ -43,7 +42,7 @@ const ArticleSection = ({
 
   const plainTextPreview = article.content
     ? article.content.replace(/<[^>]*>?/gm, ' ').trim().substring(0, 500) + '...'
-    : 'Explore this curated piece by Nischay Sharma...';
+    : 'Dive into this curated story by Nischay Sharma...';
 
   return (
     <section 
@@ -62,7 +61,7 @@ const ArticleSection = ({
         {/* Column 1: Title and Description */}
         <div className="articles-parallax__main-info">
           <span className="articles-parallax__eyebrow">
-            Curated Edition / Vol. 0{index + 1}
+            Editorial Volume / 0{index + 1}
           </span>
           
           <h2 className="articles-parallax__title">
@@ -82,7 +81,7 @@ const ArticleSection = ({
           
           <div className="articles-parallax__footer">
             <a href={`/articles/${article.slug}`} className="articles-parallax__link">
-              Open Magazine
+              Open Journal
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
           </div>

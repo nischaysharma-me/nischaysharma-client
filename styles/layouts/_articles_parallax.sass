@@ -3,31 +3,26 @@
 
 .articles-parallax
   width: 100%
-  height: 100vh
-  overflow-y: auto
-  scroll-snap-type: y mandatory
   background-color: $color-black
-  // Use hardware acceleration
-  -webkit-overflow-scrolling: touch
 
   &__section
     position: sticky
     top: 0
     width: 100%
     height: 100vh
-    scroll-snap-align: start
     overflow: hidden
     background-color: $color-black
-    // The stacking effect shadow
-    box-shadow: 0 -30px 60px rgba(0, 0, 0, 0.8)
+    // The stacking effect: shadow on the top edge
+    box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.6)
     
-    // Initial state for animations
+    // Initial state for entrance
     &.is-visible
       .articles-parallax__content
         opacity: 1
         transform: translateY(0)
       
       .articles-parallax__container
+        opacity: 1
         transform: scale(1)
 
   &__container
@@ -37,15 +32,15 @@
     background-size: cover
     background-position: center
     background-repeat: no-repeat
-    // Stable CSS transform
-    transform: scale(1.1)
-    transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1)
+    opacity: 0.8
+    transform: scale(1.05)
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease-out
     
     &::before
       content: ''
       position: absolute
       inset: 0
-      background: rgba(0,0,0,0.4)
+      background: rgba(0,0,0,0.3)
       z-index: 1
 
     &::after
@@ -53,7 +48,7 @@
       position: absolute
       inset: 0
       z-index: 2
-      background: linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.3) 100%)
+      background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)
 
   &__content
     position: relative
@@ -64,15 +59,15 @@
     padding: 4rem 6rem
     color: $color-white
     display: grid
-    grid-template-columns: 1fr 1fr
+    grid-template-columns: 1.2fr 1fr
     align-items: center
     gap: 6rem
     
-    // Smooth stable transition instead of JS calculations
+    // Clean, stable entrance
     opacity: 0
-    transform: translateY(40px)
-    transition: opacity 1s ease-out, transform 1s cubic-bezier(0.16, 1, 0.3, 1)
-    transition-delay: 0.3s
+    transform: translateY(30px)
+    transition: opacity 1s ease-out, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)
+    transition-delay: 0.2s
 
     @include mobile
       display: flex
@@ -97,16 +92,18 @@
     text-transform: uppercase
     letter-spacing: 0.6em
     color: $color-white
-    opacity: 0.5
+    opacity: 0.4
+    margin-bottom: 0.5rem
 
   &__title
     font-family: $font-serif
     font-size: clamp(2.5rem, 7vw, 4.5rem)
-    line-height: 1.1
+    line-height: 1
     font-weight: 400
     letter-spacing: -0.04em
     margin: 0
     text-transform: uppercase
+    color: $color-white
 
   &__description
     font-size: 1.125rem
@@ -129,7 +126,7 @@
   &__preview-text
     font-size: 0.875rem
     line-height: 2
-    color: rgba(255, 255, 255, 0.25)
+    color: rgba(255, 255, 255, 0.2)
     font-weight: 300
     mask-image: linear-gradient(to bottom, black 50%, transparent 95%)
     max-height: 280px
