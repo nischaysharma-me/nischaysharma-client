@@ -5,12 +5,23 @@ import Menu from '@/components/Menu';
 import { Article } from '@/services/articles.service';
 import { useStore } from '@/store/useStore';
 
+const ScrollIndicator = () => (
+  <div className="articles-parallax__scroll-indicator">
+    <span>Scroll</span>
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7-7-7m14-8l-7 7-7-7"></path>
+    </svg>
+  </div>
+);
+
 const ArticleSection = ({ 
   article, 
-  index 
+  index,
+  isLast
 }: { 
   article: Article, 
-  index: number 
+  index: number,
+  isLast: boolean
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -21,7 +32,7 @@ const ArticleSection = ({
         setIsVisible(entry.isIntersecting);
       },
       { 
-        threshold: 0.5, // Trigger when 50% is visible
+        threshold: 0.5,
         rootMargin: "0px" 
       }
     );
@@ -58,7 +69,6 @@ const ArticleSection = ({
       />
       
       <div className="articles-parallax__content">
-        {/* Centered Content Block */}
         <div className="articles-parallax__main-info">
           <span className="articles-parallax__eyebrow">
             Curated Edition / Vol. 0{index + 1}
@@ -84,6 +94,8 @@ const ArticleSection = ({
           </a>
         </div>
       </div>
+
+      {!isLast && <ScrollIndicator />}
     </section>
   );
 };
@@ -97,7 +109,7 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
       
       <div className="articles-parallax">
         {/* --- Hero Section --- */}
-        <section className="landing" style={{ zIndex: 1, height: '100vh', position: 'relative' }}>
+        <section className="landing" style={{ zIndex: 1, height: '100vh', position: 'relative', scrollSnapAlign: 'start' }}>
           <div className="landing__bg" />
           <header className="landing__header">
             <div className="landing__brand">NISCHAY SHARMA</div>
@@ -128,6 +140,8 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
               Begin Journey
             </div>
           </footer>
+
+          <ScrollIndicator />
         </section>
 
         {/* --- Articles --- */}
@@ -137,6 +151,7 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
               key={article.id} 
               article={article} 
               index={index} 
+              isLast={index === articles.length - 1}
             />
           ))
         ) : (
