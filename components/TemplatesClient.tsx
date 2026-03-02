@@ -4,7 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { generateTemplateAction } from '@/actions/templates';
+import { 
+  generateTemplateAction, 
+  updateTemplateAction, 
+  deleteTemplateAction 
+} from '@/actions/templates';
 import AdminLoading from '@/app/admin/loading';
 import { useTemplateStore } from '@/store/admin/useTemplateStore';
 
@@ -23,9 +27,15 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
     setGenerating
   } = useTemplateStore();
 
-  // Form states remain local to the component for immediate UI feedback
+  // Generator Form State
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState(templateConfig?.categories?.[0]?.id || 'blog-post');
+
+  // Edit Modal State
+  const [editingTemplate, setEditingTemplate] = useState<any | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
   // Hydrate store on mount
   useEffect(() => {
@@ -46,7 +56,7 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
       }, token);
 
       if (response.success) {
-        alert('Template generation job started!');
+        alert('Template generation job started! You will be notified when it is ready.');
         setDescription('');
       } else {
         alert('Error: ' + (('error' in response) ? response.error : 'Failed to generate'));
@@ -55,6 +65,69 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
       alert('Error: ' + err.message);
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleEditClick = (template: any) => {
+    setEditingTemplate(template);
+    setEditName(template.name);
+    setEditDescription(template.description || '');
+  };
+
+  const handleUpdateTemplate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTemplate) return;
+
+    try {
+      setActionLoading(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      const response = await updateTemplateAction(editingTemplate.id, {
+        name: editName,
+        description: editDescription
+      }, token);
+
+      if (response.success && 'data' in response) {
+        // Update local store
+        const updatedTemplates = templates.map(t => 
+          t.id === editingTemplate.id ? response.data : t
+        );
+        setTemplates(updatedTemplates);
+        setEditingTemplate(null);
+      } else {
+        alert('Failed to update template');
+      }
+    } catch (err: any) {
+      alert('Error updating template: ' + err.message);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteTemplate = async (id: string) => {
+    if (!confirm('Are you sure you want to permanently delete this template?')) return;
+
+    try {
+      setActionLoading(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      const response = await deleteTemplateAction(id, token);
+
+      if (response.success) {
+        // Remove from local store
+        setTemplates(templates.filter(t => t.id !== id));
+        if (editingTemplate?.id === id) {
+          setEditingTemplate(null);
+        }
+      } else {
+        alert('Failed to delete template');
+      }
+    } catch (err: any) {
+      alert('Error deleting template: ' + err.message);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -69,6 +142,53 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
 
       <div className="dashboard__grid-layout">
         <div className="lg:col-span-2">
+          
+          {/* Edit Template Form (Inline) */}
+          {editingTemplate && (
+            <div className="card card--padded" style={{ marginBottom: '2rem', border: '1px solid #111' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h3 className="dashboard__recent-item-title">Edit Template: {editingTemplate.name}</h3>
+                <button onClick={() => setEditingTemplate(null)} style={{ fontSize: '0.7rem', fontWeight: 800, opacity: 0.4 }}>CLOSE</button>
+              </div>
+              
+              <form onSubmit={handleUpdateTemplate} className="auth__fields">
+                <div className="organization__form-group">
+                  <label className="label">Template Name</label>
+                  <Input 
+                    value={editName} 
+                    onChange={(e) => setEditName(e.target.value)} 
+                    required
+                  />
+                </div>
+
+                <div className="organization__form-group" style={{ marginTop: '1.5rem' }}>
+                  <label className="label">Description & Instructions</label>
+                  <textarea 
+                    className="input" 
+                    style={{ height: '100px', resize: 'none', padding: '0.75rem' }}
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                  <Button type="submit" variant="primary" disabled={actionLoading}>
+                    {actionLoading ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="secondary" 
+                    style={{ color: '#ff6b6b', borderColor: 'transparent', marginLeft: 'auto' }}
+                    onClick={() => handleDeleteTemplate(editingTemplate.id)}
+                    disabled={actionLoading}
+                  >
+                    Delete Template
+                  </Button>
+                </div>
+              </form>
+            </div>
+          )}
+
           <div className="card dashboard__recent">
             <div className="dashboard__recent-header">
               <h3>Available Templates</h3>
@@ -83,14 +203,29 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
                         <span>Category: {template.category}</span>
                       </div>
                     </div>
-                    <Button variant="secondary" style={{ padding: '0.4rem 1rem', fontSize: '0.75rem' }}>
-                      Use Template
-                    </Button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button 
+                        className="btn btn--ghost" 
+                        style={{ padding: '0.4rem' }} 
+                        title="Edit Template"
+                        onClick={() => handleEditClick(template)}
+                      >
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                      </button>
+                      <button 
+                        className="btn btn--ghost" 
+                        style={{ padding: '0.4rem', color: '#ff6b6b' }} 
+                        title="Delete Template"
+                        onClick={() => handleDeleteTemplate(template.id)}
+                      >
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (
-                <div style={{ padding: '3rem', textAlign: 'center', color: '#737373' }}>
-                  No templates found. Generate your first one!
+                <div style={{ padding: '4rem 2rem', textAlign: 'center', color: '#737373' }}>
+                  No templates found. Generate your first one using the AI tool!
                 </div>
               )}
             </div>
