@@ -3,14 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { 
-  generateTemplateAction, 
-  updateTemplateAction, 
-  deleteTemplateAction 
-} from '@/actions/templates';
+import { generateTemplateAction, deleteTemplateAction } from '@/actions/templates';
 import AdminLoading from '@/app/admin/loading';
 import { useTemplateStore } from '@/store/admin/useTemplateStore';
+import { useRouter } from 'next/navigation';
 
 interface TemplatesClientProps {
   initialTemplates: any[];
@@ -18,6 +14,7 @@ interface TemplatesClientProps {
 }
 
 export default function TemplatesClient({ initialTemplates, templateConfig }: TemplatesClientProps) {
+  const router = useRouter();
   const { 
     templates, 
     setTemplates, 
@@ -62,74 +59,29 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
     }
   };
 
-  const handleEditClick = (template: any) => {
-    setEditingTemplate(template);
-    setEditName(template.name || '');
-    setEditDescription(template.description || '');
-    setEditCategory(template.category || storeConfig?.categories?.[0]?.id || 'blog-post');
-    setEditAiInstructions(template.aiInstructions || '');
-    setEditIsPublic(template.isPublic || false);
-    setEditStructure(template.structure || []);
-  };
-
-  const handleUpdateTemplate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingTemplate) return;
-
-    try {
-      setActionLoading(true);
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) return;
-
-      const response = await updateTemplateAction(editingTemplate.id, {
-        name: editName,
-        description: editDescription,
-        category: editCategory,
-        aiInstructions: editAiInstructions,
-        isPublic: editIsPublic,
-        structure: editStructure
-      }, token);
-
-      if (response.success && 'data' in response) {
-        // Update local store
-        const updatedTemplates = templates.map(t => 
-          t.id === editingTemplate.id ? response.data : t
-        );
-        setTemplates(updatedTemplates);
-        setEditingTemplate(null);
-      } else {
-        alert('Failed to update template');
-      }
-    } catch (err: any) {
-      alert('Error updating template: ' + err.message);
-    } finally {
-      setActionLoading(false);
-    }
+  const handleEditClick = (templateId: string) => {
+    router.push(`/admin/templates/${templateId}`);
   };
 
   const handleDeleteTemplate = async (id: string) => {
     if (!confirm('Are you sure you want to permanently delete this template?')) return;
 
     try {
-      setActionLoading(true);
+      setGenerating(true);
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
 
       const response = await deleteTemplateAction(id, token);
 
       if (response.success) {
-        // Remove from local store
         setTemplates(templates.filter(t => t.id !== id));
-        if (editingTemplate?.id === id) {
-          setEditingTemplate(null);
-        }
       } else {
         alert('Failed to delete template');
       }
     } catch (err: any) {
       alert('Error deleting template: ' + err.message);
     } finally {
-      setActionLoading(false);
+      setGenerating(false);
     }
   };
 
@@ -144,7 +96,6 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
 
       <div className="dashboard__grid-layout">
         <div className="lg:col-span-2">
-          
           <div className="card dashboard__recent">
             <div className="dashboard__recent-header">
               <h3>Available Templates</h3>
@@ -164,7 +115,7 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
                         className="btn btn--ghost" 
                         style={{ padding: '0.4rem' }} 
                         title="Edit Template"
-                        onClick={() => handleEditClick(template)}
+                        onClick={() => handleEditClick(template.id)}
                       >
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                       </button>
