@@ -28,3 +28,21 @@ export async function generateTemplateAction(data: { description: string; catego
     return { success: false, error: 'Failed to request template generation' };
   }
 }
+
+export async function updateTemplateAction(id: string, data: any, token: string) {
+  try {
+    return await templatesService.updateTemplate(id, data, token);
+  } catch (error) {
+    console.error('Server Action Error (updateTemplate):', error);
+    return { success: false, error: 'Failed to update template' };
+  }
+}
+
+export async function deleteTemplateAction(id: string, token: string) {
+  try {
+    return await templatesService.deleteTemplate(id, token);
+  } catch (error) {
+    console.error('Server Action Error (deleteTemplate):', error);
+    return { success: false, error: 'Failed to delete template' };
+  }
+}

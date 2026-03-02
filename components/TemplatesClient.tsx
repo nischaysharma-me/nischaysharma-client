@@ -129,7 +129,7 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
                 </select>
                 {storeConfig?.categories?.find((c: any) => c.id === category)?.description && (
                   <p style={{ fontSize: '0.65rem', color: '#737373', marginTop: '0.5rem', lineHeight: 1.4 }}>
-                    {storeConfig.categories.find((c: any) => c.id === category).description}
+                    {storeConfig?.categories?.find((c: any) => c.id === category)?.description}
                   </p>
                 )}
               </div>
