@@ -5,21 +5,12 @@ import Menu from '@/components/Menu';
 import { Article } from '@/services/articles.service';
 import { useStore } from '@/store/useStore';
 
-const ScrollIndicator = () => (
-  <div className="articles-parallax__scroll-indicator">
-    <span className="articles-parallax__scroll-text">Explore</span>
-    <div className="articles-parallax__scroll-line"></div>
-  </div>
-);
-
 const ArticleSection = ({ 
   article, 
-  index,
-  isLast
+  index 
 }: { 
   article: Article, 
-  index: number,
-  isLast: boolean
+  index: number 
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -67,6 +58,7 @@ const ArticleSection = ({
       />
       
       <div className="articles-parallax__content">
+        {/* Centered Content Block */}
         <div className="articles-parallax__main-info">
           <span className="articles-parallax__eyebrow">
             Curated Edition / Vol. 0{index + 1}
@@ -92,8 +84,6 @@ const ArticleSection = ({
           </a>
         </div>
       </div>
-
-      {!isLast && <ScrollIndicator />}
     </section>
   );
 };
@@ -138,8 +128,6 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
               Begin Journey
             </div>
           </footer>
-
-          <ScrollIndicator />
         </section>
 
         {/* --- Articles --- */}
@@ -149,7 +137,6 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
               key={article.id} 
               article={article} 
               index={index} 
-              isLast={index === articles.length - 1}
             />
           ))
         ) : (

@@ -54,7 +54,7 @@
   &__content
     position: relative
     z-index: 10
-    max-width: 800px
+    max-width: 800px // Narrower for centered look
     width: 100%
     padding: 2rem
     color: $color-white
@@ -65,6 +65,7 @@
     text-align: center
     gap: 2rem
     
+    // Smooth centered entrance
     opacity: 0
     transform: scale(0.95) translateY(20px)
     transition: opacity 1s ease-out, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)
@@ -114,7 +115,7 @@
     color: rgba(255, 255, 255, 0.2)
     font-weight: 300
     mask-image: linear-gradient(to bottom, black 30%, transparent 90%)
-    max-height: 160px
+    max-height: 160px // Shorter centered preview
     overflow: hidden
 
     @include mobile
@@ -143,50 +144,3 @@
     svg
       width: 1.25rem
       height: 1.25rem
-
-  &__scroll-indicator
-    position: absolute
-    bottom: 3rem
-    left: 50%
-    transform: translateX(-50%)
-    z-index: 15
-    display: flex
-    flex-direction: column
-    align-items: center
-    gap: 1.5rem
-    color: $color-white
-    @include transition(opacity)
-
-  &__scroll-line
-    width: 1px
-    height: 60px
-    background-color: rgba(255, 255, 255, 0.1)
-    position: relative
-    overflow: hidden
-
-    &::after
-      content: ''
-      position: absolute
-      top: 0
-      left: 0
-      width: 100%
-      height: 30%
-      background-color: $color-white
-      animation: scroll-line 2.5s cubic-bezier(0.76, 0, 0.24, 1) infinite
-
-  &__scroll-text
-    font-size: 0.5rem
-    font-weight: 700
-    text-transform: uppercase
-    letter-spacing: 0.5em
-    opacity: 0.3
-
-@keyframes scroll-line
-  0%
-    transform: translateY(-100%)
-  40%, 60%
-    transform: translateY(0)
-    height: 100%
-  100%
-    transform: translateY(100%)
-    height: 30%
