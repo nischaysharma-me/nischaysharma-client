@@ -1,0 +1,31 @@
+@use '../abstracts/variables' as variables
+@use '../abstracts/mixins' as *
+
+.templates
+  &__list
+    display: flex
+    flex-direction: column
+    gap: 1rem
+
+  &__item
+    @media (max-width: 640px)
+      flex-direction: column
+      align-items: flex-start
+      gap: 1rem
+
+  &__generator-form
+    display: flex
+    flex-direction: column
+    gap: 1.5rem
+
+  &__category-desc
+    font-size: 0.65rem
+    color: variables.$color-text-secondary
+    margin-top: 0.5rem
+    line-height: 1.4
+
+  &__empty-msg
+    padding: 4rem 2rem
+    text-align: center
+    color: variables.$color-text-secondary
+    font-size: 0.875rem

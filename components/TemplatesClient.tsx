@@ -103,7 +103,7 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
             <div className="dashboard__recent-list">
               {templates.length > 0 ? (
                 templates.map((template) => (
-                  <div key={template.id} className="dashboard__recent-item">
+                  <div key={template.id} className="dashboard__recent-item templates__item">
                     <div className="dashboard__recent-item-info">
                       <div className="dashboard__recent-item-title">{template.name}</div>
                       <div className="dashboard__recent-item-meta">
@@ -131,7 +131,7 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
                   </div>
                 ))
               ) : (
-                <div style={{ padding: '4rem 2rem', textAlign: 'center', color: '#737373' }}>
+                <div className="templates__empty-msg">
                   No templates found. Generate your first one using the AI tool!
                 </div>
               )}
@@ -170,7 +170,7 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
                   ))}
                 </select>
                 {storeConfig?.categories?.find((c: any) => c.id === category)?.description && (
-                  <p style={{ fontSize: '0.65rem', color: '#737373', marginTop: '0.5rem', lineHeight: 1.4 }}>
+                  <p className="templates__category-desc">
                     {storeConfig?.categories?.find((c: any) => c.id === category)?.description}
                   </p>
                 )}
