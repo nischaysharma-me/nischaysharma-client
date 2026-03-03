@@ -141,7 +141,9 @@
   overflow: hidden
   
   &--padded
-    padding: $spacing-lg
+    padding: $spacing-md
+    @media (min-width: 768px)
+      padding: $spacing-lg
 
   &--dark
     background-color: $color-text-primary
