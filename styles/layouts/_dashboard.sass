@@ -180,7 +180,9 @@
     height: 4rem
     @media (min-width: 768px)
       height: 5rem
-    padding: 0 $spacing-lg
+    padding: 0 $spacing-sm
+    @media (min-width: 768px)
+      padding: 0 $spacing-xl
     @include flex-between
     position: sticky
     top: 0
@@ -188,21 +190,22 @@
     backdrop-filter: blur(8px)
     z-index: 40
     border-bottom: 1px solid $color-border
-    
-    @media (min-width: 768px)
-      padding: 0 $spacing-xl
+    width: 100%
 
     &-actions
       display: flex
       gap: $spacing-sm
       align-items: center
-      flex-shrink: 0
+      flex-shrink: 1
+      min-width: 0
+      justify-content: flex-end
       
       .btn
         @include mobile
           padding: 0.5rem 0.75rem
           font-size: 0.7rem
           white-space: nowrap
+          flex-shrink: 0
           
           span
             display: none
@@ -304,10 +307,19 @@
     display: grid
     grid-template-columns: 1fr
     gap: $spacing-md
+    width: 100%
 
     @media (min-width: 1024px)
       grid-template-columns: 2fr 1fr
       gap: $spacing-xl
+
+  &__grid-main
+    min-width: 0
+    width: 100%
+
+  &__grid-sidebar
+    min-width: 0
+    width: 100%
 
   &__recent
     display: flex

@@ -95,7 +95,7 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
       </div>
 
       <div className="dashboard__grid-layout">
-        <div className="lg:col-span-2">
+        <div className="dashboard__grid-main">
           <div className="card dashboard__recent">
             <div className="dashboard__recent-header">
               <h3>Available Templates</h3>
