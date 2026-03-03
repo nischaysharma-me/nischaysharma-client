@@ -108,7 +108,7 @@ export default function ClientsPage() {
       </div>
 
       <div className="dashboard__grid-layout">
-        <div className="lg:col-span-2">
+        <div className="dashboard__grid-main">
           {showCreateForm ? (
             <div className="card card--padded">
               <h3 className="dashboard__recent-item-title" style={{ marginBottom: '1.5rem' }}>Register New Application</h3>
@@ -134,39 +134,21 @@ export default function ClientsPage() {
                 
                 <div className="organization__form-group">
                   <label className="label" style={{ marginBottom: '1rem' }}>Permissions Matrix</label>
-                  <div className="permissions-grid" style={{ display: 'grid', gap: '0.75rem' }}>
+                  <div className="permissions-grid">
                     {availablePermissions.map(perm => (
                       <div 
                         key={perm.key} 
                         onClick={() => togglePermission(perm.key)}
-                        style={{ 
-                          padding: '1rem', 
-                          borderRadius: '0.75rem', 
-                          border: `1px solid ${selectedPermissions.includes(perm.key) ? '#111' : '#eee'}`,
-                          background: selectedPermissions.includes(perm.key) ? '#fafafa' : '#fff',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '1rem'
-                        }}
+                        className={`permission-card ${selectedPermissions.includes(perm.key) ? 'permission-card--selected' : ''}`}
                       >
-                        <div style={{ 
-                          width: '1.25rem', 
-                          height: '1.25rem', 
-                          borderRadius: '0.25rem', 
-                          border: '2px solid #111',
-                          background: selectedPermissions.includes(perm.key) ? '#111' : 'transparent',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}>
+                        <div className={`permission-checkbox ${selectedPermissions.includes(perm.key) ? 'permission-checkbox--checked' : ''}`}>
                           {selectedPermissions.includes(perm.key) && (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" style={{ width: '0.75rem' }}><path d="M5 13l4 4L19 7" /></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4"><path d="M5 13l4 4L19 7" /></svg>
                           )}
                         </div>
-                        <div>
-                          <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>{perm.label}</div>
-                          <div style={{ fontSize: '0.75rem', color: '#737373' }}>{perm.description}</div>
+                        <div className="permission-info">
+                          <div className="permission-info__label">{perm.label}</div>
+                          <div className="permission-info__description">{perm.description}</div>
                         </div>
                       </div>
                     ))}
@@ -177,10 +159,10 @@ export default function ClientsPage() {
                 
                 <div className="organization__actions">
                   <Button type="submit" variant="primary" className="btn--full" disabled={actionLoading}>
-                    {actionLoading ? 'Registering...' : 'Register Application'}
+                    <span>{actionLoading ? 'Registering...' : 'Register Application'}</span>
                   </Button>
                   <Button type="button" variant="secondary" className="btn--full" onClick={() => setShowCreateForm(false)}>
-                    Cancel
+                    <span>Cancel</span>
                   </Button>
                 </div>
               </form>
@@ -190,7 +172,8 @@ export default function ClientsPage() {
               <div className="dashboard__recent-header">
                 <h3>Whitelisted Applications</h3>
                 <Button variant="primary" style={{ padding: '0.5rem 1rem', height: 'auto' }} onClick={() => setShowCreateForm(true)}>
-                  + Register App
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.9rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                  <span>Register App</span>
                 </Button>
               </div>
               <div className="dashboard__recent-list">
@@ -200,27 +183,27 @@ export default function ClientsPage() {
                       <div className="dashboard__recent-item-info">
                         <div className="dashboard__recent-item-title">{client.name}</div>
                         <div className="dashboard__recent-item-meta">
-                          <span>{client.url}</span>
+                          <span style={{ wordBreak: 'break-all' }}>{client.url}</span>
                           <span className="dot" />
                           <span>{client.permissions.length} Scopes</span>
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
-                         <button 
-                          className="btn btn--ghost" 
+                         <Button 
+                          variant="ghost"
                           style={{ color: '#ff6b6b', padding: '0.5rem' }}
                           onClick={() => handleDelete(client.id!)}
                           disabled={actionLoading}
                         >
-                          Revoke
-                        </button>
+                          <span>Revoke</span>
+                        </Button>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
                     <p style={{ color: '#737373', marginBottom: '1.5rem' }}>No external applications registered yet.</p>
-                    <Button variant="secondary" onClick={() => setShowCreateForm(true)}>Register your first app</Button>
+                    <Button variant="secondary" onClick={() => setShowCreateForm(true)}><span>Register your first app</span></Button>
                   </div>
                 )}
               </div>
@@ -228,7 +211,7 @@ export default function ClientsPage() {
           )}
         </div>
 
-        <div className="dashboard__sidebar-col">
+        <div className="dashboard__grid-sidebar">
           <div className="card card--padded">
             <h3 className="label" style={{ marginBottom: '1.5rem', display: 'block', fontSize: '0.625rem', fontWeight: 700, color: '#a3a3a3', textTransform: 'uppercase', letterSpacing: '0.1em' }}>About API Clients</h3>
             <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#737373' }}>

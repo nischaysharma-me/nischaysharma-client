@@ -47,7 +47,7 @@ export default function OverviewPage() {
         <div className="card dashboard__recent">
           <div className="dashboard__recent-header">
             <h3>Recent Publications</h3>
-            <button className="btn btn--ghost">View All &rarr;</button>
+            <button className="btn btn--ghost"><span>View All</span> &rarr;</button>
           </div>
           <div className="dashboard__recent-list">
             {[
@@ -84,7 +84,7 @@ export default function OverviewPage() {
             <p>Leverage the fine-tuned model to generate technical outlines and drafts.</p>
             <button className="btn btn--secondary btn--full">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              Open Generator
+              <span>Open Generator</span>
             </button>
           </div>
 

@@ -23,11 +23,11 @@ export default function TemplatesLoading() {
         style={{ 
           width: '50px', 
           height: '50px', 
-          backgroundColor: '#111', 
+          backgroundColor: 'var(--color-text-primary)', 
           borderRadius: '50%' 
         }}
       />
-      <div style={{ color: '#111', fontSize: '10px', fontWeight: 800, letterSpacing: '0.4em', textTransform: 'uppercase', opacity: 0.3 }}>
+      <div style={{ color: 'var(--color-text-primary)', fontSize: '10px', fontWeight: 800, letterSpacing: '0.4em', textTransform: 'uppercase', opacity: 0.3 }}>
         Syncing Templates
       </div>
     </div>

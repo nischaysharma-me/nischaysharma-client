@@ -1,39 +1,113 @@
-@use '../abstracts/variables' as *
+@use '../abstracts/variables' as variables
 @use '../abstracts/mixins' as *
 
 .template-edit
   display: flex
   flex-direction: column
-  height: calc(100vh - 5rem) // Subtract header height
+  height: calc(100vh - 5rem)
   overflow: hidden
+  width: 100%
+
+  @include mobile
+    height: auto
+    overflow: visible
 
   &__header
-    padding: $spacing-lg $spacing-xl
-    background-color: rgba($color-bg-primary, 0.9)
+    padding: variables.$spacing-lg variables.$spacing-xl
+    background-color: rgba(variables.$color-bg-primary, 0.9)
     backdrop-filter: blur(8px)
     z-index: 30
     @include flex-between
     flex-shrink: 0
+    border-bottom: 1px solid variables.$color-border
+
+    @include mobile
+      flex-direction: column
+      align-items: flex-start
+      gap: 1rem
+      padding: variables.$spacing-md
+      position: sticky
+      top: 5rem // Below main dashboard header
+      height: auto
 
   &__scroll-area
     flex: 1
     overflow-y: auto
-    padding: 0 $spacing-xl $spacing-xl $spacing-xl
-    // Custom scrollbar for funky look
-    &::-webkit-scrollbar
-      width: 5px
-    &::-webkit-scrollbar-track
-      background: transparent
-    &::-webkit-scrollbar-thumb
-      background: rgba(0, 0, 0, 0.05)
-      border-radius: 10px
-      transition: background 0.3s ease
-      &:hover
-        background: rgba(0, 0, 0, 0.1)
+    padding: variables.$spacing-xl
+    width: 100%
+
+    @include mobile
+      padding: variables.$spacing-md
+      overflow: visible
 
   &__form-card
-    background-color: $color-bg-secondary
-    border-radius: $radius-lg
-    border: 1px solid $color-border
-    box-shadow: $shadow-premium
-    padding: $spacing-xl
+    background-color: variables.$color-bg-secondary
+    border-radius: variables.$radius-lg
+    border: 1px solid variables.$color-border
+    box-shadow: variables.$shadow-premium
+    padding: variables.$spacing-xl
+    margin-bottom: 2rem
+
+    @include mobile
+      padding: variables.$spacing-md
+
+  &__section-header
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin-bottom: 1.5rem
+    gap: 1rem
+
+    @include mobile
+      flex-direction: column
+      align-items: flex-start
+
+  &__add-btn
+    font-size: 0.7rem
+    font-weight: bold
+    text-transform: uppercase
+    color: variables.$color-text-primary
+    background-color: variables.$color-bg-tertiary
+    padding: 0.6rem 1.2rem
+    border-radius: variables.$radius-md
+    @include transition(background-color)
+
+    &:hover
+      background-color: variables.$color-border
+
+  &__structure-list
+    display: flex
+    flex-direction: column
+    gap: 1.5rem
+
+  &__structure-item
+    padding: 1.5rem
+    border: 1px solid variables.$color-border
+    border-radius: variables.$radius-md
+    position: relative
+    background-color: variables.$color-bg-primary
+
+    @include mobile
+      padding: 1.25rem
+
+  &__remove-btn
+    position: absolute
+    top: 1.5rem
+    right: 1.5rem
+    color: variables.$color-error
+    font-size: 0.65rem
+    font-weight: bold
+    text-transform: uppercase
+
+    @include mobile
+      position: static
+      margin-bottom: 1rem
+      display: inline-block
+
+  &__empty-state
+    padding: 3rem
+    text-align: center
+    color: variables.$color-text-secondary
+    font-size: 0.875rem
+    border: 2px dashed variables.$color-border
+    border-radius: variables.$radius-md

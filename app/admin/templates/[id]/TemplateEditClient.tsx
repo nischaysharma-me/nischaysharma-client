@@ -194,28 +194,30 @@ export default function TemplateEditClient({ templateId, templateConfig }: Templ
                 </div>
 
                 <div className="organization__form-group" style={{ marginTop: '2rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div className="template-edit__section-header">
                     <label className="label" style={{ fontSize: '1rem' }}>Structure (Sections)</label>
                     <button 
                       type="button" 
                       onClick={() => setEditStructure([...editStructure, { heading: '', contentBrief: '', imagePrompt: '' }])}
-                      style={{ fontSize: '0.7rem', fontWeight: 'bold', textTransform: 'uppercase', color: '#111', background: '#eee', padding: '0.5rem 1rem', borderRadius: '0.5rem' }}
+                      className="template-edit__add-btn"
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                     >
-                      + Add Section
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                      <span>Add Section</span>
                     </button>
                   </div>
                   
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div className="template-edit__structure-list">
                     {editStructure.map((section, idx) => (
-                      <div key={idx} style={{ padding: '1.5rem', border: '1px solid #eee', borderRadius: '0.75rem', position: 'relative', backgroundColor: '#fafafa' }}>
+                      <div key={idx} className="template-edit__structure-item">
                         <button 
                           type="button" 
                           onClick={() => setEditStructure(editStructure.filter((_, i) => i !== idx))}
-                          style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', color: '#ff6b6b', fontSize: '0.65rem', fontWeight: 'bold' }}
+                          className="template-edit__remove-btn"
                         >
                           REMOVE
                         </button>
-                        <div style={{ marginBottom: '1rem', paddingRight: '60px' }}>
+                        <div style={{ marginBottom: '1rem' }}>
                            <label className="label">Heading</label>
                            <Input 
                             placeholder="Section Heading" 
@@ -256,7 +258,7 @@ export default function TemplateEditClient({ templateId, templateConfig }: Templ
                       </div>
                     ))}
                     {editStructure.length === 0 && (
-                      <div style={{ padding: '3rem', textAlign: 'center', color: '#737373', fontSize: '0.875rem', border: '2px dashed #ccc', borderRadius: '0.75rem' }}>
+                      <div className="template-edit__empty-state">
                         No sections defined. Add sections to outline your article.
                       </div>
                     )}

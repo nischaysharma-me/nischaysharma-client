@@ -1,0 +1,80 @@
+@use '../abstracts/variables' as variables
+@use '../abstracts/mixins' as *
+
+.clients
+  .permissions-grid
+    display: grid
+    grid-template-columns: 1fr
+    gap: 0.75rem
+    
+    @media (min-width: 640px)
+      grid-template-columns: repeat(2, 1fr)
+    
+    @media (min-width: 1280px)
+      grid-template-columns: repeat(2, 1fr)
+
+  .permission-card
+    padding: 1rem
+    border-radius: variables.$radius-md
+    border: 1px solid variables.$color-border
+    background-color: variables.$color-bg-secondary
+    cursor: pointer
+    display: flex
+    align-items: center
+    gap: 1rem
+    @include transition(border-color, background-color)
+
+    &:hover
+      border-color: variables.$color-text-muted
+
+    &--selected
+      border-color: variables.$color-text-primary
+      background-color: variables.$color-bg-primary
+
+  .permission-checkbox
+    width: 1.25rem
+    height: 1.25rem
+    border-radius: variables.$radius-sm
+    border: 2px solid variables.$color-text-primary
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-shrink: 0
+    @include transition(background-color)
+
+    &--checked
+      background-color: variables.$color-text-primary
+
+    svg
+      width: 0.75rem
+      height: 0.75rem
+
+  .permission-info
+    min-width: 0
+    
+    &__label
+      font-size: 0.875rem
+      font-weight: 600
+      color: variables.$color-text-primary
+      @include text-truncate
+
+    &__description
+      font-size: 0.75rem
+      color: variables.$color-text-secondary
+      @include text-truncate
+
+  // Adjusting recent item for clients
+  .dashboard__recent-item
+    @media (max-width: 640px)
+      flex-direction: column
+      align-items: flex-start
+      gap: 1rem
+
+    &-meta
+      @media (max-width: 480px)
+        flex-direction: column
+        align-items: flex-start
+        gap: 0.25rem
+
+        .dot
+          display: none

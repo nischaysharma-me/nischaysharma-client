@@ -121,7 +121,7 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
         </div>
         
         <div className="dashboard__grid-layout">
-          <div className="lg:col-span-2">
+          <div className="dashboard__grid-main">
             {showCreateForm ? (
               <div className="card card--padded">
                 <h3 className="dashboard__recent-item-title" style={{ marginBottom: '1.5rem' }}>Create New Organization</h3>
@@ -145,10 +145,10 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
                   </div>
                   <div className="organization__actions">
                     <Button type="submit" variant="primary" className="btn--full" disabled={actionLoading}>
-                      {actionLoading ? 'Creating...' : 'Confirm & Create'}
+                      <span>{actionLoading ? 'Creating...' : 'Confirm & Create'}</span>
                     </Button>
                     <Button type="button" variant="secondary" className="btn--full" onClick={() => setShowCreateForm(false)}>
-                      Cancel
+                      <span>Cancel</span>
                     </Button>
                   </div>
                 </form>
@@ -158,7 +158,8 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
                 <div className="dashboard__recent-header">
                   <h3>Available Organizations</h3>
                   <Button variant="primary" style={{ padding: '0.5rem 1rem', height: 'auto' }} onClick={() => setShowCreateForm(true)}>
-                    + New
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.9rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                    <span>New Org</span>
                   </Button>
                 </div>
                 <div className="dashboard__recent-list">
@@ -169,14 +170,14 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
                           <div className="dashboard__recent-item-title">{org.name}</div>
                         </div>
                         <Button variant="secondary" style={{ padding: '0.4rem 1rem', fontSize: '0.75rem' }}>
-                          Request Access
+                          <span>Request Access</span>
                         </Button>
                       </div>
                     ))
                   ) : (
                     <div style={{ padding: '3rem', textAlign: 'center' }}>
                       <p style={{ color: '#737373', marginBottom: '1.5rem' }}>No organizations found.</p>
-                      <Button variant="primary" onClick={() => setShowCreateForm(true)}>Create First One</Button>
+                      <Button variant="primary" onClick={() => setShowCreateForm(true)}><span>Create First One</span></Button>
                     </div>
                   )}
                 </div>
@@ -196,7 +197,7 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
       </div>
 
       <div className="dashboard__grid-layout">
-        <div className="lg:col-span-2">
+        <div className="dashboard__grid-main">
           {/* Add Member Form */}
           {showAddMember && (
             <div className="card card--padded" style={{ marginBottom: '2rem', border: '1px solid #111' }}>
@@ -207,8 +208,8 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
                   <Input value={newMemberId} onChange={(e) => setNewMemberId(e.target.value)} required />
                 </div>
                 <div className="organization__actions">
-                  <Button type="submit" variant="primary" className="btn--full" disabled={actionLoading}>Add Member</Button>
-                  <Button type="button" variant="secondary" className="btn--full" onClick={() => setShowAddMember(false)}>Cancel</Button>
+                  <Button type="submit" variant="primary" className="btn--full" disabled={actionLoading}><span>Add Member</span></Button>
+                  <Button type="button" variant="secondary" className="btn--full" onClick={() => setShowAddMember(false)}><span>Cancel</span></Button>
                 </div>
               </form>
             </div>
@@ -218,9 +219,10 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
           <div className="card dashboard__recent">
             <div className="dashboard__recent-header">
               <h3>Members</h3>
-              <button className="btn btn--secondary" style={{ padding: '0.5rem 1rem', height: 'auto' }} onClick={() => setShowAddMember(true)}>
-                + Add Member
-              </button>
+              <Button variant="secondary" style={{ padding: '0.5rem 1rem', height: 'auto' }} onClick={() => setShowAddMember(true)}>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.9rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                <span>Add Member</span>
+              </Button>
             </div>
             <div className="dashboard__recent-list">
               {organization.members?.map((member, i) => (
@@ -238,7 +240,7 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
           </div>
         </div>
 
-        <div className="dashboard__sidebar-col">
+        <div className="dashboard__grid-sidebar">
           <div className="card card--padded">
             <h3 className="label" style={{ marginBottom: '1.5rem' }}>Organization Details</h3>
             <div className="stat-group">
@@ -250,7 +252,7 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
               <p className="description">{organization.description || 'N/A'}</p>
             </div>
             <Button variant="secondary" className="btn--full" style={{ marginTop: '1.5rem' }} onClick={() => setShowEditOrg(true)}>
-              Edit Details
+              <span>Edit Details</span>
             </Button>
           </div>
         </div>

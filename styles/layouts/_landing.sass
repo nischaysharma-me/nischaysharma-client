@@ -40,7 +40,11 @@
       right: 2rem
 
   &__brand
-    font-size: 0.875rem
+    font-size: 0.7rem
+    @media (min-width: 480px)
+      font-size: 0.75rem
+    @media (min-width: 768px)
+      font-size: 0.875rem
     font-family: $font-sans
     letter-spacing: 2px
     color: $color-black
@@ -49,9 +53,17 @@
 
   &__logo
     color: $color-black
+    svg
+      width: 20px
+      height: 20px
+      @media (min-width: 768px)
+        width: 24px
+        height: 24px
 
   &__menu-btn
-    font-size: 0.875rem
+    font-size: 0.75rem
+    @media (min-width: 768px)
+      font-size: 0.875rem
     font-family: $font-sans
     background: transparent
     border: none
@@ -73,6 +85,14 @@
     z-index: 5
     @include flex-center
     pointer-events: none
+    padding: 2rem
+
+  &__hero-wrapper
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    text-align: center
 
   &__title
     font-family: $font-serif
@@ -82,7 +102,17 @@
     letter-spacing: 0.05em
     line-height: 1.1
     mix-blend-mode: multiply
-    font-size: clamp(3rem, 5vw, 6rem)
+    font-size: clamp(2rem, 10vw, 6rem)
+    
+    @media (max-width: 480px)
+      font-size: 2rem
+    
+    @media (max-width: 320px)
+      font-size: 1.75rem
+
+    span
+      color: $color-black
+      opacity: 0.8
 
   &__footer
     position: absolute

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins, Playfair_Display } from "next/font/google";
 import "../styles/globals.sass";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
@@ -20,6 +20,13 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Nischay Sharma - For Downtime & Inspiration",
   description: "Minimalist portfolio and magazine for Nischay Sharma.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

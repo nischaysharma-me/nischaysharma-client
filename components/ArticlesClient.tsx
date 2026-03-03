@@ -125,13 +125,13 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
       </div>
 
       <div className="dashboard__grid-layout">
-        <div className="lg:col-span-2">
+        <div className="dashboard__grid-main">
           {/* AI Generator Toggleable Section */}
           {showGenerator && (
-            <div className="card card--padded" style={{ marginBottom: '2.5rem', border: '1px solid #111' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h3 className="dashboard__recent-item-title">AI Article Generator</h3>
-                <button onClick={() => setShowGenerator(false)} style={{ fontSize: '0.7rem', fontWeight: 800, opacity: 0.4 }}>CLOSE</button>
+            <div className="card card--padded articles-admin__generator-card">
+              <div className="articles-admin__generator-header">
+                <h3>AI Article Generator</h3>
+                <button onClick={() => setShowGenerator(false)} className="close-btn">CLOSE</button>
               </div>
               
               <form onSubmit={handleGenerate} className="auth__fields">
@@ -156,7 +156,7 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1.5rem' }}>
+                <div className="articles-admin__form-row">
                   <div className="organization__form-group">
                     <label className="label">Editorial Template</label>
                     <select 
@@ -190,7 +190,7 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
 
                 <div className="organization__actions" style={{ marginTop: '2rem' }}>
                   <Button type="submit" variant="primary" className="btn--full" disabled={generating}>
-                    {generating ? 'Engine Processing...' : 'Start AI Generation'}
+                    <span>{generating ? 'Engine Processing...' : 'Start AI Generation'}</span>
                   </Button>
                 </div>
               </form>
@@ -207,11 +207,12 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
                   onClick={() => setShowGenerator(!showGenerator)}
                 >
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.8rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                  AI Generate
+                  <span>AI</span>
                 </Button>
                 <Link href="/admin/articles/create">
                   <Button variant="primary" style={{ padding: '0.5rem 1rem', height: 'auto' }}>
-                    + New Article
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.9rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                    <span>New Article</span>
                   </Button>
                 </Link>
               </div>
@@ -229,11 +230,11 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
                         <span>Slug: {article.slug}</span>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                       <span className={`badge ${getStatusClass(article.status || 'draft')}`}>
                         {article.status || 'draft'}
                       </span>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
                         <Link href={`/admin/articles/${article.id}`}>
                           <button className="btn btn--ghost" style={{ padding: '0.4rem' }} title="Edit">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -249,9 +250,6 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
                           </button>
                         )}
-                        <button className="btn btn--ghost" style={{ padding: '0.4rem' }} title="Preview">
-                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -259,17 +257,17 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
               ) : (
                 <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
                   <p style={{ color: '#737373', marginBottom: '1.5rem' }}>No articles found.</p>
-                  <Button variant="secondary">Create your first article</Button>
+                  <Button variant="secondary" onClick={() => setShowGenerator(true)}><span>Create your first article</span></Button>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        <div className="dashboard__sidebar-col">
-          <div className="card card--padded">
-            <h3 className="label" style={{ marginBottom: '1.5rem', display: 'block', fontSize: '0.625rem', fontWeight: 700, color: '#a3a3a3', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Editorial Insights</h3>
-            <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#737373' }}>
+        <div className="dashboard__grid-sidebar">
+          <div className="card card--padded articles-admin__insight-card">
+            <h3 className="label">Editorial Insights</h3>
+            <p>
               Your current anthology consists of {articles.length} articles. 
               <br /><br />
               <strong>AI Automation:</strong> Use the generator to create high-quality technical drafts in seconds. Ensure you select the right depth for your audience.

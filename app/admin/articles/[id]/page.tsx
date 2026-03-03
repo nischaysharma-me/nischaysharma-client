@@ -97,41 +97,44 @@ export default function ArticleEditPage() {
 
   return (
     <div className="article-edit">
-      <div className="dashboard__header" style={{ position: 'static', background: 'transparent', padding: '0', marginBottom: '2rem' }}>
+      <div className="article-edit__header">
         <div className="dashboard__title">
           <h2>Edit Article</h2>
           <p>Modify your content, metadata, and visuals.</p>
         </div>
         <div className="dashboard__header-actions">
           <Button variant="secondary" onClick={() => setIsPreviewMode(!isPreviewMode)}>
-            {isPreviewMode ? 'Back to Editor' : 'Preview Content'}
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+            <span>{isPreviewMode ? 'Editor' : 'Preview'}</span>
           </Button>
           <Button variant="secondary" onClick={() => router.back()}>
-            Cancel
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            <span>Cancel</span>
           </Button>
           <Button variant="primary" onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving...' : 'Save Changes'}
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+            <span>Save</span>
           </Button>
           {article.status !== 'published' && (
             <Button variant="primary" onClick={handlePublish} disabled={publishing} style={{ background: '#10b981', border: 'none' }}>
-              {publishing ? 'Publishing...' : 'Publish'}
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+              <span>Publish</span>
             </Button>
           )}
         </div>
       </div>
 
       <div className="dashboard__grid-layout">
-        <div className="lg:col-span-2">
+        <div className="dashboard__grid-main">
           {isPreviewMode ? (
             <div className="card card--padded">
                <h1 className="articles-parallax__title" style={{ color: '#000', textAlign: 'left', marginBottom: '2rem' }}>{title}</h1>
                {backgroundImage && (
-                 <div style={{ position: 'relative', width: '100%', height: '300px', marginBottom: '2rem' }}>
+                 <div className="article-edit__preview-image">
                     <Image 
                         src={backgroundImage} 
                         alt="Cover" 
                         fill
-                        style={{ objectFit: 'cover', borderRadius: '1rem' }} 
                     />
                  </div>
                )}
@@ -159,7 +162,7 @@ export default function ArticleEditPage() {
           )}
         </div>
 
-        <div className="dashboard__sidebar-col">
+        <div className="dashboard__grid-sidebar">
           <div className="card card--padded">
             <h3 className="label" style={{ marginBottom: '1.5rem' }}>Visuals & SEO</h3>
             
@@ -171,8 +174,8 @@ export default function ArticleEditPage() {
                 placeholder="https://..."
               />
               {backgroundImage && (
-                <div style={{ marginTop: '1rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #eee', position: 'relative', width: '100%', height: '120px' }}>
-                  <Image src={backgroundImage} alt="Preview" fill style={{ objectFit: 'cover' }} />
+                <div className="article-edit__sidebar-image">
+                  <Image src={backgroundImage} alt="Preview" fill />
                 </div>
               )}
             </div>
@@ -189,21 +192,24 @@ export default function ArticleEditPage() {
 
             <div className="stat-group" style={{ marginTop: '2rem' }}>
               <span className="label">Status</span>
-              <span className={`badge badge--${article.status?.toLowerCase()}`} style={{ marginTop: '0.5rem' }}>
-                {article.status}
-              </span>
+              <div>
+                <span className={`badge badge--${article.status?.toLowerCase()}`} style={{ marginTop: '0.5rem' }}>
+                  {article.status}
+                </span>
+              </div>
             </div>
 
             <div className="stat-group" style={{ marginTop: '1.5rem' }}>
               <span className="label">Slug</span>
-              <p className="description" style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}>{article.slug}</p>
+              <div className="article-edit__slug-display">{article.slug}</div>
             </div>
           </div>
 
           <div className="card card--padded">
              <h3 className="label" style={{ marginBottom: '1rem' }}>Article Actions</h3>
              <Button variant="secondary" className="btn--full" style={{ color: '#ff6b6b' }}>
-               Archive Article
+               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+               <span>Archive Article</span>
              </Button>
           </div>
         </div>
