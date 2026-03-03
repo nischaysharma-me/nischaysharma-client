@@ -40,7 +40,9 @@
       right: 2rem
 
   &__brand
-    font-size: 0.75rem
+    font-size: 0.7rem
+    @media (min-width: 480px)
+      font-size: 0.75rem
     @media (min-width: 768px)
       font-size: 0.875rem
     font-family: $font-sans
@@ -100,10 +102,13 @@
     letter-spacing: 0.05em
     line-height: 1.1
     mix-blend-mode: multiply
-    font-size: clamp(2.5rem, 10vw, 6rem)
+    font-size: clamp(2rem, 10vw, 6rem)
     
     @media (max-width: 480px)
-      font-size: 2.25rem
+      font-size: 2rem
+    
+    @media (max-width: 320px)
+      font-size: 1.75rem
 
     span
       color: $color-black
