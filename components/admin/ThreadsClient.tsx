@@ -126,6 +126,7 @@ export default function ThreadsClient() {
           token,
           (content) => {
             // Callback for each content chunk
+            console.log('xvf', content);
             updateLastAssistantMessage(content);
           },
           () => {

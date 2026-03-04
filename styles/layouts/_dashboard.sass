@@ -3,9 +3,10 @@
 
 .dashboard
   display: flex
-  min-height: 100vh
-  position: relative
+  height: 100vh
   width: 100%
+  overflow: hidden
+  position: relative
 
   @include mobile
     flex-direction: column
@@ -175,6 +176,9 @@
     display: flex
     flex-direction: column
     min-width: 0
+    height: 100%
+    overflow-y: auto
+    position: relative
 
   &__header
     height: auto

@@ -123,8 +123,8 @@ export const conversationsService = {
 
             try {
               const data = JSON.parse(dataStr);
-              if (data.content) {
-                onContent(data.content);
+              if (data.text) {
+                onContent(data.text);
               }
             } catch (e) {
               // If JSON parsing fails, it might be a partial chunk, 
