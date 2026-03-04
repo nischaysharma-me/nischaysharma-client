@@ -30,7 +30,9 @@ export default function ThreadsClient() {
 
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isAutoScrolling, setIsAutoScrolling] = useState(true);
 
   useEffect(() => {
     fetchThreads();
@@ -40,6 +42,7 @@ export default function ThreadsClient() {
     if (threadIdFromUrl) {
       setCurrentThreadId(threadIdFromUrl);
       fetchThreadDetails(threadIdFromUrl);
+      setIsAutoScrolling(true);
     } else {
       setCurrentThreadId(null);
       setMessages([]);
@@ -47,8 +50,18 @@ export default function ThreadsClient() {
   }, [threadIdFromUrl, setCurrentThreadId, setMessages]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (isAutoScrolling) {
+      scrollToBottom();
+    }
+  }, [messages, isAutoScrolling]);
+
+  // When sending starts, force auto-scroll to bottom
+  useEffect(() => {
+    if (sending) {
+      setIsAutoScrolling(true);
+      scrollToBottom();
+    }
+  }, [sending]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -62,6 +75,13 @@ export default function ThreadsClient() {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    // If the user is within 100px of the bottom, assume they want auto-scroll
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 100;
+    setIsAutoScrolling(isAtBottom);
   };
 
   const fetchThreads = async () => {
@@ -100,6 +120,7 @@ export default function ThreadsClient() {
     const originalInput = input;
     setInput('');
     setSending(true);
+    setIsAutoScrolling(true); // Force to bottom on new message
 
     // Optimistic user message
     addMessage({ role: 'user', content: originalInput });
@@ -125,13 +146,7 @@ export default function ThreadsClient() {
           originalInput, 
           token,
           (content) => {
-            // Callback for each content chunk
-            console.log('xvf', content);
             updateLastAssistantMessage(content);
-          },
-          () => {
-            // Done callback
-            console.log('Streaming complete');
           }
         );
       }
@@ -191,7 +206,7 @@ export default function ThreadsClient() {
         </header>
 
         <div className="threads-admin__messages-container">
-          <div className="threads-admin__messages">
+          <div className="threads-admin__messages" onScroll={handleScroll} ref={messagesContainerRef}>
             {messages.map((m, i) => (
               <div key={i} className={`threads-admin__message threads-admin__message--${m.role}`}>
                 <div className="threads-admin__message-bubble">

@@ -178,7 +178,7 @@
     flex-direction: column
     min-width: 0
     height: 100vh
-    overflow: hidden // NO MAIN SCROLL
+    overflow: hidden // LOCKED VIEWPORT
     position: relative
 
   &__header
@@ -224,15 +224,18 @@
 
   &__content
     flex: 1
-    padding: $spacing-md
     width: 100%
     display: flex
     flex-direction: column
-    overflow-y: auto // CONTENT SCROLLS INDIVIDUALLY
-    min-height: 0 // Crucial for nested flex scrolling
-    
-    @media (min-width: 768px)
-      padding: $spacing-lg
+    overflow: hidden // CONTENT AREA HANDLES NO SCROLL BY DEFAULT
+    min-height: 0
+    position: relative
+
+    &--scrollable
+      overflow-y: auto
+      padding: $spacing-md
+      @media (min-width: 768px)
+        padding: $spacing-lg
 
   &__title
     margin-bottom: 1.5rem

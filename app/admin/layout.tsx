@@ -127,7 +127,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </header>
 
-        <div className="dashboard__content">
+        <div className={`dashboard__content ${pathname.startsWith('/admin/threads') ? '' : 'dashboard__content--scrollable'}`}>
           {children}
         </div>
       </main>
