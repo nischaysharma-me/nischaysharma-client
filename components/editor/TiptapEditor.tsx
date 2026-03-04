@@ -147,15 +147,17 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
             onClick={() => editor.chain().focus().setTextAlign('left').run()}
             className={editor.isActive({ textAlign: 'left' }) ? 'is-active' : ''}
             type="button"
+            title="Align Left"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 10H3M21 6H3M21 14H3M17 18H3"/></svg>
+            <i className="ph ph-text-align-left" />
           </button>
           <button
             onClick={() => editor.chain().focus().setTextAlign('center').run()}
             className={editor.isActive({ textAlign: 'center' }) ? 'is-active' : ''}
             type="button"
+            title="Align Center"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 10H6M21 6H3M21 14H3M18 18H6"/></svg>
+            <i className="ph ph-text-align-center" />
           </button>
         </div>
 
@@ -165,8 +167,9 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             className={editor.isActive('bulletList') ? 'is-active' : ''}
             type="button"
+            title="Bullet List"
           >
-            List
+            <i className="ph ph-list-bullets" />
           </button>
           <button
             onClick={() => {
@@ -174,8 +177,9 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
               if (url) editor.chain().focus().setImage({ src: url }).run();
             }}
             type="button"
+            title="Insert Image"
           >
-            Img
+            <i className="ph ph-image" />
           </button>
           <button
             onClick={() => {
@@ -184,8 +188,9 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
             }}
             className={editor.isActive('link') ? 'is-active' : ''}
             type="button"
+            title="Insert Link"
           >
-            Link
+            <i className="ph ph-link" />
           </button>
         </div>
 
@@ -195,16 +200,19 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             className={editor.isActive('codeBlock') ? 'is-active' : ''}
             type="button"
+            title="Code Block"
           >
-            Code
+            <i className="ph ph-code" />
           </button>
           <button
             onClick={toggleRawMode}
             className={isRawMode ? 'is-active' : ''}
             type="button"
-            style={{ backgroundColor: isRawMode ? '#000' : '#eee', color: isRawMode ? '#fff' : '#000' }}
+            title="Source View"
+            style={{ backgroundColor: isRawMode ? '#000' : '#eee', color: isRawMode ? '#fff' : '#000', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
           >
-            Source
+            <i className="ph ph-brackets-curly" />
+            <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>Source</span>
           </button>
         </div>
       </div>

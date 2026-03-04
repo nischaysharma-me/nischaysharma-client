@@ -47,7 +47,10 @@ export default function OverviewPage() {
         <div className="card dashboard__recent">
           <div className="dashboard__recent-header">
             <h3>Recent Publications</h3>
-            <button className="btn btn--ghost"><span>View All</span> &rarr;</button>
+            <button className="btn btn--ghost">
+              <span>View All</span>
+              <i className="ph ph-arrow-right" style={{ marginLeft: '0.5rem' }} />
+            </button>
           </div>
           <div className="dashboard__recent-list">
             {[
@@ -83,7 +86,7 @@ export default function OverviewPage() {
             <h4>Draft Content</h4>
             <p>Leverage the fine-tuned model to generate technical outlines and drafts.</p>
             <button className="btn btn--secondary btn--full">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <i className="ph ph-sparkle" style={{ marginRight: '0.4rem' }} />
               <span>Open Generator</span>
             </button>
           </div>
@@ -95,15 +98,15 @@ export default function OverviewPage() {
             <div className="links" style={{ padding: '0 1rem 1rem 1rem' }}>
               <button className="links-item">
                 User Management
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                <i className="ph ph-caret-right" />
               </button>
               <button className="links-item">
                 API Credentials
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                <i className="ph ph-caret-right" />
               </button>
               <button className="links-item">
                 System Logs
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                <i className="ph ph-caret-right" />
               </button>
             </div>
           </div>

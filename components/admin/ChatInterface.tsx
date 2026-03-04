@@ -247,7 +247,7 @@ export default function ChatInterface() {
               onClick={() => router.push('/admin/threads')}
               title="Back"
            >
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1.25rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+              <i className="ph ph-caret-left" style={{ fontSize: '1.25rem' }} />
            </button>
            
            {isEditingTitle ? (
@@ -284,7 +284,7 @@ export default function ChatInterface() {
                     style={{ background: 'none', border: 'none', color: '#737373', padding: '0.2rem', opacity: 0.5 }}
                     className="threads-admin__edit-icon-btn"
                   >
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    <i className="ph ph-pencil-simple" style={{ fontSize: '0.85rem' }} />
                   </button>
                 )}
              </div>
@@ -299,7 +299,7 @@ export default function ChatInterface() {
                 style={{ background: 'none', border: 'none', color: currentThread?.isPinned ? '#111' : '#737373', padding: '0.4rem' }}
                 title={currentThread?.isPinned ? "Unpin" : "Pin"}
               >
-                <svg fill={currentThread?.isPinned ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', transform: currentThread?.isPinned ? 'none' : 'rotate(45deg)' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414M7 17v.01M17 7L7 17" /></svg>
+                <i className={`ph-push-pin ${currentThread?.isPinned ? 'ph-fill' : 'ph'}`} style={{ fontSize: '1rem', transform: currentThread?.isPinned ? 'none' : 'rotate(45deg)', display: 'inline-block' }} />
               </button>
               <Button 
                 variant="ghost" 
@@ -307,7 +307,7 @@ export default function ChatInterface() {
                 title="Delete Thread"
                 onClick={handleDelete}
               >
-                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                 <i className="ph ph-trash" style={{ fontSize: '1rem' }} />
               </Button>
             </>
           )}
@@ -335,7 +335,7 @@ export default function ChatInterface() {
           
           {messages.length === 0 && !threadId && (
             <div className="threads-admin__empty-state">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+                <i className="ph ph-chat-circle-dots" style={{ fontSize: '2.5rem', marginBottom: '1rem', opacity: 0.15 }} />
                 <h3>Start a new conversation</h3>
                 <p>Ask anything about your content, SEO, or platform management.</p>
             </div>
@@ -368,11 +368,9 @@ export default function ChatInterface() {
             disabled={!input.trim() || sending}
           >
             {sending ? (
-              <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-              </svg>
+              <i className="ph ph-spinner animate-spin" style={{ fontSize: '1rem' }} />
             ) : (
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1.25rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+              <i className="ph ph-paper-plane-tilt" style={{ fontSize: '1.25rem' }} />
             )}
           </button>
         </div>

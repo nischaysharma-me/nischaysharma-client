@@ -121,10 +121,12 @@ export default function TemplateEditClient({ templateId, templateConfig }: Templ
         </div>
         <div className="dashboard__header-actions">
           <Button variant="secondary" onClick={() => router.back()}>
-            Cancel
+            <i className="ph ph-x" style={{ marginRight: '0.4rem' }} />
+            <span>Cancel</span>
           </Button>
           <Button variant="primary" onClick={handleUpdateTemplate} disabled={actionLoading}>
-            {actionLoading ? 'Saving...' : 'Save Changes'}
+            <i className="ph ph-floppy-disk" style={{ marginRight: '0.4rem' }} />
+            <span>{actionLoading ? 'Saving...' : 'Save Changes'}</span>
           </Button>
         </div>
       </div>
@@ -202,7 +204,7 @@ export default function TemplateEditClient({ templateId, templateConfig }: Templ
                       className="template-edit__add-btn"
                       style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                     >
-                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.8rem', height: '0.8rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                      <i className="ph ph-plus" />
                       <span>Add Section</span>
                     </button>
                   </div>
@@ -281,7 +283,8 @@ export default function TemplateEditClient({ templateId, templateConfig }: Templ
                 onClick={handleDeleteTemplate}
                 disabled={actionLoading}
               >
-                Delete Template
+                <i className="ph ph-trash" style={{ marginRight: '0.4rem' }} />
+                <span>Delete Template</span>
               </Button>
             </div>
           </div>

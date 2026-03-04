@@ -80,7 +80,7 @@ const ArticleSection = ({
           
           <a href={`/articles/${article.slug}`} className="articles-parallax__link">
             Open Journal
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <i className="ph ph-arrow-right" style={{ fontSize: '1.25rem' }} />
           </a>
         </div>
       </div>
@@ -102,9 +102,7 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
           <header className="landing__header">
             <div className="landing__brand">NISCHAY SHARMA</div>
             <div className="landing__logo">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-              </svg>
+              <i className="ph ph-stack" style={{ fontSize: '1.5rem' }} />
             </div>
             <button onClick={toggleMenu} className="landing__menu-btn">
               Menu

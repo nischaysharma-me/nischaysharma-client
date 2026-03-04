@@ -36,6 +36,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://unpkg.com/@phosphor-icons/web" async></script>
+      </head>
       <body
         className={`${poppins.variable} ${playfair.variable} font-sans antialiased`}
       >

@@ -143,7 +143,9 @@ export default function ProfileClient() {
               {skills.map((skill) => (
                 <span key={skill} className="skill-tag">
                   {skill}
-                  <button type="button" onClick={() => removeSkill(skill)}>&times;</button>
+                  <button type="button" onClick={() => removeSkill(skill)}>
+                    <i className="ph ph-x-circle" />
+                  </button>
                 </span>
               ))}
             </div>
@@ -190,7 +192,8 @@ export default function ProfileClient() {
                   onClick={addProject}
                   disabled={!newProject.title || !newProject.description}
                 >
-                  Add Project to List
+                  <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} />
+                  <span>Add Project to List</span>
                 </Button>
               </div>
 
@@ -214,9 +217,9 @@ export default function ProfileClient() {
                     <button 
                       type="button" 
                       onClick={() => removeProject(index)}
-                      style={{ color: 'var(--color-error)', fontSize: '1.25rem', padding: '0 0.5rem' }}
+                      style={{ color: 'var(--color-error)', padding: '0 0.5rem' }}
                     >
-                      &times;
+                      <i className="ph ph-trash" style={{ fontSize: '1.25rem' }} />
                     </button>
                   </div>
                 ))}
@@ -231,7 +234,8 @@ export default function ProfileClient() {
               loading={saving}
               disabled={saving}
             >
-              Save Profile & Projects
+              <i className="ph ph-floppy-disk" style={{ marginRight: '0.4rem' }} />
+              <span>Save Profile & Projects</span>
             </Button>
           </div>
         </form>

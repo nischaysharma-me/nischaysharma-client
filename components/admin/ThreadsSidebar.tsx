@@ -64,7 +64,7 @@ export default function ThreadsSidebar() {
       <div className="threads-admin__sidebar-header">
         <h3>Conversations</h3>
         <Button variant="primary" style={{ padding: '0.4rem' }} title="New Chat" onClick={() => router.push('/admin/threads')}>
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+          <i className="ph ph-plus" style={{ fontSize: '1rem' }} />
         </Button>
       </div>
       <div className="threads-admin__thread-list" data-lenis-prevent>
@@ -82,8 +82,9 @@ export default function ThreadsSidebar() {
                   style={{ background: 'none', border: 'none', padding: '0.2rem', color: t.isPinned ? '#111' : '#a3a3a3', opacity: t.isPinned ? 1 : 0.4 }}
                   title={t.isPinned ? "Unpin" : "Pin"}
                 >
-                  <svg fill={t.isPinned ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', transform: t.isPinned ? 'none' : 'rotate(45deg)' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414M7 17v.01M17 7L7 17" /></svg>
-                </button>              </div>
+                  <i className={`ph-push-pin ${t.isPinned ? 'ph-fill' : 'ph'}`} style={{ fontSize: '0.85rem', transform: t.isPinned ? 'none' : 'rotate(45deg)', display: 'inline-block' }} />
+                </button>
+              </div>
               <div className="threads-admin__thread-item-meta">
                 <span>{new Date(t.updatedAt).toLocaleDateString()}</span>
                 <span>•</span>

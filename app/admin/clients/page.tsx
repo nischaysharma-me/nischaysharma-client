@@ -143,7 +143,7 @@ export default function ClientsPage() {
                       >
                         <div className={`permission-checkbox ${selectedPermissions.includes(perm.key) ? 'permission-checkbox--checked' : ''}`}>
                           {selectedPermissions.includes(perm.key) && (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4"><path d="M5 13l4 4L19 7" /></svg>
+                            <i className="ph ph-check" style={{ color: '#fff', fontSize: '0.75rem' }} />
                           )}
                         </div>
                         <div className="permission-info">
@@ -159,9 +159,11 @@ export default function ClientsPage() {
                 
                 <div className="organization__actions">
                   <Button type="submit" variant="primary" className="btn--full" disabled={actionLoading}>
+                    <i className="ph ph-check" style={{ marginRight: '0.4rem' }} />
                     <span>{actionLoading ? 'Registering...' : 'Register Application'}</span>
                   </Button>
                   <Button type="button" variant="secondary" className="btn--full" onClick={() => setShowCreateForm(false)}>
+                    <i className="ph ph-x" style={{ marginRight: '0.4rem' }} />
                     <span>Cancel</span>
                   </Button>
                 </div>
@@ -172,7 +174,7 @@ export default function ClientsPage() {
               <div className="dashboard__recent-header">
                 <h3>Whitelisted Applications</h3>
                 <Button variant="primary" style={{ padding: '0.5rem 1rem', height: 'auto' }} onClick={() => setShowCreateForm(true)}>
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.9rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                  <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} />
                   <span>Register App</span>
                 </Button>
               </div>
@@ -195,6 +197,7 @@ export default function ClientsPage() {
                           onClick={() => handleDelete(client.id!)}
                           disabled={actionLoading}
                         >
+                          <i className="ph ph-trash" style={{ fontSize: '1.25rem' }} />
                           <span>Revoke</span>
                         </Button>
                       </div>
@@ -203,7 +206,10 @@ export default function ClientsPage() {
                 ) : (
                   <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
                     <p style={{ color: '#737373', marginBottom: '1.5rem' }}>No external applications registered yet.</p>
-                    <Button variant="secondary" onClick={() => setShowCreateForm(true)}><span>Register your first app</span></Button>
+                    <Button variant="secondary" onClick={() => setShowCreateForm(true)}>
+                      <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} />
+                      <span>Register your first app</span>
+                    </Button>
                   </div>
                 )}
               </div>

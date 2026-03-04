@@ -145,9 +145,11 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
                   </div>
                   <div className="organization__actions">
                     <Button type="submit" variant="primary" className="btn--full" disabled={actionLoading}>
-                      <span>{actionLoading ? 'Creating...' : 'Confirm & Create'}</span>
+                      <i className="ph ph-check" style={{ marginRight: '0.4rem' }} />
+                      <span>Confirm & Create</span>
                     </Button>
                     <Button type="button" variant="secondary" className="btn--full" onClick={() => setShowCreateForm(false)}>
+                      <i className="ph ph-x" style={{ marginRight: '0.4rem' }} />
                       <span>Cancel</span>
                     </Button>
                   </div>
@@ -158,7 +160,7 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
                 <div className="dashboard__recent-header">
                   <h3>Available Organizations</h3>
                   <Button variant="primary" style={{ padding: '0.5rem 1rem', height: 'auto' }} onClick={() => setShowCreateForm(true)}>
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.9rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                    <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} />
                     <span>New Org</span>
                   </Button>
                 </div>
@@ -170,6 +172,7 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
                           <div className="dashboard__recent-item-title">{org.name}</div>
                         </div>
                         <Button variant="secondary" style={{ padding: '0.4rem 1rem', fontSize: '0.75rem' }}>
+                          <i className="ph ph-key" style={{ marginRight: '0.4rem' }} />
                           <span>Request Access</span>
                         </Button>
                       </div>
@@ -177,7 +180,10 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
                   ) : (
                     <div style={{ padding: '3rem', textAlign: 'center' }}>
                       <p style={{ color: '#737373', marginBottom: '1.5rem' }}>No organizations found.</p>
-                      <Button variant="primary" onClick={() => setShowCreateForm(true)}><span>Create First One</span></Button>
+                      <Button variant="primary" onClick={() => setShowCreateForm(true)}>
+                        <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} />
+                        <span>Create First One</span>
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -208,8 +214,14 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
                   <Input value={newMemberId} onChange={(e) => setNewMemberId(e.target.value)} required />
                 </div>
                 <div className="organization__actions">
-                  <Button type="submit" variant="primary" className="btn--full" disabled={actionLoading}><span>Add Member</span></Button>
-                  <Button type="button" variant="secondary" className="btn--full" onClick={() => setShowAddMember(false)}><span>Cancel</span></Button>
+                  <Button type="submit" variant="primary" className="btn--full" disabled={actionLoading}>
+                    <i className="ph ph-user-plus" style={{ marginRight: '0.4rem' }} />
+                    <span>Add Member</span>
+                  </Button>
+                  <Button type="button" variant="secondary" className="btn--full" onClick={() => setShowAddMember(false)}>
+                    <i className="ph ph-x" style={{ marginRight: '0.4rem' }} />
+                    <span>Cancel</span>
+                  </Button>
                 </div>
               </form>
             </div>
@@ -220,7 +232,7 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
             <div className="dashboard__recent-header">
               <h3>Members</h3>
               <Button variant="secondary" style={{ padding: '0.5rem 1rem', height: 'auto' }} onClick={() => setShowAddMember(true)}>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.9rem', marginRight: '0.4rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                <i className="ph ph-user-plus" style={{ marginRight: '0.4rem' }} />
                 <span>Add Member</span>
               </Button>
             </div>
@@ -252,6 +264,7 @@ export default function OrganizationClient({ initialOrg, availableOrgs }: Organi
               <p className="description">{organization.description || 'N/A'}</p>
             </div>
             <Button variant="secondary" className="btn--full" style={{ marginTop: '1.5rem' }} onClick={() => setShowEditOrg(true)}>
+              <i className="ph ph-pencil-simple" style={{ marginRight: '0.4rem' }} />
               <span>Edit Details</span>
             </Button>
           </div>

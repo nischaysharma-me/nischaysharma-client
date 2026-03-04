@@ -64,7 +64,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <h1>TaughtCode<span>.</span></h1>
           </Link>
           <button className="dashboard__sidebar-close" onClick={() => setIsSidebarOpen(false)}>
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1.5rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            <i className="ph ph-x" style={{ fontSize: '1.5rem' }} />
           </button>
         </div>
 
@@ -115,16 +115,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <main className="dashboard__main">
         <header className="dashboard__header">
           <button className="dashboard__menu-toggle" onClick={() => setIsSidebarOpen(true)}>
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1.5rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            <i className="ph ph-list" style={{ fontSize: '1.5rem' }} />
           </button>
           
           <div className="dashboard__header-actions">
             <Link href="/" className="btn btn--secondary">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+              <i className="ph ph-arrow-square-out" />
               <span>View Site</span>
             </Link>
             <Link href="/admin/articles/create" className="btn btn--primary">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+              <i className="ph ph-plus" />
               <span>New Draft</span>
             </Link>
           </div>

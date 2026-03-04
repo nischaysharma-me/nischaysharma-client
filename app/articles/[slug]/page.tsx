@@ -75,7 +75,7 @@ export default async function PublicArticleView({ params }: PageProps) {
 
         <footer className="article-view__footer">
           <Link href="/" className="article-view__back-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <i className="ph ph-caret-left" style={{ fontSize: '1.25rem' }} />
             Explore More Stories
           </Link>
         </footer>
