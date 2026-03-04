@@ -2,23 +2,33 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { auth } from '@/lib/firebase';
-import { conversationsService, Thread, Message } from '@/services/conversations.service';
+import { conversationsService, Message } from '@/services/conversations.service';
 import { Button } from '@/components/ui/Button';
 import AdminLoading from '@/app/admin/loading';
 import { useRouter, useParams } from 'next/navigation';
+import { useThreadsStore } from '@/store/admin/useThreadsStore';
 
 export default function ThreadsClient() {
   const router = useRouter();
   const params = useParams() as { id?: string };
-  const threadId = params.id;
+  const threadIdFromUrl = params.id;
 
-  const [threads, setThreads] = useState<Thread[]>([]);
-  const [currentThread, setCurrentThread] = useState<Thread | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
+  const {
+    threads,
+    messages,
+    loading,
+    sending,
+    setThreads,
+    setCurrentThreadId,
+    setMessages,
+    addMessage,
+    updateLastAssistantMessage,
+    setLoading,
+    setSending,
+    getCurrentThread
+  } = useThreadsStore();
+
   const [input, setInput] = useState('');
-  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -27,13 +37,14 @@ export default function ThreadsClient() {
   }, []);
 
   useEffect(() => {
-    if (threadId) {
-      fetchThreadDetails(threadId);
+    if (threadIdFromUrl) {
+      setCurrentThreadId(threadIdFromUrl);
+      fetchThreadDetails(threadIdFromUrl);
     } else {
-      setCurrentThread(null);
+      setCurrentThreadId(null);
       setMessages([]);
     }
-  }, [threadId]);
+  }, [threadIdFromUrl, setCurrentThreadId, setMessages]);
 
   useEffect(() => {
     scrollToBottom();
@@ -74,8 +85,7 @@ export default function ThreadsClient() {
       if (!token) return;
       const response = await conversationsService.getThread(id, token);
       if (response.success) {
-        setCurrentThread(response.data);
-        setMessages(response.data.messages);
+        setMessages(response.data.messages || []);
       }
     } catch (err) {
       console.error('Error fetching thread details:', err);
@@ -87,18 +97,18 @@ export default function ThreadsClient() {
     e.preventDefault();
     if (!input.trim() || sending) return;
 
-    const userMessage: Message = { role: 'user', content: input };
-    const optimisticMessages = [...messages, userMessage];
-    setMessages(optimisticMessages);
     const originalInput = input;
     setInput('');
     setSending(true);
+
+    // Optimistic user message
+    addMessage({ role: 'user', content: originalInput });
 
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
 
-      if (!threadId) {
+      if (!threadIdFromUrl) {
         // Create new thread
         const response = await conversationsService.createThread({ message: originalInput }, token);
         if (response.success) {
@@ -107,43 +117,53 @@ export default function ThreadsClient() {
         }
       } else {
         // Stream reply for existing thread
-        const response = await conversationsService.streamReply(threadId, originalInput, token);
+        const response = await conversationsService.streamReply(threadIdFromUrl, originalInput, token);
         
         if (!response.ok) throw new Error('Failed to send message');
 
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
-        let assistantMessageContent = '';
         
         // Add placeholder assistant message
-        setMessages([...optimisticMessages, { role: 'assistant', content: '' }]);
+        addMessage({ role: 'assistant', content: '' });
 
         while (reader) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          const chunk = decoder.decode(value);
+          const chunk = decoder.decode(value, { stream: true });
           const lines = chunk.split('\n');
+          
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
+            const trimmedLine = line.trim();
+            if (!trimmedLine) continue;
+            
+            if (trimmedLine.startsWith('data: ')) {
+              const dataStr = trimmedLine.slice(6);
+              if (dataStr === '[DONE]') break;
+              
               try {
-                const data = JSON.parse(line.slice(6));
+                const data = JSON.parse(dataStr);
                 if (data.content) {
-                  assistantMessageContent += data.content;
-                  setMessages([...optimisticMessages, { role: 'assistant', content: assistantMessageContent }]);
+                  updateLastAssistantMessage(data.content);
                 }
-              } catch (e) {}
+              } catch (e) {
+                console.warn('Failed to parse SSE data chunk:', dataStr);
+              }
             }
           }
         }
       }
     } catch (err) {
       console.error('Error sending message:', err);
-      setInput(originalInput); // Restore input on error
+      // Optional: Add error message to chat
+      addMessage({ role: 'assistant', content: 'Sorry, I encountered an error while processing your request.' });
     } finally {
       setSending(false);
     }
   };
+
+  const currentThread = getCurrentThread();
 
   if (loading) return <AdminLoading />;
 
@@ -161,7 +181,7 @@ export default function ThreadsClient() {
             threads.map((t) => (
               <div 
                 key={t.id} 
-                className={`threads-admin__thread-item ${threadId === t.id ? 'threads-admin__thread-item--active' : ''}`}
+                className={`threads-admin__thread-item ${threadIdFromUrl === t.id ? 'threads-admin__thread-item--active' : ''}`}
                 onClick={() => router.push(`/admin/threads/${t.id}`)}
               >
                 <div className="threads-admin__thread-item-title">{t.title || 'Untitled Conversation'}</div>
@@ -196,7 +216,7 @@ export default function ThreadsClient() {
               messages.map((m, i) => (
                 <div key={i} className={`threads-admin__message threads-admin__message--${m.role}`}>
                   <div className="threads-admin__message-bubble">
-                    {m.content}
+                    {m.content || (m.role === 'assistant' && sending && i === messages.length - 1 ? '...' : '')}
                   </div>
                   <div className="threads-admin__message-meta">
                     {m.role === 'assistant' ? 'AI Assistant' : 'You'}
