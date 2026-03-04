@@ -41,7 +41,14 @@ export default function ChatInterface() {
   useEffect(() => {
     if (threadId) {
       setCurrentThreadId(threadId);
-      fetchThreadDetails(threadId);
+      // Only set fetchingDetails to true if we don't have messages yet
+      // This prevents the "page starts loading again" feeling when starting a chat
+      if (messages.length === 0) {
+        fetchThreadDetails(threadId);
+      } else {
+        // Just sync in background
+        syncThreadDetails(threadId);
+      }
       setIsAutoScrolling(true);
       setIsEditingTitle(false);
     } else {
@@ -90,6 +97,24 @@ export default function ChatInterface() {
     setIsAutoScrolling(isAtBottom);
   };
 
+  const syncThreadDetails = async (id: string) => {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+      const response = await conversationsService.getThread(id, token);
+      if (response.success) {
+        // If we only have the optimistic message, replace with full history
+        // Otherwise just update the thread info
+        if (messages.length <= 1) {
+          setMessages(response.data.messages || []);
+        }
+        updateThread(id, response.data);
+      }
+    } catch (err) {
+      console.error('Error syncing thread details:', err);
+    }
+  };
+
   const fetchThreadDetails = async (id: string) => {
     try {
       setFetchingDetails(true);
@@ -124,8 +149,12 @@ export default function ChatInterface() {
       if (!token) return;
 
       if (!threadId) {
+        // Create new thread
         const response = await conversationsService.createThread({ message: originalInput }, token);
         if (response.success) {
+          // Update store immediately so the next page has data
+          updateThread(response.data.id, response.data);
+          // Navigate without triggering a full re-fetch if possible
           router.push(`/admin/threads/${response.data.id}`);
         }
       } else {
@@ -205,7 +234,8 @@ export default function ChatInterface() {
     }
   };
 
-  if (fetchingDetails) return <AdminLoading />;
+  // Only block the whole UI if we are literally doing the very first fetch for a thread
+  if (fetchingDetails && messages.length === 0) return <AdminLoading />;
 
   return (
     <main className="threads-admin__chat-area">
@@ -239,26 +269,30 @@ export default function ChatInterface() {
               }}
              />
            ) : (
-             <h2 
-              onClick={() => setIsEditingTitle(true)}
-              style={{ cursor: 'pointer' }}
-              title="Click to edit title"
-             >
-              {currentThread?.title || (threadId ? 'Loading...' : 'New Conversation')}
-             </h2>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+               <h2 
+                  onClick={() => setIsEditingTitle(true)}
+                  style={{ cursor: 'pointer' }}
+                  title="Click to edit title"
+                >
+                  {currentThread?.title || (threadId ? 'Loading...' : 'New Conversation')}
+                </h2>
+                {threadId && (
+                  <button 
+                    onClick={() => setIsEditingTitle(true)}
+                    style={{ background: 'none', border: 'none', color: '#737373', padding: '0.2rem', opacity: 0.5 }}
+                    className="threads-admin__edit-icon-btn"
+                  >
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                  </button>
+                )}
+             </div>
            )}
         </div>
         
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           {threadId && (
             <>
-              <button 
-                onClick={() => setIsEditingTitle(true)}
-                style={{ background: 'none', border: 'none', color: '#737373', padding: '0.4rem' }}
-                title="Edit Title"
-              >
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-              </button>
               <button 
                 onClick={handlePinToggle}
                 style={{ background: 'none', border: 'none', color: currentThread?.isPinned ? '#111' : '#737373', padding: '0.4rem' }}
