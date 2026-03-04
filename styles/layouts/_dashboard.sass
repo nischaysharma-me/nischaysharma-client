@@ -18,10 +18,10 @@
     border-right: 1px solid $color-border
     display: flex
     flex-direction: column
-    position: sticky
-    top: 0
+    position: relative
     height: 100vh
     z-index: 50
+    flex-shrink: 0
     @include transition(transform)
 
     @include mobile
@@ -30,6 +30,7 @@
       transform: translateX(-100%)
       width: 280px
       max-width: 85vw
+      height: 100%
       
       &--open
         transform: translateX(0)
@@ -60,6 +61,7 @@
       padding: 0 $spacing-lg
     @include flex-between
     border-bottom: 1px solid $color-border
+    flex-shrink: 0
 
     h1
       font-size: 1.1rem
@@ -92,8 +94,6 @@
     &::-webkit-scrollbar-thumb
       background: rgba(0, 0, 0, 0.05)
       border-radius: 10px
-      &:hover
-        background: rgba(0, 0, 0, 0.1)
 
   &__nav-item
     display: flex
@@ -133,6 +133,7 @@
     padding: $spacing-sm
     border-top: 1px solid $color-border
     background-color: $color-bg-primary
+    flex-shrink: 0
 
     &-info
       display: flex
@@ -170,62 +171,45 @@
         letter-spacing: 0.05em
         @include text-truncate
 
-  // Main Content
+  // Main Content Area
   &__main
     flex: 1
     display: flex
     flex-direction: column
     min-width: 0
-    height: 100%
-    overflow-y: auto
+    height: 100vh
+    overflow: hidden // NO MAIN SCROLL
     position: relative
 
   &__header
-    height: auto
-    min-height: 4rem
+    height: 4rem
     @media (min-width: 768px)
       height: 5rem
-    padding: 0.75rem $spacing-sm
+    padding: 0 $spacing-md
     @media (min-width: 768px)
-      padding: 0 $spacing-xl
+      padding: 0 $spacing-lg
     @include flex-between
-    position: relative
     background-color: rgba($color-bg-primary, 0.9)
     backdrop-filter: blur(8px)
     z-index: 40
     border-bottom: 1px solid $color-border
     width: 100%
+    flex-shrink: 0
 
     &-actions
       display: flex
-      // flex-direction: column
-      gap: 0.4rem
-      align-items: flex-end
-      flex-shrink: 0
-      
-      @media (min-width: 768px)
-        flex-direction: row
-        gap: $spacing-sm
-        align-items: center
+      gap: $spacing-sm
+      align-items: center
       
       .btn
         @include mobile
           padding: 0.4rem
-          width: 2rem
-          height: 2rem
+          width: 2.25rem
+          height: 2.25rem
           border-radius: $radius-md
           
           span
             display: none
-
-        @media (min-width: 768px)
-          padding: 0.75rem 1.5rem
-          width: auto
-          height: auto
-          border-radius: $radius-pill
-          
-          span
-            display: inline
 
   &__menu-toggle
     display: none
@@ -239,20 +223,20 @@
       flex-shrink: 0
 
   &__content
-    padding: $spacing-sm
-    max-width: 1280px
-    margin: 0 auto
+    flex: 1
+    padding: $spacing-md
     width: 100%
     display: flex
     flex-direction: column
-    gap: $spacing-md
+    overflow-y: auto // CONTENT SCROLLS INDIVIDUALLY
+    min-height: 0 // Crucial for nested flex scrolling
     
     @media (min-width: 768px)
-      padding: $spacing-xl
-      gap: $spacing-xl
+      padding: $spacing-lg
 
   &__title
-    margin-bottom: 0.5rem
+    margin-bottom: 1.5rem
+    flex-shrink: 0
 
     h2
       font-size: 1.35rem
@@ -275,6 +259,8 @@
     display: grid
     grid-template-columns: 1fr
     gap: $spacing-md
+    margin-bottom: 2rem
+    flex-shrink: 0
 
     @media (min-width: 640px)
       grid-template-columns: repeat(3, 1fr)
@@ -283,48 +269,13 @@
     display: flex
     flex-direction: column
     gap: 0.25rem
-    @media (min-width: 768px)
-      gap: 0.5rem
-
-    &-label
-      font-size: 0.55rem
-      @media (min-width: 768px)
-        font-size: 0.625rem
-      font-weight: 700
-      color: $color-text-muted
-      text-transform: uppercase
-      letter-spacing: 0.2em
-
-    &-value
-      font-size: 1.35rem
-      @media (min-width: 480px)
-        font-size: 1.75rem
-      font-family: $font-serif
-      letter-spacing: -0.025em
-      color: $color-text-primary
-      @media (min-width: 768px)
-        font-size: 2.25rem
-
-    &-trend
-      margin-top: 1rem
-      display: flex
-      align-items: center
-      gap: 0.5rem
-      font-size: 0.75rem
-      font-weight: 500
-      color: $color-text-secondary
-
-      span
-        color: $color-text-primary
-        background-color: $color-bg-tertiary
-        padding: 0.125rem 0.5rem
-        border-radius: $radius-md
 
   &__grid-layout
     display: grid
     grid-template-columns: 1fr
     gap: $spacing-md
     width: 100%
+    flex: 1
 
     @media (min-width: 1024px)
       grid-template-columns: 2fr 1fr
@@ -333,160 +284,17 @@
   &__grid-main
     min-width: 0
     width: 100%
+    display: flex
+    flex-direction: column
 
   &__grid-sidebar
     min-width: 0
     width: 100%
+    display: flex
+    flex-direction: column
 
   &__recent
     display: flex
     flex-direction: column
     height: 100%
-
-    &-header
-      padding: $spacing-md
-      border-bottom: 1px solid $color-border
-      @include flex-between
-      background-color: $color-bg-secondary
-      
-      @media (min-width: 768px)
-        padding: $spacing-md $spacing-lg
-
-      h3
-        font-size: 0.75rem
-        @media (min-width: 768px)
-          font-size: 0.875rem
-        font-family: $font-sans
-        font-weight: 600
-        color: $color-text-primary
-
-      button
-        font-size: 0.75rem
-        font-weight: 600
-        color: $color-text-secondary
-        
-        &:hover
-          color: $color-text-primary
-
-    &-list
-      display: flex
-      flex-direction: column
-      flex: 1
-
-    &-item
-      padding: 1rem
-      @include flex-between
-      border-bottom: 1px solid $color-bg-tertiary
-      @include transition(background-color)
-      
-      @media (min-width: 768px)
-        padding: 1.25rem 2rem
-
-      &:last-child
-        border-bottom: none
-
-      &:hover
-        background-color: $color-bg-primary
-
-        .dashboard__recent-title
-          text-decoration: underline
-          text-decoration-color: $color-border
-          text-underline-offset: 4px
-
-      &-info
-        display: flex
-        flex-direction: column
-        gap: 0.25rem
-        flex: 1
-        min-width: 0
-
-      &-title
-        font-size: 0.75rem
-        @media (min-width: 768px)
-          font-size: 0.875rem
-        font-weight: 600
-        color: $color-text-primary
-        @include text-truncate
-
-      &-meta
-        display: flex
-        align-items: center
-        gap: 0.5rem
-        font-size: 0.65rem
-        @media (min-width: 768px)
-          font-size: 0.75rem
-        color: $color-text-secondary
-        font-weight: 500
-        
-        @media (max-width: 480px)
-          flex-direction: column
-          align-items: flex-start
-          gap: 0.25rem
-
-          .dot
-            display: none
-
-        .dot
-          width: 4px
-          height: 4px
-          border-radius: 50%
-          background-color: $color-border
-
-  &__sidebar-col
-    display: flex
-    flex-direction: column
-    gap: $spacing-md
-
-  &__ai-card
-    h3
-      font-size: 0.75rem
-      font-family: $font-sans
-      font-weight: 600
-      text-transform: uppercase
-      letter-spacing: 0.1em
-      color: $color-text-muted
-      margin-bottom: 1rem
-
-    h4
-      font-size: 1.125rem
-      font-family: $font-serif
-      margin-bottom: 0.5rem
-
-    p
-      font-size: 0.875rem
-      color: $color-text-muted
-      margin-bottom: 1.5rem
-      line-height: 1.6
-
-  &__links-card
-    h3
-      font-size: 0.75rem
-      font-family: $font-sans
-      font-weight: 600
-      text-transform: uppercase
-      letter-spacing: 0.1em
-      color: $color-text-muted
-      margin-bottom: 1.5rem
-
-    .links
-      display: flex
-      flex-direction: column
-      gap: 0.5rem
-
-      &-item
-        width: 100%
-        @include flex-between
-        padding: 0.75rem 1rem
-        border-radius: $radius-md
-        font-size: 0.875rem
-        font-weight: 500
-        color: $color-text-secondary
-        @include transition(background-color)
-
-        &:hover
-          background-color: $color-bg-primary
-
-        svg
-          width: 1rem
-          height: 1rem
-          color: $color-text-muted
+    min-height: 300px
