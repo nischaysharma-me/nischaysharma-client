@@ -51,22 +51,31 @@ export const usersService = {
     });
   },
 
+  /**
+   * Deactivate user account (Soft delete)
+   */
   deactivateUser: (id: string, token: string) => {
-    return apiFetch<any>(`/users/${id}/deactivate`, {
+    return apiFetch<{ success: boolean; message: string }>(`/users/${id}/deactivate`, {
       method: 'PATCH',
       token,
     });
   },
 
+  /**
+   * Disable user account (Admin only)
+   */
   disableUser: (id: string, token: string) => {
-    return apiFetch<any>(`/users/${id}/disable`, {
+    return apiFetch<{ success: boolean; message: string }>(`/users/${id}/disable`, {
       method: 'PATCH',
       token,
     });
   },
 
+  /**
+   * Activate user account (Admin only)
+   */
   activateUser: (id: string, token: string) => {
-    return apiFetch<any>(`/users/${id}/activate`, {
+    return apiFetch<{ success: boolean; message: string }>(`/users/${id}/activate`, {
       method: 'PATCH',
       token,
     });

@@ -104,5 +104,25 @@ export const articlesService = {
       token,
       body: data,
     });
+  },
+
+  /**
+   * Delete a specific article
+   */
+  deleteArticle: (id: string, token: string) => {
+    return apiFetch<{ success: boolean; message: string }>(`/articles/${id}`, {
+      method: 'DELETE',
+      token,
+    });
+  },
+
+  /**
+   * Delete all articles for the current user
+   */
+  deleteAllArticles: (token: string) => {
+    return apiFetch<{ success: boolean; message: string }>('/articles', {
+      method: 'DELETE',
+      token,
+    });
   }
 };
