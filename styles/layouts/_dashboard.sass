@@ -10,11 +10,7 @@
 
   @include mobile
     flex-direction: column
-    height: auto
-    min-height: 100vh
-    overflow: visible
   
-  // Sidebar
   &__sidebar
     width: 256px
     background-color: $color-bg-secondary
@@ -174,7 +170,6 @@
         letter-spacing: 0.05em
         @include text-truncate
 
-  // Main Content Area
   &__main
     flex: 1
     display: flex
@@ -183,10 +178,6 @@
     height: 100vh
     overflow: hidden
     position: relative
-
-    @include mobile
-      height: auto
-      overflow: visible
 
   &__header
     height: 4rem
@@ -242,9 +233,6 @@
     min-height: 0
     position: relative
 
-    @include mobile
-      overflow: visible
-
     &--scrollable
       overflow-y: auto
       padding: $spacing-md
@@ -292,7 +280,6 @@
     grid-template-columns: 1fr
     gap: $spacing-md
     width: 100%
-    flex: 1
 
     @media (min-width: 1024px)
       grid-template-columns: 2fr 1fr
