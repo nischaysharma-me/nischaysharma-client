@@ -4,6 +4,7 @@ import "../styles/globals.sass";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { Toaster } from "sonner";
 import RealtimeNotificationHandler from "@/components/RealtimeNotificationHandler";
+import SplashLoader from "@/components/SplashLoader";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${playfair.variable} font-sans antialiased`}
       >
+        <SplashLoader />
         <Toaster position="top-right" richColors expand closeButton />
         <RealtimeNotificationHandler />
         <SmoothScrollProvider>
