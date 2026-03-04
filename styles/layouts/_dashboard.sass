@@ -11,6 +11,7 @@
   @include mobile
     flex-direction: column
   
+  // Sidebar
   &__sidebar
     width: 256px
     background-color: $color-bg-secondary
@@ -170,6 +171,7 @@
         letter-spacing: 0.05em
         @include text-truncate
 
+  // Main Content Area
   &__main
     flex: 1
     display: flex
@@ -274,12 +276,49 @@
     display: flex
     flex-direction: column
     gap: 0.25rem
+    @media (min-width: 768px)
+      gap: 0.5rem
+
+    &-label
+      font-size: 0.55rem
+      @media (min-width: 768px)
+        font-size: 0.625rem
+      font-weight: 700
+      color: $color-text-muted
+      text-transform: uppercase
+      letter-spacing: 0.2em
+
+    &-value
+      font-size: 1.35rem
+      @media (min-width: 480px)
+        font-size: 1.75rem
+      font-family: $font-serif
+      letter-spacing: -0.025em
+      color: $color-text-primary
+      @media (min-width: 768px)
+        font-size: 2.25rem
+
+    &-trend
+      margin-top: 1rem
+      display: flex
+      align-items: center
+      gap: 0.5rem
+      font-size: 0.75rem
+      font-weight: 500
+      color: $color-text-secondary
+
+      span
+        color: $color-text-primary
+        background-color: $color-bg-tertiary
+        padding: 0.125rem 0.5rem
+        border-radius: $radius-md
 
   &__grid-layout
     display: grid
     grid-template-columns: 1fr
     gap: $spacing-md
     width: 100%
+    flex: 1
 
     @media (min-width: 1024px)
       grid-template-columns: 2fr 1fr
@@ -302,3 +341,151 @@
     flex-direction: column
     height: 100%
     min-height: 300px
+
+    &-header
+      padding: $spacing-md
+      border-bottom: 1px solid $color-border
+      @include flex-between
+      background-color: $color-bg-secondary
+      
+      @media (min-width: 768px)
+        padding: $spacing-md $spacing-lg
+
+      h3
+        font-size: 0.75rem
+        @media (min-width: 768px)
+          font-size: 0.875rem
+        font-family: $font-sans
+        font-weight: 600
+        color: $color-text-primary
+
+      button
+        font-size: 0.75rem
+        font-weight: 600
+        color: $color-text-secondary
+        
+        &:hover
+          color: $color-text-primary
+
+    &-list
+      display: flex
+      flex-direction: column
+      flex: 1
+
+    &-item
+      padding: 1rem
+      @include flex-between
+      border-bottom: 1px solid $color-bg-tertiary
+      @include transition(background-color)
+      
+      @media (min-width: 768px)
+        padding: 1.25rem 2rem
+
+      &:last-child
+        border-bottom: none
+
+      &:hover
+        background-color: $color-bg-primary
+
+        .dashboard__recent-title
+          text-decoration: underline
+          text-decoration-color: $color-border
+          text-underline-offset: 4px
+
+      &-info
+        display: flex
+        flex-direction: column
+        gap: 0.25rem
+        flex: 1
+        min-width: 0
+
+      &-title
+        font-size: 0.75rem
+        @media (min-width: 768px)
+          font-size: 0.875rem
+        font-weight: 600
+        color: $color-text-primary
+        @include text-truncate
+
+      &-meta
+        display: flex
+        align-items: center
+        gap: 0.5rem
+        font-size: 0.65rem
+        @media (min-width: 768px)
+          font-size: 0.75rem
+        color: $color-text-secondary
+        font-weight: 500
+        
+        @media (max-width: 480px)
+          flex-direction: column
+          align-items: flex-start
+          gap: 0.25rem
+
+          .dot
+            display: none
+
+        .dot
+          width: 4px
+          height: 4px
+          border-radius: 50%
+          background-color: $color-border
+  
+  &__sidebar-col
+    display: flex
+    flex-direction: column
+    gap: $spacing-md
+
+  &__ai-card
+    h3
+      font-size: 0.75rem
+      font-family: $font-sans
+      font-weight: 600
+      text-transform: uppercase
+      letter-spacing: 0.1em
+      color: $color-text-muted
+      margin-bottom: 1rem
+
+    h4
+      font-size: 1.125rem
+      font-family: $font-serif
+      margin-bottom: 0.5rem
+
+    p
+      font-size: 0.875rem
+      color: $color-text-muted
+      margin-bottom: 1.5rem
+      line-height: 1.6
+
+  &__links-card
+    h3
+      font-size: 0.75rem
+      font-family: $font-sans
+      font-weight: 600
+      text-transform: uppercase
+      letter-spacing: 0.1em
+      color: $color-text-muted
+      margin-bottom: 1.5rem
+
+    .links
+      display: flex
+      flex-direction: column
+      gap: 0.5rem
+
+      &-item
+        width: 100%
+        @include flex-between
+        padding: 0.75rem 1rem
+        border-radius: $radius-md
+        font-size: 0.875rem
+        font-weight: 500
+        color: $color-text-secondary
+        @include transition(background-color)
+
+        &:hover
+          background-color: $color-bg-primary
+
+        svg
+          width: 1rem
+          height: 1rem
+          color: $color-text-muted
