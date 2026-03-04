@@ -117,61 +117,26 @@ export default function ThreadsClient() {
         }
       } else {
         // Stream reply for existing thread
-        console.log('Starting stream for thread:', threadIdFromUrl);
-        const response = await conversationsService.streamReply(threadIdFromUrl, originalInput, token);
-        
-        if (!response.ok) throw new Error('Failed to send message');
-
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        
         // Add placeholder assistant message
         addMessage({ role: 'assistant', content: '' });
 
-        let buffer = '';
-
-        while (reader) {
-          const { done, value } = await reader.read();
-          if (done) {
-            console.log('Stream finished');
-            break;
+        await conversationsService.streamReply(
+          threadIdFromUrl, 
+          originalInput, 
+          token,
+          (content) => {
+            // Callback for each content chunk
+            updateLastAssistantMessage(content);
+          },
+          () => {
+            // Done callback
+            console.log('Streaming complete');
           }
-
-          const chunk = decoder.decode(value, { stream: true });
-          buffer += chunk;
-          
-          const lines = buffer.split('\n');
-          // Keep the last line in buffer if it's incomplete
-          buffer = lines.pop() || '';
-
-          for (const line of lines) {
-            const trimmedLine = line.trim();
-            if (!trimmedLine) continue;
-            
-            console.log('Received line:', trimmedLine);
-
-            if (trimmedLine.startsWith('data: ')) {
-              const dataStr = trimmedLine.slice(6);
-              if (dataStr === '[DONE]') {
-                 console.log('Received [DONE] signal');
-                 break;
-              }
-              
-              try {
-                const data = JSON.parse(dataStr);
-                if (data.content) {
-                  updateLastAssistantMessage(data.content);
-                }
-              } catch (e) {
-                console.warn('Failed to parse JSON from data chunk:', dataStr);
-              }
-            }
-          }
-        }
+        );
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error sending message:', err);
-      addMessage({ role: 'assistant', content: 'Sorry, I encountered an error while processing your request.' });
+      addMessage({ role: 'assistant', content: `Error: ${err.message}` });
     } finally {
       setSending(false);
     }
