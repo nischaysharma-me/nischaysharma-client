@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button';
 import AdminLoading from '@/app/admin/loading';
 import { useRouter, useParams } from 'next/navigation';
 import { useThreadsStore } from '@/store/admin/useThreadsStore';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ThreadsClient() {
   const router = useRouter();
@@ -220,7 +222,13 @@ export default function ThreadsClient() {
             {messages.map((m, i) => (
               <div key={i} className={`threads-admin__message threads-admin__message--${m.role}`}>
                 <div className="threads-admin__message-bubble">
-                  {m.content || (m.role === 'assistant' && sending && i === messages.length - 1 ? '...' : '')}
+                  {m.role === 'assistant' ? (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {m.content || (sending && i === messages.length - 1 ? '...' : '')}
+                    </ReactMarkdown>
+                  ) : (
+                    m.content
+                  )}
                 </div>
                 <div className="threads-admin__message-meta">
                   {m.role === 'assistant' ? 'AI Assistant' : 'You'}
