@@ -253,10 +253,18 @@ export default function ChatInterface() {
           {threadId && (
             <>
               <button 
+                onClick={() => setIsEditingTitle(true)}
+                style={{ background: 'none', border: 'none', color: '#737373', padding: '0.4rem' }}
+                title="Edit Title"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+              </button>
+              <button 
                 onClick={handlePinToggle}
                 style={{ background: 'none', border: 'none', color: currentThread?.isPinned ? '#111' : '#737373', padding: '0.4rem' }}
+                title={currentThread?.isPinned ? "Unpin" : "Pin"}
               >
-                <svg fill={currentThread?.isPinned ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
+                <svg fill={currentThread?.isPinned ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem', transform: currentThread?.isPinned ? 'none' : 'rotate(45deg)' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414M7 17v.01M17 7L7 17" /></svg>
               </button>
               <Button 
                 variant="ghost" 

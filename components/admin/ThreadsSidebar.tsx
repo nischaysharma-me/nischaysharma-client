@@ -79,11 +79,11 @@ export default function ThreadsSidebar() {
                 <div className="threads-admin__thread-item-title">{t.title || 'Untitled'}</div>
                 <button 
                   onClick={(e) => handlePinToggle(e, t)}
-                  style={{ background: 'none', border: 'none', padding: '0', color: t.isPinned ? '#111' : '#a3a3a3', opacity: t.isPinned ? 1 : 0.4 }}
+                  style={{ background: 'none', border: 'none', padding: '0.2rem', color: t.isPinned ? '#111' : '#a3a3a3', opacity: t.isPinned ? 1 : 0.4 }}
+                  title={t.isPinned ? "Unpin" : "Pin"}
                 >
-                  <svg fill={t.isPinned ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.75rem', height: '0.75rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
-                </button>
-              </div>
+                  <svg fill={t.isPinned ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24" style={{ width: '0.85rem', height: '0.85rem', transform: t.isPinned ? 'none' : 'rotate(45deg)' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414M7 17v.01M17 7L7 17" /></svg>
+                </button>              </div>
               <div className="threads-admin__thread-item-meta">
                 <span>{new Date(t.updatedAt).toLocaleDateString()}</span>
                 <span>•</span>
