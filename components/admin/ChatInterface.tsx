@@ -46,8 +46,18 @@ export default function ChatInterface() {
   useEffect(() => {
     if (threadId) {
       setCurrentThreadId(threadId);
-      // Fetch details immediately on ID change
-      fetchThreadDetails(threadId);
+      
+      // If we are switching to an EXISTING thread that isn't the one currently in the store,
+      // we clear messages to trigger the loading state for visual feedback.
+      // But if we just started a NEW chat (sending is true), we don't clear so the messages stay visible.
+      if (!sending) {
+        setMessages([]);
+        fetchThreadDetails(threadId);
+      } else {
+        // Just sync metadata
+        syncThreadDetails(threadId);
+      }
+
       setIsAutoScrolling(true);
       setIsEditingTitle(false);
     } else {
@@ -94,9 +104,21 @@ export default function ChatInterface() {
     setIsAutoScrolling(isAtBottom);
   };
 
+  const syncThreadDetails = async (id: string) => {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+      const response = await conversationsService.getThread(id, token);
+      if (response.success) {
+        updateThread(id, response.data);
+      }
+    } catch (err) {
+      console.error('Error syncing thread details:', err);
+    }
+  };
+
   const fetchThreadDetails = async (id: string) => {
     try {
-      // Only show full loading if we have no messages for this specific ID
       setFetchingDetails(true);
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
@@ -132,6 +154,7 @@ export default function ChatInterface() {
         // Create new thread
         const response = await conversationsService.createThread({ message: originalInput }, token);
         if (response.success) {
+          // Add to store so it's ready before navigation
           updateThread(response.data.id, response.data);
           router.push(`/admin/threads/${response.data.id}`);
         }
@@ -212,7 +235,7 @@ export default function ChatInterface() {
     }
   };
 
-  // Improved loading condition
+  // Only block the whole UI if we are literally doing a fetch and have no messages to show
   if (fetchingDetails && messages.length === 0) return <AdminLoading />;
 
   return (
