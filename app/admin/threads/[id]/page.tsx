@@ -1,6 +1,6 @@
 import React from 'react';
-import ThreadsClient from '@/components/admin/ThreadsClient';
+import ChatInterface from '@/components/admin/ChatInterface';
 
 export default function ThreadDetailPage() {
-  return <ThreadsClient />;
+  return <ChatInterface />;
 }
