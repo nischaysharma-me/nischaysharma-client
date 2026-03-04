@@ -1,5 +1,5 @@
-@use '../abstracts/variables' as *
-@use '../abstracts/mixins' as *
+@use '../abstracts/variables' as variables
+@use '../abstracts/mixins' as mixins
 
 .dashboard
   display: flex
@@ -8,23 +8,26 @@
   overflow: hidden
   position: relative
 
-  @include mobile
+  @include mixins.mobile
     flex-direction: column
+    height: auto
+    min-height: 100vh
+    overflow: visible
   
   // Sidebar
   &__sidebar
     width: 256px
-    background-color: $color-bg-secondary
-    border-right: 1px solid $color-border
+    background-color: variables.$color-bg-secondary
+    border-right: 1px solid variables.$color-border
     display: flex
     flex-direction: column
     position: relative
     height: 100vh
     z-index: 50
     flex-shrink: 0
-    @include transition(transform)
+    @include mixins.transition(transform)
 
-    @include mobile
+    @include mixins.mobile
       position: fixed
       left: 0
       transform: translateX(-100%)
@@ -38,7 +41,7 @@
 
   &__sidebar-overlay
     display: none
-    @include mobile
+    @include mixins.mobile
       display: block
       position: fixed
       inset: 0
@@ -46,7 +49,7 @@
       z-index: 45
       opacity: 0
       pointer-events: none
-      @include transition(opacity)
+      @include mixins.transition(opacity)
       
       &--open
         opacity: 1
@@ -56,11 +59,11 @@
     height: 4rem
     @media (min-width: 768px)
       height: 5rem
-    padding: 0 $spacing-md
+    padding: 0 variables.$spacing-md
     @media (min-width: 768px)
-      padding: 0 $spacing-lg
-    @include flex-between
-    border-bottom: 1px solid $color-border
+      padding: 0 variables.$spacing-lg
+    @include mixins.flex-between
+    border-bottom: 1px solid variables.$color-border
     flex-shrink: 0
 
     h1
@@ -71,17 +74,17 @@
       letter-spacing: -0.025em
 
       span
-        color: $color-text-muted
+        color: variables.$color-text-muted
 
   &__sidebar-close
     display: none
-    @include mobile
+    @include mixins.mobile
       display: flex
-      color: $color-text-muted
+      color: variables.$color-text-muted
       
   &__nav
     flex: 1
-    padding: $spacing-md $spacing-sm
+    padding: variables.$spacing-md variables.$spacing-sm
     overflow-y: auto
     display: flex
     flex-direction: column
@@ -100,39 +103,39 @@
     align-items: center
     gap: 1rem
     padding: 1rem 1.5rem
-    border-radius: $radius-md
+    border-radius: variables.$radius-md
     font-size: 0.875rem
     font-weight: 600
-    color: $color-text-secondary
+    color: variables.$color-text-secondary
     text-decoration: none
-    @include transition(background-color, color, box-shadow)
+    @include mixins.transition(background-color, color, box-shadow)
 
     &:hover
-      background-color: $color-bg-tertiary
-      color: $color-text-primary
+      background-color: variables.$color-bg-tertiary
+      color: variables.$color-text-primary
 
     &--active
-      background-color: $color-text-primary
-      color: $color-white
-      box-shadow: $shadow-premium
+      background-color: variables.$color-text-primary
+      color: variables.$color-white
+      box-shadow: variables.$shadow-premium
 
       &:hover
-        background-color: $color-text-primary
-        color: $color-white
+        background-color: variables.$color-text-primary
+        color: variables.$color-white
 
     svg
       width: 1rem
       height: 1rem
 
   &__nav-divider
-    margin: $spacing-md 0
-    border-top: 1px solid $color-border
-    padding-top: $spacing-md
+    margin: variables.$spacing-md 0
+    border-top: 1px solid variables.$color-border
+    padding-top: variables.$spacing-md
 
   &__profile
-    padding: $spacing-sm
-    border-top: 1px solid $color-border
-    background-color: $color-bg-primary
+    padding: variables.$spacing-sm
+    border-top: 1px solid variables.$color-border
+    background-color: variables.$color-bg-primary
     flex-shrink: 0
 
     &-info
@@ -145,13 +148,13 @@
     &-avatar
       width: 2.5rem
       height: 2.5rem
-      border-radius: $radius-pill
-      background-color: $color-border
-      @include flex-center
-      font-family: $font-serif
+      border-radius: variables.$radius-pill
+      background-color: variables.$color-border
+      @include mixins.flex-center
+      font-family: variables.$font-serif
       font-weight: 700
       font-size: 1.125rem
-      color: $color-text-secondary
+      color: variables.$color-text-secondary
       border: 1px solid #d4d4d4
 
     &-text
@@ -161,15 +164,15 @@
       .name
         font-size: 0.875rem
         font-weight: 600
-        color: $color-text-primary
-        @include text-truncate
+        color: variables.$color-text-primary
+        @include mixins.text-truncate
 
       .email
         font-size: 0.625rem
-        color: $color-text-secondary
+        color: variables.$color-text-secondary
         text-transform: uppercase
         letter-spacing: 0.05em
-        @include text-truncate
+        @include mixins.text-truncate
 
   // Main Content Area
   &__main
@@ -181,45 +184,53 @@
     overflow: hidden
     position: relative
 
+    @include mixins.mobile
+      height: auto
+      overflow: visible
+
   &__header
     height: 4rem
     @media (min-width: 768px)
       height: 5rem
-    padding: 0 $spacing-md
+    padding: 0 variables.$spacing-md
     @media (min-width: 768px)
-      padding: 0 $spacing-lg
-    @include flex-between
-    background-color: rgba($color-bg-primary, 0.9)
+      padding: 0 variables.$spacing-lg
+    @include mixins.flex-between
+    background-color: rgba(variables.$color-bg-primary, 0.9)
     backdrop-filter: blur(8px)
     z-index: 40
-    border-bottom: 1px solid $color-border
+    border-bottom: 1px solid variables.$color-border
     width: 100%
     flex-shrink: 0
 
+    @include mixins.mobile
+      position: sticky
+      top: 0
+
     &-actions
       display: flex
-      gap: $spacing-sm
+      gap: variables.$spacing-sm
       align-items: center
       
       .btn
-        @include mobile
+        @include mixins.mobile
           padding: 0.4rem
           width: 2.25rem
           height: 2.25rem
-          border-radius: $radius-md
+          border-radius: variables.$radius-md
           
           span
             display: none
 
   &__menu-toggle
     display: none
-    @include mobile
+    @include mixins.mobile
       display: flex
       align-items: center
       justify-content: center
       width: 2.5rem
       height: 2.5rem
-      color: $color-text-primary
+      color: variables.$color-text-primary
       flex-shrink: 0
 
   &__content
@@ -231,11 +242,14 @@
     min-height: 0
     position: relative
 
+    @include mixins.mobile
+      overflow: visible
+
     &--scrollable
       overflow-y: auto
-      padding: $spacing-md
+      padding: variables.$spacing-md
       @media (min-width: 768px)
-        padding: $spacing-lg
+        padding: variables.$spacing-lg
 
   &__title
     margin-bottom: 1.5rem
@@ -245,7 +259,7 @@
       font-size: 1.35rem
       @media (min-width: 480px)
         font-size: 1.75rem
-      color: $color-text-primary
+      color: variables.$color-text-primary
       margin-bottom: 0.25rem
       @media (min-width: 768px)
         font-size: 2.25rem
@@ -255,13 +269,13 @@
       font-size: 0.75rem
       @media (min-width: 480px)
         font-size: 0.875rem
-      color: $color-text-secondary
+      color: variables.$color-text-secondary
       font-weight: 500
 
   &__grid-stats
     display: grid
     grid-template-columns: 1fr
-    gap: $spacing-md
+    gap: variables.$spacing-md
     margin-bottom: 2rem
     flex-shrink: 0
 
@@ -276,12 +290,13 @@
   &__grid-layout
     display: grid
     grid-template-columns: 1fr
-    gap: $spacing-md
+    gap: variables.$spacing-md
     width: 100%
+    flex: 1
 
     @media (min-width: 1024px)
       grid-template-columns: 2fr 1fr
-      gap: $spacing-xl
+      gap: variables.$spacing-xl
 
   &__grid-main
     min-width: 0

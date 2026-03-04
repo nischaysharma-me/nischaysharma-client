@@ -1,5 +1,5 @@
 @use '../abstracts/variables' as variables
-@use '../abstracts/mixins' as *
+@use '../abstracts/mixins' as mixins
 
 .threads-admin
   display: flex
@@ -13,11 +13,17 @@
   @media (min-width: 768px)
     flex-direction: row
 
+  &--chat-open
+    @include mixins.mobile
+      .threads-admin__sidebar
+        display: none
+      .threads-admin__chat-area
+        display: flex
+
   &__sidebar
     width: 100%
-    height: 35%
+    height: 100%
     background-color: variables.$color-bg-secondary
-    border-bottom: 1px solid variables.$color-border
     display: flex
     flex-direction: column
     overflow: hidden
@@ -25,14 +31,12 @@
     
     @media (min-width: 768px)
       width: 260px
-      height: 100%
-      border-bottom: none
       border-right: 1px solid variables.$color-border
 
   &__sidebar-header
     padding: 0.75rem 1rem
     border-bottom: 1px solid variables.$color-border
-    @include flex-between
+    @include mixins.flex-between
     flex-shrink: 0
 
     h3
@@ -58,7 +62,7 @@
     padding: 0.875rem 1rem
     border-bottom: 1px solid variables.$color-bg-tertiary
     cursor: pointer
-    @include transition(background-color)
+    @include mixins.transition(background-color)
     text-decoration: none
     color: inherit
 
@@ -73,7 +77,7 @@
       font-size: 0.75rem
       font-weight: 600
       margin-bottom: 0.125rem
-      @include text-truncate
+      @include mixins.text-truncate
 
     &-meta
       font-size: 0.6rem
@@ -88,25 +92,36 @@
     flex-direction: column
     background-color: variables.$color-bg-primary
     min-width: 0
-    height: 65%
+    height: 100%
     position: relative
     
-    @media (min-width: 768px)
-      height: 100%
+    @include mixins.mobile
+      display: none
 
   &__chat-header
     padding: 0.625rem 1.25rem
     background-color: rgba(variables.$color-bg-secondary, 0.7)
     backdrop-filter: blur(10px)
     border-bottom: 1px solid variables.$color-border
-    @include flex-between
+    @include mixins.flex-between
     flex-shrink: 0
     z-index: 10
 
     h2
       font-size: 0.8125rem
       font-weight: 700
-      @include text-truncate
+      @include mixins.text-truncate
+
+  &__back-btn
+    display: none
+    @include mixins.mobile
+      display: flex
+      align-items: center
+      justify-content: center
+      width: 2rem
+      height: 2rem
+      color: variables.$color-text-primary
+      margin-left: -0.5rem
 
   &__messages-container
     flex: 1
@@ -124,7 +139,7 @@
     flex-direction: column
     gap: 1.25rem
     width: 100%
-    max-width: 1200px // Utilize width
+    max-width: 1200px 
     margin: 0 auto
 
     &::-webkit-scrollbar
@@ -204,7 +219,7 @@
     gap: 0.5rem
     align-items: flex-end
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05)
-    @include transition(box-shadow, border-color)
+    @include mixins.transition(box-shadow, border-color)
 
     &:focus-within
       border-color: variables.$color-text-primary
@@ -231,9 +246,9 @@
       border-radius: 50%
       background-color: variables.$color-text-primary
       color: variables.$color-white
-      @include flex-center
+      @include mixins.flex-center
       flex-shrink: 0
-      @include transition(transform, background-color)
+      @include mixins.transition(transform, background-color)
 
       &:hover
         transform: scale(1.05)
@@ -246,7 +261,7 @@
 
   &__empty-state
     flex: 1
-    @include flex-center
+    @include mixins.flex-center
     flex-direction: column
     text-align: center
     padding: 2rem
