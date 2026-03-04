@@ -55,7 +55,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       />
 
       {/* --- Sidebar --- */}
-      <aside className={`dashboard__sidebar ${isSidebarOpen ? 'dashboard__sidebar--open' : ''}`}>
+      <aside 
+        className={`dashboard__sidebar ${isSidebarOpen ? 'dashboard__sidebar--open' : ''}`}
+        data-lenis-prevent
+      >
         <div className="dashboard__logo">
           <Link href="/admin" style={{ textDecoration: 'none', color: 'inherit' }}>
             <h1>TaughtCode<span>.</span></h1>
@@ -65,7 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
         </div>
 
-        <nav className="dashboard__nav">
+        <nav className="dashboard__nav" data-lenis-prevent>
           {primaryNavItems.map((item) => (
             <Link 
               key={item.name}
@@ -127,7 +130,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </header>
 
-        <div className={`dashboard__content ${pathname.startsWith('/admin/threads') ? '' : 'dashboard__content--scrollable'}`}>
+        <div 
+          className={`dashboard__content ${pathname.startsWith('/admin/threads') ? '' : 'dashboard__content--scrollable'}`}
+          data-lenis-prevent={pathname.startsWith('/admin/threads') ? undefined : "true"}
+        >
           {children}
         </div>
       </main>

@@ -173,7 +173,7 @@ export default function ThreadsClient() {
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ width: '1rem', height: '1rem' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
           </Button>
         </div>
-        <div className="threads-admin__thread-list">
+        <div className="threads-admin__thread-list" data-lenis-prevent>
           {threads.length > 0 ? (
             threads.map((t) => (
               <div 
@@ -218,7 +218,7 @@ export default function ThreadsClient() {
         </header>
 
         <div className="threads-admin__messages-container">
-          <div className="threads-admin__messages" onScroll={handleScroll} ref={messagesContainerRef}>
+          <div className="threads-admin__messages" onScroll={handleScroll} ref={messagesContainerRef} data-lenis-prevent>
             {messages.map((m, i) => (
               <div key={i} className={`threads-admin__message threads-admin__message--${m.role}`}>
                 <div className="threads-admin__message-bubble">
