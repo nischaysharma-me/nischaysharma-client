@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { auth } from '@/lib/firebase';
 import { conversationsService, Thread } from '@/services/conversations.service';
 import { Button } from '@/components/ui/Button';
@@ -11,6 +11,7 @@ export default function ThreadsSidebar() {
   const router = useRouter();
   const params = useParams() as { id?: string };
   const threadIdFromUrl = params.id;
+  const [isCreating, setIsCreating] = useState(false);
 
   const {
     threads,
@@ -39,6 +40,30 @@ export default function ThreadsSidebar() {
     }
   };
 
+  const handleNewChat = async () => {
+    try {
+      setIsCreating(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      const response = await conversationsService.createThread({ 
+        message: '', // Initial empty message or default
+        title: 'New Conversation' 
+      }, token);
+
+      if (response.success) {
+        // Add to store so it appears in list immediately
+        setThreads([response.data, ...threads]);
+        router.push(`/admin/threads/${response.data.id}`);
+      }
+    } catch (err) {
+      console.error('Error creating new chat:', err);
+      alert('Failed to create new conversation');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const handlePinToggle = async (e: React.MouseEvent, thread: Thread) => {
     e.stopPropagation();
     try {
@@ -63,7 +88,14 @@ export default function ThreadsSidebar() {
     <aside className="threads-admin__sidebar">
       <div className="threads-admin__sidebar-header">
         <h3>Conversations</h3>
-        <Button variant="primary" style={{ padding: '0.4rem' }} title="New Chat" onClick={() => router.push('/admin/threads')}>
+        <Button 
+          variant="primary" 
+          style={{ padding: '0.4rem' }} 
+          title="New Chat" 
+          onClick={handleNewChat}
+          disabled={isCreating}
+          loading={isCreating}
+        >
           <i className="ph ph-plus" style={{ fontSize: '1rem' }} />
         </Button>
       </div>
