@@ -333,7 +333,17 @@ export default function ChatInterface() {
             <div key={i} className={`threads-admin__message threads-admin__message--${m.role}`}>
               <div className="threads-admin__message-bubble">
                 {m.role === 'assistant' ? (
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      img: ({ node, ...props }) => (
+                        <img 
+                          {...props} 
+                          style={{ maxWidth: '30%', borderRadius: '0.5rem', display: 'block', margin: '1rem 0' }} 
+                        />
+                      )
+                    }}
+                  >
                     {m.content || (sending && i === messages.length - 1 ? '...' : '')}
                   </ReactMarkdown>
                 ) : m.role === 'image' ? (
@@ -341,9 +351,10 @@ export default function ChatInterface() {
                     <img 
                       src={m.content} 
                       alt="AI Generated" 
-                      style={{ maxWidth: '100%', borderRadius: '0.5rem', marginTop: '0.5rem' }} 
+                      style={{ maxWidth: '30%', borderRadius: '0.5rem', marginTop: '0.5rem' }} 
                     />
                   ) : (
+
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#888' }}>
                       <i className="ph ph-spinner animate-spin"></i>
                       <span>Generating image...</span>
