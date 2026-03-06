@@ -9,6 +9,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useThreadsStore } from '@/store/admin/useThreadsStore';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ChatInterface() {
   const router = useRouter();
@@ -32,6 +33,7 @@ export default function ChatInterface() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleInput, setTitleInput] = useState('');
   const [fetchingDetails, setFetchingDetails] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -248,6 +250,24 @@ export default function ChatInterface() {
     }
   };
 
+  const handleDownload = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `generated-image-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Failed to download image');
+    }
+  };
+
   // Only block the whole UI if we are literally doing a fetch and have no messages to show
   if (fetchingDetails && messages.length === 0) return <AdminLoading />;
 
@@ -339,7 +359,12 @@ export default function ChatInterface() {
                       img: ({ node, ...props }) => (
                         <img 
                           {...props} 
-                          style={{ maxWidth: '30%', borderRadius: '0.5rem', display: 'block', margin: '1rem 0' }} 
+                          onClick={() => {
+                            if (typeof props.src === 'string') {
+                              setSelectedImage(props.src);
+                            }
+                          }}
+                          style={{ maxWidth: '30%', borderRadius: '0.5rem', display: 'block', margin: '1rem 0', cursor: 'zoom-in' }} 
                         />
                       )
                     }}
@@ -351,7 +376,8 @@ export default function ChatInterface() {
                     <img 
                       src={m.content} 
                       alt="AI Generated" 
-                      style={{ maxWidth: '30%', borderRadius: '0.5rem', marginTop: '0.5rem' }} 
+                      onClick={() => setSelectedImage(m.content)}
+                      style={{ maxWidth: '30%', borderRadius: '0.5rem', marginTop: '0.5rem', cursor: 'zoom-in' }} 
                     />
                   ) : (
 
@@ -412,6 +438,59 @@ export default function ChatInterface() {
           </button>
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedImage(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9999,
+              backgroundColor: 'rgba(0,0,0,0.9)',
+              backdropFilter: 'blur(10px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '2rem'
+            }}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }}
+            >
+              <img 
+                src={selectedImage} 
+                alt="Enlarged view" 
+                style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '0.5rem', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }} 
+              />
+              
+              <div style={{ position: 'absolute', top: '-3rem', right: 0, display: 'flex', gap: '1rem' }}>
+                <button 
+                  onClick={() => handleDownload(selectedImage)}
+                  style={{ color: 'white', background: 'rgba(255,255,255,0.1)', width: '2.5rem', height: '2.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  title="Download Image"
+                >
+                  <i className="ph ph-download-simple" style={{ fontSize: '1.25rem' }} />
+                </button>
+                <button 
+                  onClick={() => setSelectedImage(null)}
+                  style={{ color: 'white', background: 'rgba(255,255,255,0.1)', width: '2.5rem', height: '2.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  title="Close"
+                >
+                  <i className="ph ph-x" style={{ fontSize: '1.25rem' }} />
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }
