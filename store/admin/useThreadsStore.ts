@@ -50,18 +50,26 @@ export const useThreadsStore = create<ThreadsState>((set, get) => ({
     messages: [...state.messages, message] 
   })),
 
-  updateLastAssistantMessage: (content) => set((state) => {
+  updateLastAssistantMessage: (content: string, role?: 'assistant' | 'image') => set((state) => {
     const lastMessage = state.messages[state.messages.length - 1];
-    if (lastMessage && lastMessage.role === 'assistant') {
+    const targetRole = role || 'assistant';
+
+    if (lastMessage && lastMessage.role === targetRole) {
       const newMessages = [...state.messages];
+
+      // For images, we overwrite the placeholder with the URL. 
+      // For text, we append chunks.
+      const newContent = targetRole === 'image' ? content : (lastMessage.content + content);
+
       newMessages[newMessages.length - 1] = { 
         ...lastMessage, 
-        content: lastMessage.content + content 
+        content: newContent
       };
       return { messages: newMessages };
     }
     return state;
   }),
+
 
   setLoading: (loading) => set({ loading }),
   

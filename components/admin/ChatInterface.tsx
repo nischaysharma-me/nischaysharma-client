@@ -168,18 +168,17 @@ export default function ChatInterface() {
           token,
           (data) => {
             if (data.type === 'text') {
-              updateLastAssistantMessage(data.content);
+              updateLastAssistantMessage(data.content, 'assistant');
             } else if (data.type === 'image_start') {
               // Add a new message specifically for the image loading state
               addMessage({ role: 'image', content: '' });
             } else if (data.type === 'image_end') {
-              // The server sends the URL in the content when finished
-              // Update the last message (which should be the 'image' role message we just added)
-              updateLastAssistantMessage(data.content);
-              setSending(false); // Stop the spinner once the image is fully generated
+              // Use 'image' role to ensure the store updates the correct last message type
+              updateLastAssistantMessage(data.content, 'image');
+              setSending(false); 
             } else if (data.text) {
-              // Fallback for older server implementations
-              updateLastAssistantMessage(data.text);
+              // Fallback
+              updateLastAssistantMessage(data.text, 'assistant');
             }
           },
           () => {
