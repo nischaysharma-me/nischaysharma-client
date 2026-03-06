@@ -159,14 +159,27 @@ export default function ChatInterface() {
           router.push(`/admin/threads/${response.data.id}`);
         }
       } else {
+        // We initialize the assistant message. If the server sends an image later, we'll append a new message.
         addMessage({ role: 'assistant', content: '' });
 
         await conversationsService.streamReply(
           threadId, 
           originalInput, 
           token,
-          (content) => {
-            updateLastAssistantMessage(content);
+          (data) => {
+            if (data.type === 'text') {
+              updateLastAssistantMessage(data.content);
+            } else if (data.type === 'image_start') {
+              // Add a new message specifically for the image loading state
+              addMessage({ role: 'image', content: '' });
+            } else if (data.type === 'image_end') {
+              // The server sends the URL in the content when finished
+              // Update the last message (which should be the 'image' role message we just added)
+              updateLastAssistantMessage(data.content);
+            } else if (data.text) {
+              // Fallback for older server implementations
+              updateLastAssistantMessage(data.text);
+            }
           }
         );
       }
@@ -323,12 +336,25 @@ export default function ChatInterface() {
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {m.content || (sending && i === messages.length - 1 ? '...' : '')}
                   </ReactMarkdown>
+                ) : m.role === 'image' ? (
+                  m.content ? (
+                    <img 
+                      src={m.content} 
+                      alt="AI Generated" 
+                      style={{ maxWidth: '100%', borderRadius: '0.5rem', marginTop: '0.5rem' }} 
+                    />
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#888' }}>
+                      <i className="ph ph-spinner animate-spin"></i>
+                      <span>Generating image...</span>
+                    </div>
+                  )
                 ) : (
                   m.content
                 )}
               </div>
               <div className="threads-admin__message-meta">
-                {m.role === 'assistant' ? 'AI Assistant' : 'You'}
+                {m.role === 'assistant' ? 'AI Assistant' : m.role === 'image' ? 'System' : 'You'}
               </div>
             </div>
           ))}

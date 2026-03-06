@@ -1,7 +1,7 @@
 import { apiFetch, getBaseUrl } from './apiClient';
 
 export interface Message {
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'image';
   content: string;
   createdAt?: string;
 }
@@ -107,7 +107,7 @@ export const conversationsService = {
     threadId: string, 
     message: string, 
     token: string, 
-    onContent: (content: string) => void,
+    onContent: (data: any) => void,
     onDone?: () => void
   ) => {
     const baseUrl = getBaseUrl();
@@ -160,11 +160,7 @@ export const conversationsService = {
 
             try {
               const data = JSON.parse(dataStr);
-              // Check for both .text (some implementations) and .content (standard)
-              const content = data.content || data.text;
-              if (content) {
-                onContent(content);
-              }
+              onContent(data);
             } catch (e) {
               console.warn('Incomplete JSON in SSE stream:', dataStr);
             }
