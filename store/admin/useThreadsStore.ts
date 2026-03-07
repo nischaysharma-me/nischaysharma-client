@@ -15,7 +15,7 @@ interface ThreadsState {
   setCurrentThreadId: (id: string | null) => void;
   setMessages: (messages: Message[]) => void;
   addMessage: (message: Message) => void;
-  updateLastAssistantMessage: (content: string) => void;
+  updateLastAssistantMessage: (content: string, role?: 'assistant' | 'image') => void;
   setLoading: (loading: boolean) => void;
   setSending: (sending: boolean) => void;
   
