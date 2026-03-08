@@ -22,13 +22,18 @@
 
   &__header
     position: absolute
-    top: 2rem
-    left: 2rem
-    right: 2rem
+    top: 1.5rem
+    left: 1.5rem
+    right: 1.5rem
     z-index: 10
     display: flex
     justify-content: space-between
     align-items: center
+
+    @media (min-width: 768px)
+      top: 2rem
+      left: 2rem
+      right: 2rem
 
     @media (min-width: 1024px)
       top: 3rem
@@ -36,20 +41,28 @@
       right: 4rem
 
   &__brand
-    font-size: 0.75rem
-    letter-spacing: 4px
+    font-size: 0.65rem
+    @media (min-width: 480px)
+      font-size: 0.75rem
+    letter-spacing: 2px
+    @media (min-width: 480px)
+      letter-spacing: 4px
     color: $color-white
     font-weight: 700
     text-transform: uppercase
 
   &__close-btn
-    font-size: 0.75rem
+    font-size: 0.65rem
+    @media (min-width: 480px)
+      font-size: 0.75rem
     background: transparent
     border: none
     color: $color-white
     cursor: pointer
     text-transform: uppercase
-    letter-spacing: 2px
+    letter-spacing: 1px
+    @media (min-width: 480px)
+      letter-spacing: 2px
     @include transition(opacity)
 
     &:hover
@@ -60,14 +73,20 @@
     z-index: 5
     width: 100%
     max-width: 400px
-    padding: 2rem
+    padding: 1.5rem
+    @media (min-width: 768px)
+      padding: 2rem
 
   &__box
     background: rgba(255, 255, 255, 0.03)
     backdrop-filter: blur(20px)
     border: 1px solid rgba(255, 255, 255, 0.08)
-    border-radius: 2rem
-    padding: 3rem 2.5rem
+    border-radius: 1.5rem
+    @media (min-width: 768px)
+      border-radius: 2rem
+    padding: 2rem 1.5rem
+    @media (min-width: 768px)
+      padding: 3rem 2.5rem
     width: 100%
     text-align: center
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5)
@@ -75,30 +94,46 @@
   &__title
     font-family: $font-serif
     color: $color-white
-    font-size: 2.5rem
+    font-size: 2rem
+    @media (min-width: 768px)
+      font-size: 2.5rem
     font-weight: 400
     margin-bottom: 0.5rem
     letter-spacing: -0.02em
 
   &__subtitle
-    font-size: 0.75rem
+    font-size: 0.65rem
+    @media (min-width: 480px)
+      font-size: 0.75rem
     color: rgba(255, 255, 255, 0.4)
     text-transform: uppercase
-    letter-spacing: 0.15em
-    margin-bottom: 3rem
+    letter-spacing: 0.1em
+    @media (min-width: 480px)
+      letter-spacing: 0.15em
+    margin-bottom: 2rem
+    @media (min-width: 768px)
+      margin-bottom: 3rem
     display: block
 
   &__footer
     position: absolute
-    bottom: 2.5rem
+    bottom: 1.5rem
+    @media (min-width: 768px)
+      bottom: 2.5rem
     width: 100%
     display: flex
     justify-content: center
     z-index: 10
+    padding: 0 1.5rem
+    text-align: center
 
   &__footer-text
-    font-size: 0.625rem
-    letter-spacing: 3px
+    font-size: 0.55rem
+    @media (min-width: 480px)
+      font-size: 0.625rem
+    letter-spacing: 2px
+    @media (min-width: 480px)
+      letter-spacing: 3px
     color: rgba(255, 255, 255, 0.3)
     text-transform: uppercase
     font-weight: 600

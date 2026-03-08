@@ -47,17 +47,19 @@ export default function CreateArticlePage() {
 
   return (
     <div className="article-create">
-      <div className="dashboard__header" style={{ position: 'static', background: 'transparent', padding: '0', marginBottom: '2rem' }}>
+      <div className="article-edit__header">
         <div className="dashboard__title">
           <h2>Create New Draft</h2>
           <p>Begin your next masterpiece.</p>
         </div>
         <div className="dashboard__header-actions">
           <Button variant="secondary" onClick={() => router.back()}>
-            Cancel
+            <i className="ph ph-x" style={{ marginRight: '0.4rem' }} />
+            <span>Cancel</span>
           </Button>
-          <Button variant="primary" onClick={handleCreate} disabled={loading}>
-            {loading ? 'Creating...' : 'Create Draft'}
+          <Button variant="primary" onClick={handleCreate} disabled={loading} loading={loading}>
+            <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} />
+            <span>Create Draft</span>
           </Button>
         </div>
       </div>

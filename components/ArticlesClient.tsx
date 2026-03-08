@@ -131,7 +131,9 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
             <div className="card card--padded articles-admin__generator-card">
               <div className="articles-admin__generator-header">
                 <h3>AI Article Generator</h3>
-                <button onClick={() => setShowGenerator(false)} className="close-btn">CLOSE</button>
+                <button onClick={() => setShowGenerator(false)} className="close-btn">
+                  <i className="ph ph-x" style={{ fontSize: '1rem' }} />
+                </button>
               </div>
               
               <form onSubmit={handleGenerate} className="auth__fields">
@@ -188,9 +190,9 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
 
                 {error && <p className="auth__error" style={{ marginTop: '1rem' }}>{error}</p>}
 
-                <div className="organization__actions" style={{ marginTop: '2rem' }}>
-                  <Button type="submit" variant="primary" className="btn--full" disabled={generating}>
-                    <span>{generating ? 'Engine Processing...' : 'Start AI Generation'}</span>
+                <div className="organization__actions" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexDirection: 'column' }}>
+                  <Button type="submit" variant="primary" className="btn--full" disabled={generating} loading={generating}>
+                    <span>Start AI Generation</span>
                   </Button>
                 </div>
               </form>

@@ -10,6 +10,7 @@
 
   @include mobile
     flex-direction: column
+    height: 100dvh
   
   // Sidebar
   &__sidebar
@@ -181,6 +182,9 @@
     overflow: hidden
     position: relative
 
+    @include mobile
+      height: calc(100vh - 4rem) // Subtract mobile logo height if visible? No, mobile header is separate.
+
   &__header
     height: 4rem
     @media (min-width: 768px)
@@ -231,15 +235,16 @@
     width: 100%
     display: flex
     flex-direction: column
-    overflow: hidden
+    overflow-y: auto // ALWAYS ENABLE SCROLL IN CONTENT
     min-height: 0
     position: relative
+    padding: $spacing-md
+    @media (min-width: 768px)
+      padding: $spacing-lg
 
     &--scrollable
+      // This class is now mostly redundant but kept for compatibility
       overflow-y: auto
-      padding: $spacing-md
-      @media (min-width: 768px)
-        padding: $spacing-lg
 
   &__title
     margin-bottom: 1.5rem
@@ -316,7 +321,7 @@
   &__grid-layout
     display: grid
     grid-template-columns: 1fr
-    gap: $spacing-md
+    gap: 1.5rem
     width: 100%
     flex: 1
 

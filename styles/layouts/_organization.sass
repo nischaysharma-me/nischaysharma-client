@@ -4,33 +4,46 @@
 .organization
   display: flex
   flex-direction: column
-  gap: $spacing-xl
+  gap: 1.5rem
+  @media (min-width: 768px)
+    gap: $spacing-xl
 
   &__setup
     max-width: 500px
     margin: 0 auto
+    width: 100%
 
   &__form-group
-    margin-bottom: $spacing-md
+    margin-bottom: 1rem
+    @media (min-width: 768px)
+      margin-bottom: $spacing-md
     
     label
       display: block
-      margin-bottom: $spacing-xs
+      margin-bottom: 0.25rem
+      @media (min-width: 768px)
+        margin-bottom: $spacing-xs
 
   &__actions
     display: flex
     flex-direction: column
-    gap: $spacing-sm
-    margin-top: $spacing-lg
+    gap: 0.75rem
+    margin-top: 1.5rem
+    @media (min-width: 768px)
+      margin-top: $spacing-lg
     
     @media (min-width: 640px)
       flex-direction: row
 
 .stat-group
-  margin-bottom: $spacing-md
+  margin-bottom: 1rem
+  @media (min-width: 768px)
+    margin-bottom: $spacing-md
   
   .label
-    font-size: 0.625rem
+    font-size: 0.55rem
+    @media (min-width: 480px)
+      font-size: 0.625rem
     font-weight: 700
     color: $color-text-muted
     text-transform: uppercase
@@ -39,12 +52,16 @@
     display: block
 
   .value
-    font-size: 0.875rem
+    font-size: 0.8125rem
+    @media (min-width: 480px)
+      font-size: 0.875rem
     font-weight: 600
     color: $color-text-primary
 
   .description
-    font-size: 0.875rem
+    font-size: 0.8125rem
+    @media (min-width: 480px)
+      font-size: 0.875rem
     color: $color-text-secondary
     line-height: 1.5
     margin-top: 0.25rem
