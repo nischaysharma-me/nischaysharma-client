@@ -62,6 +62,16 @@ export const booksService = {
   },
 
   /**
+   * Get a book with full hierarchy (chapters and pages populated)
+   */
+  getFullBook: (bookId: string, token: string) => {
+    return apiFetch<{ success: boolean; data: Book & { chapters: (Chapter & { pages: Page[] })[] } }>(`/books/${bookId}/full`, {
+      method: 'GET',
+      token,
+    });
+  },
+
+  /**
    * Create a new book or paper
    */
   createBook: (data: CreateBookData, token: string) => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import BookDetailClient from './BookDetailClient';
+import BookDetailClient from '@/app/admin/books/[id]/BookDetailClient';
 
 interface PageProps {
   params: Promise<{ id: string }>;
