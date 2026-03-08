@@ -19,7 +19,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
   const router = useRouter();
   const [book, setBook] = useState<FullBook | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeChapterId, setActiveChapterId] = useState<string | null>(null);
+  const [activeChapterId, setActiveChapterId] = useState<string | 'root' | null>(null);
 
   useEffect(() => {
     fetchBookData();
@@ -35,8 +35,10 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
 
       if (response.success) {
         setBook(response.data);
-        if (response.data.chapters.length > 0) {
+        if (response.data.chapters && response.data.chapters.length > 0) {
           setActiveChapterId(response.data.chapters[0].id);
+        } else if (response.data.pages && response.data.pages.length > 0) {
+          setActiveChapterId('root');
         }
       }
     } catch (err) {
@@ -51,7 +53,9 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
   if (loading) return <AdminLoading />;
   if (!book) return <div style={{ padding: '4rem', textAlign: 'center' }}>Book not found</div>;
 
-  const activeChapter = book.chapters.find(c => c.id === activeChapterId);
+  const activeChapter = activeChapterId === 'root' 
+    ? { title: 'General Content', pages: book.pages || [] }
+    : book.chapters.find(c => c.id === activeChapterId);
 
   return (
     <div className="book-editor">
@@ -96,6 +100,26 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
            </div>
            
            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+             {book.pages && book.pages.length > 0 && (
+               <div 
+                onClick={() => setActiveChapterId('root')}
+                style={{ 
+                  padding: '0.75rem 1rem', 
+                  borderRadius: '0.5rem', 
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: activeChapterId === 'root' ? 700 : 400,
+                  background: activeChapterId === 'root' ? '#fff' : 'transparent',
+                  boxShadow: activeChapterId === 'root' ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
+                  display: 'flex',
+                  gap: '0.75rem'
+                }}
+               >
+                 <i className="ph ph-file-text" style={{ opacity: 0.3 }} />
+                 <span>General Content</span>
+               </div>
+             )}
+
              {book.chapters.map((chapter, idx) => (
                <div 
                 key={chapter.id} 

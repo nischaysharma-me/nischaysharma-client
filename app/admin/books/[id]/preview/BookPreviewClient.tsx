@@ -113,6 +113,21 @@ export default function BookPreviewClient({ bookId }: BookPreviewClientProps) {
 
         {/* Chapters and Pages */}
         <div className="book-preview__content">
+          {/* Render Root Pages (e.g. Intro, General sections) */}
+          {book.pages && book.pages.length > 0 && (
+            <section style={{ marginBottom: '8rem' }}>
+              <div className="prose">
+                {book.pages.map((page) => (
+                  <div key={page.id} style={{ marginBottom: '3rem' }}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {page.content}
+                    </ReactMarkdown>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {book.chapters?.map((chapter, cIdx) => (
             <section key={chapter.id} id={`chapter-${chapter.id}`} style={{ marginBottom: '10rem' }}>
               <div style={{ marginBottom: '4rem' }}>

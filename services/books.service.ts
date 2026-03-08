@@ -44,8 +44,9 @@ export const booksService = {
   /**
    * List all books for the authenticated user
    */
-  getUserBooks: (token: string) => {
-    return apiFetch<{ success: boolean; data: Book[] }>('/books', {
+  getUserBooks: (token: string, full: boolean = false) => {
+    const query = full ? '?full=true' : '';
+    return apiFetch<{ success: boolean; data: Book[] | (Book & { chapters: (Chapter & { pages: Page[] })[] })[] }>(`/books${query}`, {
       method: 'GET',
       token,
     });

@@ -2,9 +2,9 @@
 
 import { booksService, CreateBookData, Book, Page } from '@/services/books.service';
 
-export async function getUserBooksAction(token: string) {
+export async function getUserBooksAction(token: string, full: boolean = false) {
   try {
-    return await booksService.getUserBooks(token);
+    return await booksService.getUserBooks(token, full);
   } catch (error) {
     console.error('Server Action Error (getUserBooks):', error);
     return { success: false, data: [], error: 'Failed to fetch books' };
