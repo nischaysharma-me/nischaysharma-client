@@ -141,7 +141,8 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
 
         <div className="dashboard__grid-sidebar">
           <div className="card card--padded">
-            <h3 className="label" style={{ marginBottom: '1.5rem' }}>AI Template Generator</h3>
+            <h3 className="dashboard__recent-item-title" style={{ marginBottom: '1.5rem' }}>AI Template Generator</h3>
+            <p style={{ fontSize: '0.8rem', color: '#737373', marginBottom: '1.5rem' }}>Describe the type of content you want to generate, and our AI will create a structural blueprint.</p>
             <form onSubmit={handleGenerate} className="auth__fields">
               <div className="organization__form-group">
                 <label className="label">Template Description</label>
@@ -176,10 +177,12 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
                 )}
               </div>
 
-              <Button type="submit" variant="primary" className="btn--full" style={{ marginTop: '1rem' }} disabled={generating}>
-                <i className="ph ph-sparkle" style={{ marginRight: '0.4rem' }} />
-                <span>{generating ? 'Requesting...' : 'Generate Template'}</span>
-              </Button>
+              <div className="organization__actions" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexDirection: 'column' }}>
+                <Button type="submit" variant="primary" className="btn--full" disabled={generating} loading={generating}>
+                  <i className="ph ph-sparkle" style={{ marginRight: '0.4rem' }} />
+                  <span>Generate Template</span>
+                </Button>
+              </div>
             </form>
           </div>
         </div>
