@@ -38,6 +38,11 @@ export const primaryNavItems: NavItem[] = [
     icon: <i className="ph ph-article" />
   },
   { 
+    name: 'Books', 
+    href: '/admin/books',
+    icon: <i className="ph ph-book" />
+  },
+  { 
     name: 'Threads', 
     href: '/admin/threads',
     icon: <i className="ph ph-chat-circle-dots" />
