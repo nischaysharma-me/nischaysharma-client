@@ -6,14 +6,27 @@ import { auth } from '@/lib/firebase';
 import { Book, Page, Chapter, booksService } from '@/services/books.service';
 import { Button } from '@/components/ui/Button';
 import AdminLoading from '@/app/admin/loading';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import TiptapEditor from '@/components/editor/TiptapEditor';
 
 interface BookDetailClientProps {
   bookId: string;
 }
 
-type FullBook = Book & { chapters: (Chapter & { pages: Page[] })[] };
+type FullBook = {
+  id: string;
+  userId: string;
+  threadId: string | null;
+  title: string;
+  description: string;
+  coverImage: string;
+  status: 'draft' | 'published';
+  type: 'book' | 'paper';
+  chapters: (Chapter & { pages: any[] })[];
+  metadata: Record<string, any>;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  pages?: any[];
+};
 
 export default function BookDetailClient({ bookId }: BookDetailClientProps) {
   const router = useRouter();
@@ -57,44 +70,86 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
     ? { title: 'General Content', pages: book.pages || [] }
     : book.chapters.find(c => c.id === activeChapterId);
 
+  const handlePageContentChange = (pageId: string, newContent: string) => {
+    if (!book) return;
+    setBook((prevBook) => {
+      if (!prevBook) return prevBook;
+      const newBook = { ...prevBook };
+      if (activeChapterId === 'root') {
+        newBook.pages = newBook.pages?.map((p) => p.id === pageId ? { ...p, content: newContent } : p);
+      } else {
+        newBook.chapters = newBook.chapters.map((c) => {
+          if (c.id === activeChapterId) {
+            return {
+              ...c,
+              pages: c.pages.map((p) => p.id === pageId ? { ...p, content: newContent } : p)
+            };
+          }
+          return c;
+        });
+      }
+      return newBook;
+    });
+  };
+
   return (
     <div className="book-editor">
-      <header className="dashboard__header" style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--color-bg-primary)', borderBottom: '1px solid var(--color-border)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', padding: '0.5rem 2rem' }}>
+      <header className="dashboard__header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%', padding: '0.5rem 1rem' }}>
           <button 
             onClick={() => router.push('/admin/books')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '0.5rem' }}
           >
             <i className="ph ph-arrow-left" style={{ fontSize: '1.25rem' }} />
           </button>
-          <div style={{ flex: 1 }}>
-            <h2 style={{ fontSize: '1rem', fontWeight: 800 }}>{book.title}</h2>
-            <div style={{ fontSize: '0.65rem', opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Manuscript Editor</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h2 style={{ fontSize: '0.9rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{book.title}</h2>
+            <div style={{ fontSize: '0.6rem', opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Editor</div>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="dashboard__header-actions">
             <Button 
               variant="secondary" 
               onClick={() => router.push(`/admin/books/${bookId}/preview`)}
-              style={{ fontSize: '0.75rem', padding: '0.4rem 1rem' }}
             >
-              <i className="ph ph-eye" style={{ marginRight: '0.5rem' }} />
-              Preview
+              <i className="ph ph-eye" />
+              <span>Preview</span>
             </Button>
             <Button 
               variant="primary" 
               onClick={() => alert('Save coming soon!')}
-              style={{ fontSize: '0.75rem', padding: '0.4rem 1rem' }}
             >
-              Save Changes
+              <i className="ph ph-floppy-disk" />
+              <span>Save</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="dashboard__grid-layout" style={{ height: 'calc(100vh - 4.5rem)', overflow: 'hidden' }}>
-        {/* Sidebar: Chapters */}
-        <aside style={{ borderRight: '1px solid #eee', background: '#fafafa', overflowY: 'auto', padding: '2rem 1rem' }}>
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', padding: '0 0.5rem' }}>
+      {/* Mobile Chapter Selector */}
+      <div className="book-editor__mobile-nav">
+        {book.pages && book.pages.length > 0 && (
+          <button 
+            onClick={() => setActiveChapterId('root')}
+            className={`book-editor__chapter-pill ${activeChapterId === 'root' ? 'book-editor__chapter-pill--active' : ''}`}
+          >
+            General
+          </button>
+        )}
+        {book.chapters.map((chapter) => (
+          <button 
+            key={chapter.id}
+            onClick={() => setActiveChapterId(chapter.id)}
+            className={`book-editor__chapter-pill ${activeChapterId === chapter.id ? 'book-editor__chapter-pill--active' : ''}`}
+          >
+            {chapter.title}
+          </button>
+        ))}
+      </div>
+
+      <div className="book-editor__grid">
+        {/* Sidebar: Chapters (Desktop) */}
+        <aside className="book-editor__sidebar">
+           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 0.5rem' }}>
              <h3 style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 800 }}>Chapters</h3>
              <button style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}><i className="ph ph-plus-circle" /></button>
            </div>
@@ -144,20 +199,15 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
         </aside>
 
         {/* Main Content Area: Pages */}
-        <main style={{ gridColumn: 'span 2', overflowY: 'auto', padding: '4rem' }}>
+        <main className="book-editor__main">
            {activeChapter ? (
-             <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                <div style={{ marginBottom: '4rem' }}>
+             <div className="book-editor__content">
+                <div className="book-editor__chapter-header">
                   <input 
+                    key={activeChapterId}
                     defaultValue={activeChapter.title}
-                    style={{ 
-                      fontSize: '2.5rem', 
-                      fontWeight: 900, 
-                      border: 'none', 
-                      outline: 'none', 
-                      width: '100%',
-                      fontFamily: 'serif' 
-                    }}
+                    readOnly={activeChapterId === 'root'}
+                    style={activeChapterId === 'root' ? { opacity: 0.5 } : {}}
                   />
                   <div style={{ height: '1px', background: '#eee', marginTop: '1rem' }}></div>
                 </div>
@@ -165,13 +215,11 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
                 <div className="prose-editor">
                   {activeChapter.pages && activeChapter.pages.length > 0 ? (
                     activeChapter.pages.map((page) => (
-                      <div key={page.id} style={{ marginBottom: '2rem', position: 'relative', padding: '1rem', border: '1px solid transparent', borderRadius: '0.5rem' }}>
-                        <div className="page-actions" style={{ position: 'absolute', right: '1rem', top: '1rem', opacity: 0 }}>
-                           <button className="btn--ghost"><i className="ph ph-trash" /></button>
-                        </div>
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {page.content}
-                        </ReactMarkdown>
+                      <div key={page.id} style={{ marginBottom: '2rem', position: 'relative' }}>
+                        <TiptapEditor
+                          content={page.content}
+                          onChange={(newContent) => handlePageContentChange(page.id, newContent)}
+                        />
                       </div>
                     ))
                   ) : (
@@ -193,7 +241,12 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
       <style jsx global>{`
         .prose-editor p { margin-bottom: 1.5rem; line-height: 1.7; font-size: 1.1rem; }
         .prose-editor h1, .prose-editor h2 { font-family: serif; margin: 2rem 0 1rem; }
-        .page-item:hover .page-actions { opacity: 1 !important; }
+        
+        @media (max-width: 768px) {
+          .prose-editor p { font-size: 1rem; line-height: 1.6; }
+          .prose-editor h1 { font-size: 1.75rem; }
+          .prose-editor h2 { font-size: 1.5rem; }
+        }
       `}</style>
     </div>
   );

@@ -20,6 +20,7 @@ interface TiptapEditorProps {
 const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const [isRawMode, setIsRawMode] = useState(false);
   const [rawHtml, setRawHtml] = useState(content);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -89,7 +90,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   };
 
   return (
-    <div className="editor-container">
+    <div className={`editor-container ${isFullscreen ? 'editor-fullscreen' : ''}`}>
       <div className="editor-toolbar">
         {/* Basic Text Formatting */}
         <div className="editor-toolbar__group">
@@ -213,6 +214,16 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
           >
             <i className="ph ph-brackets-curly" />
             <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>Source</span>
+          </button>
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className={isFullscreen ? 'is-active' : ''}
+            type="button"
+            title="Toggle Fullscreen"
+            style={{ backgroundColor: isFullscreen ? '#000' : '#eee', color: isFullscreen ? '#fff' : '#000', display: 'flex', alignItems: 'center', gap: '0.4rem', marginLeft: '0.5rem' }}
+          >
+            <i className={isFullscreen ? "ph ph-corners-in" : "ph ph-corners-out"} />
+            <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>{isFullscreen ? 'Exit' : 'Full'}</span>
           </button>
         </div>
       </div>

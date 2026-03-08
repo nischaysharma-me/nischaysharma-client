@@ -46,7 +46,7 @@ export const booksService = {
    */
   getUserBooks: (token: string, full: boolean = false) => {
     const query = full ? '?full=true' : '';
-    return apiFetch<{ success: boolean; data: Book[] | (Book & { chapters: (Chapter & { pages: Page[] })[] })[] }>(`/books${query}`, {
+    return apiFetch<{ success: boolean; data: Book[] | (Book & { chapters: (Chapter & { pages: Page[] })[]; pages?: Page[] })[] }>(`/books${query}`, {
       method: 'GET',
       token,
     });
@@ -66,7 +66,7 @@ export const booksService = {
    * Get a book with full hierarchy (chapters and pages populated)
    */
   getFullBook: (bookId: string, token: string) => {
-    return apiFetch<{ success: boolean; data: Book & { chapters: (Chapter & { pages: Page[] })[] } }>(`/books/${bookId}/full`, {
+    return apiFetch<{ success: boolean; data: Book & { chapters: (Chapter & { pages: Page[] })[]; pages?: Page[] } }>(`/books/${bookId}/full`, {
       method: 'GET',
       token,
     });

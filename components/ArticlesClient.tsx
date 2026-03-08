@@ -208,12 +208,12 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
                   style={{ padding: '0.5rem 1rem', height: 'auto' }}
                   onClick={() => setShowGenerator(!showGenerator)}
                 >
-                  <i className="ph ph-sparkle" style={{ marginRight: '0.4rem' }} />
+                  <i className="ph ph-sparkle" />
                   <span>AI</span>
                 </Button>
                 <Link href="/admin/articles/create">
                   <Button variant="primary" style={{ padding: '0.5rem 1rem', height: 'auto' }}>
-                    <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} />
+                    <i className="ph ph-plus" />
                     <span>New Article</span>
                   </Button>
                 </Link>

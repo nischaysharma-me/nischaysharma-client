@@ -1,0 +1,109 @@
+@use '../abstracts/variables' as *
+@use '../abstracts/mixins' as *
+
+.book-editor
+  display: flex
+  flex-direction: column
+  height: 100vh
+  background-color: $color-bg-primary
+
+  &__grid
+    display: grid
+    grid-template-columns: 280px 1fr
+    height: calc(100vh - 4.5rem)
+    overflow: hidden
+
+    @include mobile
+      grid-template-columns: 1fr
+      height: auto
+      overflow: visible
+
+  &__sidebar
+    border-right: 1px solid $color-border
+    background-color: $color-bg-secondary
+    overflow-y: auto
+    padding: 2rem 1.5rem
+    display: flex
+    flex-direction: column
+    gap: 2rem
+
+    @include mobile
+      display: none // We will add a mobile toggle or horizontal list
+      
+    &--mobile-visible
+      @include mobile
+        display: flex
+        position: fixed
+        inset: 0
+        z-index: 100
+        padding-top: 5rem
+
+  &__main
+    overflow-y: auto
+    padding: 4rem 2rem
+    background-color: $color-bg-primary
+    min-width: 0
+    
+    @include mobile
+      padding: 2rem 1rem
+      overflow-y: visible
+
+  &__content
+    max-width: 800px
+    margin: 0 auto
+    width: 100%
+
+  &__chapter-header
+    margin-bottom: 4rem
+    
+    @include mobile
+      margin-bottom: 2rem
+
+    input
+      font-size: 2.5rem
+      font-weight: 900
+      border: none
+      outline: none
+      width: 100%
+      font-family: $font-serif
+      background: transparent
+      
+      @include mobile
+        font-size: 1.75rem
+
+  &__mobile-nav
+    display: none
+    @include mobile
+      display: flex
+      align-items: center
+      padding: 0 1rem
+      min-height: 4rem
+      border-bottom: 1px solid $color-border
+      background: $color-bg-primary
+      position: sticky
+      top: 4rem
+      z-index: 5
+      overflow-x: auto
+      gap: 0.5rem
+      width: 100%
+      max-width: 100vw
+      min-width: 0
+      scrollbar-width: none
+      &::-webkit-scrollbar
+        display: none
+
+  &__chapter-pill
+    padding: 0.5rem 1rem
+    border-radius: $radius-pill
+    background: $color-bg-tertiary
+    font-size: 0.75rem
+    font-weight: 600
+    white-space: nowrap
+    flex-shrink: 0
+    border: none
+    cursor: pointer
+    outline: none
+    
+    &--active
+      background: $color-text-primary
+      color: $color-white

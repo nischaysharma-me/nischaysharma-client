@@ -5,14 +5,26 @@ import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { Book, Page, Chapter, booksService } from '@/services/books.service';
 import AdminLoading from '@/app/admin/loading';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 
 interface BookPreviewClientProps {
   bookId: string;
 }
 
-type FullBook = Book & { chapters: (Chapter & { pages: Page[] })[] };
+type FullBook = {
+  id: string;
+  userId: string;
+  threadId: string | null;
+  title: string;
+  description: string;
+  coverImage: string;
+  status: 'draft' | 'published';
+  type: 'book' | 'paper';
+  chapters: (Chapter & { pages: Page[] })[];
+  metadata: Record<string, any>;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  pages?: Page[];
+};
 
 export default function BookPreviewClient({ bookId }: BookPreviewClientProps) {
   const router = useRouter();
@@ -103,7 +115,7 @@ export default function BookPreviewClient({ bookId }: BookPreviewClientProps) {
                     <span style={{ opacity: 0.2, fontVariantNumeric: 'tabular-nums', fontWeight: 800 }}>{String(idx + 1).padStart(2, '0')}</span>
                     <span style={{ fontWeight: 600, fontSize: '1.1rem' }}>{chapter.title}</span>
                   </div>
-                  <div style={{ borderBottom: '1px dotted #e0e0e0', flex: 1, margin: '0 1rem' }}></div>
+                  <div className="dot-line" style={{ borderBottom: '1px dotted #e0e0e0', flex: 1, margin: '0 1rem' }}></div>
                   <span style={{ opacity: 0.3, fontSize: '0.75rem', fontWeight: 700 }}>P.{idx + 1}</span>
                 </div>
                </a>
@@ -119,9 +131,7 @@ export default function BookPreviewClient({ bookId }: BookPreviewClientProps) {
               <div className="prose">
                 {book.pages.map((page) => (
                   <div key={page.id} style={{ marginBottom: '3rem' }}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {page.content}
-                    </ReactMarkdown>
+                    <div className="tiptap-content" dangerouslySetInnerHTML={{ __html: page.content }} />
                   </div>
                 ))}
               </div>
@@ -143,9 +153,7 @@ export default function BookPreviewClient({ bookId }: BookPreviewClientProps) {
                 {chapter.pages && chapter.pages.length > 0 ? (
                   chapter.pages.map((page) => (
                     <div key={page.id} style={{ marginBottom: '3rem' }}>
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {page.content}
-                      </ReactMarkdown>
+                      <div className="tiptap-content" dangerouslySetInnerHTML={{ __html: page.content }} />
                     </div>
                   ))
                 ) : (
@@ -216,6 +224,17 @@ export default function BookPreviewClient({ bookId }: BookPreviewClientProps) {
           border: none;
           border-top: 1px solid #f0f0f0;
           margin: 4rem 0;
+        }
+
+        @media (max-width: 768px) {
+          .book-preview { padding: 4rem 1.5rem !important; }
+          .book-preview__cover h1 { font-size: 2.5rem !important; }
+          .book-preview__cover p { font-size: 1.1rem !important; }
+          .book-preview__cover { margin-bottom: 4rem !important; }
+          .book-preview__toc { margin-bottom: 6rem !important; }
+          .book-preview__toc .dot-line { display: none; }
+          .book-preview__content h2 { font-size: 2rem !important; }
+          .book-preview__content section { margin-bottom: 6rem !important; }
         }
       `}</style>
     </div>

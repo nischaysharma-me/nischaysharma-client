@@ -186,7 +186,7 @@
       height: calc(100vh - 4rem) // Subtract mobile logo height if visible? No, mobile header is separate.
 
   &__header
-    height: 4rem
+    height: 3.5rem
     @media (min-width: 768px)
       height: 5rem
     padding: 0 $spacing-md
@@ -203,6 +203,7 @@
     @include mobile
       position: sticky
       top: 0
+      height: 3.5rem
 
     &-actions
       display: flex
@@ -211,13 +212,17 @@
       
       .btn
         @include mobile
-          padding: 0.4rem
+          padding: 0
           width: 2.25rem
           height: 2.25rem
           border-radius: $radius-md
+          gap: 0
           
           span
             display: none
+          
+          i
+            margin: 0 !important
 
   &__menu-toggle
     display: none
