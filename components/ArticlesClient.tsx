@@ -33,6 +33,16 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
     }
   }, [showGenerator]);
 
+  useEffect(() => {
+    // Fetch all user articles on mount to ensure drafts are visible
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchArticles();
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   const fetchTemplates = async () => {
     try {
       const response = await templatesService.listTemplates();
