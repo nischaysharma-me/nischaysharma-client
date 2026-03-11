@@ -148,16 +148,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </button>
           
           <div className="dashboard__header-actions">
-            <NotificationBell />
             <Link href="/" className="btn btn--secondary">
               <i className="ph ph-arrow-square-out" />
               <span>View Site</span>
             </Link>
             <Link href="/admin/articles/create" className="btn btn--primary">
               <i className="ph ph-plus" />
-              <span>New Draft</span>
+              <span>Create Article</span>
             </Link>
+            <NotificationBell />
           </div>
+
         </header>
 
         <div 
