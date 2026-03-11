@@ -58,5 +58,13 @@ export const clientAppsService = {
     return apiFetch<{ success: boolean; data: ClientPermission[] }>('/clients/permissions', {
       method: 'GET',
     });
+  },
+
+  registerDevice: (id: string, device: { deviceId: string; name: string; type: string }, token: string) => {
+    return apiFetch<{ success: boolean; message: string }>(`/clients/${id}/devices`, {
+      method: 'POST',
+      token,
+      body: device,
+    });
   }
 };

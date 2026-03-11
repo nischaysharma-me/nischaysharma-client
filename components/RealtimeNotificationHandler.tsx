@@ -1,13 +1,29 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { rtdb, auth } from '@/lib/firebase';
 import { ref, onValue, off, remove } from 'firebase/database';
 import { onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'sonner';
+import { useJobSocket } from '@/hooks/useJobSocket';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function RealtimeNotificationHandler() {
   const processedJobs = useRef<Set<string>>(new Set());
+  const [deviceId, setDeviceId] = useState<string | undefined>(undefined);
+
+  // Initialize unique device ID for this session/browser
+  useEffect(() => {
+    let id = localStorage.getItem('tc_device_id');
+    if (!id) {
+      id = uuidv4();
+      localStorage.setItem('tc_device_id', id);
+    }
+    setDeviceId(id);
+  }, []);
+
+  // Use the new WebSocket hook
+  useJobSocket(deviceId);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
