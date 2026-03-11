@@ -8,8 +8,10 @@ import { toast } from 'sonner';
 import { useJobSocket } from '@/hooks/useJobSocket';
 import { v4 as uuidv4 } from 'uuid';
 import { useNotificationStore } from '@/store/useNotificationStore';
+import { useRouter } from 'next/navigation';
 
 export default function RealtimeNotificationHandler() {
+  const router = useRouter();
   const processedJobs = useRef<Set<string>>(new Set());
   const [deviceId, setDeviceId] = useState<string | undefined>(undefined);
   const [user, setUser] = useState<any>(null);
@@ -59,8 +61,16 @@ export default function RealtimeNotificationHandler() {
             toast.success(message, {
               description: 'Your result is ready.',
               duration: Infinity,
-              id: `rtdb_${jobId}_completed`
+              id: `job_${jobId}`,
+              closeButton: true
             });
+
+            // Trigger refresh for RTDB as well
+            router.refresh();
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('tc:data-refresh', { detail: { type: job.type } }));
+            }
+
             // Clean up the notification from RTDB after a delay
             setTimeout(() => remove(ref(rtdb, `notifications/${user.uid}/jobs/${jobId}`)), 5000);
           } else if (job.status === 'failed') {
@@ -70,20 +80,21 @@ export default function RealtimeNotificationHandler() {
             toast.error(message, {
               description: job.message || 'An error occurred during processing.',
               duration: Infinity,
-              id: `rtdb_${jobId}_failed`
+              id: `job_${jobId}`,
+              closeButton: true
             });
             setTimeout(() => remove(ref(rtdb, `notifications/${user.uid}/jobs/${jobId}`)), 5000);
-          } else if (job.status === 'processing' && job.progress === 10) {
+          } else if (job.status === 'processing') {
             message = `Processing Started: ${job.type.replace(/-/g, ' ')}`;
             toastType = 'info';
 
             toast.info(message, {
               description: `Your ${job.type.replace(/-/g, ' ')} is being generated...`,
               duration: Infinity,
-              id: `rtdb_${jobId}_processing`
+              id: `job_${jobId}`,
+              closeButton: true
             });
           }
-
           if (message) {
             addNotification({
               type: job.type,

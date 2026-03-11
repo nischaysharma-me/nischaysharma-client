@@ -4,10 +4,12 @@ import { toast } from 'sonner';
 import { eventsService } from '@/services/events.service';
 import { auth } from '@/lib/firebase';
 import { useNotificationStore } from '@/store/useNotificationStore';
+import { useRouter } from 'next/navigation';
 
 export const useJobSocket = (userId?: string, deviceId?: string) => {
   const [isConnected, setIsConnected] = useState(false);
   const { addNotification } = useNotificationStore();
+  const router = useRouter();
 
   useEffect(() => {
     if (!userId) return;
@@ -40,7 +42,7 @@ export const useJobSocket = (userId?: string, deviceId?: string) => {
     const { type, status, id } = data;
 
     let message = '';
-    let toastType: 'info' | 'success' | 'error' | 'loading' = 'info';
+    let toastType: 'info' | 'success' | 'error' | 'message' = 'info';
 
     // Map status to human-readable message and toast type
     switch (status) {
@@ -50,7 +52,7 @@ export const useJobSocket = (userId?: string, deviceId?: string) => {
         break;
       case 'processing':
         message = `Job Processing: ${type.replace(/-/g, ' ')} (${data.progress}%)`;
-        toastType = 'loading';
+        toastType = 'message'; // Use generic toast for processing to get close button
         break;
       case 'completed':
         message = `Job Completed: ${type.replace(/-/g, ' ')}`;
@@ -62,12 +64,28 @@ export const useJobSocket = (userId?: string, deviceId?: string) => {
         break;
     }
 
-    // Display Persistent Toast (duration: Infinity)
-    toast[toastType](message, { 
-      description: status === 'failed' ? (data.error || 'Unknown error occurred.') : `ID: ${id}`,
-      duration: Infinity, // Keep on screen until clicked/closed
-      id: `job_${id}_${status}` // Prevent duplicate toasts for same status
-    });
+    // Display Persistent Toast
+    const toastOptions = { 
+      description: status === 'failed' ? (data.error || 'An error occurred.') : `ID: ${id}`,
+      duration: Infinity, 
+      id: `job_${id}`, // Use job ID as toast ID to overwrite status updates for same job
+      closeButton: true,
+    };
+
+    if (toastType === 'message') {
+      toast(message, {
+        ...toastOptions,
+        icon: <i className="ph ph-spinner animate-spin" style={{ color: '#111' }} />
+      });
+    } else {
+      // Use type assertion to satisfy TypeScript that toastType is a valid key
+      (toast as any)[toastType](message, toastOptions);
+    }
+
+    // Handle Data Re-fetching on Completion
+    if (status === 'completed') {
+      handleDataRefresh(type);
+    }
 
     // Add to Notification Store
     addNotification({
@@ -93,6 +111,26 @@ export const useJobSocket = (userId?: string, deviceId?: string) => {
     }
   };
 
+  const handleDataRefresh = (jobType: string) => {
+    console.log(`Refreshing data for job type: ${jobType}`);
+
+    // Refresh the current Next.js route data
+    router.refresh();
+
+    // Trigger specific window events that components can listen to
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('tc:data-refresh', { detail: { type: jobType } }));
+
+      // Specifically handle article generation to let the UI know to re-fetch
+      if (jobType === 'article-generation') {
+        window.dispatchEvent(new CustomEvent('tc:articles-update'));
+      }
+
+      // Specifically handle book page generation
+      if (jobType === 'book-page-generation') {
+        window.dispatchEvent(new CustomEvent('tc:book-update'));
+      }
+    }
+  };
   return { isConnected };
 };
-
