@@ -1,0 +1,203 @@
+@use '../abstracts/variables' as *
+@use '../abstracts/mixins' as *
+
+.notification-center
+  position: relative
+  display: flex
+  align-items: center
+
+  &__bell
+    position: relative
+    background: none
+    border: none
+    cursor: pointer
+    padding: $spacing-xs
+    color: $color-text-primary
+    @include transition(opacity)
+    
+    &:hover
+      opacity: 0.7
+
+    svg
+      width: 1.5rem
+      height: 1.5rem
+
+    &--active
+      animation: bell-shake 0.5s ease-in-out
+
+  &__badge
+    position: absolute
+    top: 0
+    right: 0
+    background-color: #ff4757
+    color: white
+    font-size: 0.65rem
+    font-weight: 800
+    min-width: 18px
+    height: 18px
+    border-radius: 50%
+    @include flex-center
+    border: 2px solid $color-bg-primary
+    transform: translate(25%, -25%)
+
+  &__dropdown
+    position: absolute
+    top: calc(100% + 0.5rem)
+    right: 0
+    width: 320px
+    @media (min-width: 480px)
+      width: 380px
+    background-color: $color-bg-primary
+    border: 1px solid $color-border
+    border-radius: $radius-lg
+    box-shadow: $shadow-premium
+    z-index: 9999
+    overflow: hidden
+    display: flex
+    flex-direction: column
+    max-height: 80vh
+
+    @include mobile
+      position: fixed
+      top: 4rem
+      right: $spacing-sm
+      left: $spacing-sm
+      width: auto
+      max-width: none
+
+  &__header
+    padding: $spacing-md $spacing-lg
+    border-bottom: 1px solid $color-border
+    @include flex-between
+    background-color: $color-bg-secondary
+
+    h3
+      font-size: 0.875rem
+      font-weight: 800
+      text-transform: uppercase
+      letter-spacing: 0.05em
+
+  &__actions
+    display: flex
+    gap: $spacing-md
+
+    button
+      font-size: 0.7rem
+      font-weight: 700
+      color: $color-text-muted
+      background: none
+      border: none
+      cursor: pointer
+      @include transition(color)
+      
+      &:hover
+        color: $color-text-primary
+
+  &__list
+    overflow-y: auto
+    flex: 1
+    
+    &::-webkit-scrollbar
+      width: 4px
+    &::-webkit-scrollbar-thumb
+      background: rgba(0,0,0,0.05)
+      border-radius: 4px
+
+  &__item
+    padding: $spacing-md $spacing-lg
+    border-bottom: 1px solid $color-border
+    display: flex
+    gap: $spacing-md
+    @include transition(background-color)
+    cursor: pointer
+
+    &:hover
+      background-color: rgba(0,0,0,0.02)
+
+    &--unread
+      background-color: rgba($color-text-primary, 0.03)
+      border-left: 3px solid $color-text-primary
+
+    &-icon
+      width: 32px
+      height: 32px
+      border-radius: 50%
+      @include flex-center
+      flex-shrink: 0
+      
+      &.completed
+        background-color: rgba(46, 213, 115, 0.1)
+        color: #2ed573
+      &.failed
+        background-color: rgba(255, 71, 87, 0.1)
+        color: #ff4757
+      &.processing
+        background-color: rgba(30, 144, 255, 0.1)
+        color: #1e90ff
+      &.queued
+        background-color: rgba(164, 176, 190, 0.1)
+        color: #a4b0be
+
+    &-content
+      flex: 1
+      min-width: 0
+
+    &-title
+      font-size: 0.875rem
+      font-weight: 700
+      margin-bottom: $spacing-xs
+      line-height: 1.2
+
+    &-meta
+      font-size: 0.75rem
+      color: $color-text-muted
+      display: flex
+      justify-content: space-between
+      align-items: center
+
+  &__footer
+    padding: $spacing-sm
+    text-align: center
+    border-top: 1px solid $color-border
+    background-color: $color-bg-secondary
+
+    a
+      font-size: 0.75rem
+      font-weight: 700
+      color: $color-text-muted
+      text-decoration: none
+      
+      &:hover
+        text-decoration: underline
+
+  &__empty
+    padding: $spacing-xl
+    text-align: center
+    color: $color-text-muted
+
+    i
+      font-size: 2.5rem
+      opacity: 0.2
+      display: block
+      margin-bottom: $spacing-md
+
+    p
+      font-size: 0.875rem
+
+@keyframes bell-shake
+  0%
+    transform: rotate(0)
+  15%
+    transform: rotate(5deg)
+  30%
+    transform: rotate(-5deg)
+  45%
+    transform: rotate(4deg)
+  60%
+    transform: rotate(-4deg)
+  75%
+    transform: rotate(2deg)
+  85%
+    transform: rotate(-2deg)
+  100%
+    transform: rotate(0)
