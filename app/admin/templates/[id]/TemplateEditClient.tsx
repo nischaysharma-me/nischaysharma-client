@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/Input';
 import { updateTemplateAction, deleteTemplateAction } from '@/actions/templates';
 import AdminLoading from '@/app/admin/loading';
 import { useTemplateStore } from '@/store/admin/useTemplateStore';
+import { toast } from 'sonner';
+import { useDialogStore } from '@/store/useDialogStore';
 
 interface TemplateEditClientProps {
   templateId: string;
@@ -17,6 +19,7 @@ interface TemplateEditClientProps {
 export default function TemplateEditClient({ templateId, templateConfig }: TemplateEditClientProps) {
   const router = useRouter();
   const { templates, setTemplates, templateConfig: storeConfig, setTemplateConfig } = useTemplateStore();
+  const { openDialog } = useDialogStore();
   
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -48,7 +51,7 @@ export default function TemplateEditClient({ templateId, templateConfig }: Templ
       setEditStructure(template.structure || []);
       setLoading(false);
     } else {
-      alert('Template data not found in session. Redirecting...');
+      toast.error('Template data not found');
       router.push('/admin/templates');
     }
   }, [templateId, templates, storeConfig, router]);
@@ -74,39 +77,46 @@ export default function TemplateEditClient({ templateId, templateConfig }: Templ
           t.id === templateId ? response.data : t
         );
         setTemplates(updatedTemplates);
-        alert('Template updated successfully!');
+        toast.success('Template updated successfully!');
         router.push('/admin/templates');
       } else {
-        alert('Failed to update template');
+        toast.error('Failed to update template');
       }
     } catch (err: any) {
-      alert('Error updating template: ' + err.message);
+      toast.error('Error: ' + err.message);
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleDeleteTemplate = async () => {
-    if (!confirm('Are you sure you want to permanently delete this template?')) return;
+    openDialog({
+      title: 'Delete Template',
+      message: 'Are you sure you want to permanently delete this template?',
+      variant: 'danger',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        try {
+          setActionLoading(true);
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) return;
 
-    try {
-      setActionLoading(true);
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) return;
+          const response = await deleteTemplateAction(templateId, token);
 
-      const response = await deleteTemplateAction(templateId, token);
-
-      if (response.success) {
-        setTemplates(templates.filter(t => t.id !== templateId));
-        router.push('/admin/templates');
-      } else {
-        alert('Failed to delete template');
+          if (response.success) {
+            setTemplates(templates.filter(t => t.id !== templateId));
+            toast.success('Template deleted');
+            router.push('/admin/templates');
+          } else {
+            toast.error('Failed to delete template');
+          }
+        } catch (err: any) {
+          toast.error('Error deleting template: ' + err.message);
+        } finally {
+          setActionLoading(false);
+        }
       }
-    } catch (err: any) {
-      alert('Error deleting template: ' + err.message);
-    } finally {
-      setActionLoading(false);
-    }
+    });
   };
 
   if (loading) return <AdminLoading />;

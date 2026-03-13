@@ -8,6 +8,8 @@ import { templatesService } from '@/services/templates.service';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import ArticlesLoading from '@/app/admin/articles/loading';
+import { toast } from 'sonner';
+import { useDialogStore } from '@/store/useDialogStore';
 
 interface ArticlesClientProps {
   initialArticles: Article[];
@@ -26,6 +28,7 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
   const [templateId, setTemplateId] = useState('');
   const [depth, setDepth] = useState('standard');
   const [error, setError] = useState('');
+  const { openDialog } = useDialogStore();
 
   useEffect(() => {
     if (showGenerator) {
@@ -87,7 +90,9 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
       }, token);
 
       if (response.success) {
-        alert('AI generation started! Draft will appear shortly.');
+        toast.success('AI generation started!', {
+          description: 'Draft will appear shortly.'
+        });
         setShowGenerator(false);
         setTopic('');
         setInstructions('');
@@ -96,7 +101,7 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
         setError(response.error || 'Failed to start generation');
       }
     } catch (err: any) {
-      setError(err.message);
+      toast.error('Error: ' + err.message);
     } finally {
       setGenerating(false);
     }
@@ -112,15 +117,22 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
   };
 
   const handlePublish = async (id: string) => {
-    if (!confirm('Publish this article?')) return;
-    try {
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) return;
-      await articlesService.publish(id, token);
-      fetchArticles();
-    } catch (err: any) {
-      alert('Error: ' + err.message);
-    }
+    openDialog({
+      title: 'Publish Article',
+      message: 'Are you sure you want to publish this article?',
+      confirmLabel: 'Publish',
+      onConfirm: async () => {
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) return;
+          await articlesService.publish(id, token);
+          toast.success('Article published successfully');
+          fetchArticles();
+        } catch (err: any) {
+          toast.error('Error publishing article: ' + err.message);
+        }
+      }
+    });
   };
 
   if (loading) {

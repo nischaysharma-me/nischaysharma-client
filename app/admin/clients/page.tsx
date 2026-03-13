@@ -6,6 +6,8 @@ import { clientAppsService, ClientApp, ClientPermission } from '@/services/clien
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import AdminLoading from '@/app/admin/loading';
+import { toast } from 'sonner';
+import { useDialogStore } from '@/store/useDialogStore';
 
 export default function ClientsPage() {
   const [loading, setLoading] = useState(true);
@@ -19,6 +21,7 @@ export default function ClientsPage() {
   const [appName, setAppName] = useState('');
   const [appUrl, setAppUrl] = useState('');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const { openDialog } = useDialogStore();
 
   useEffect(() => {
     fetchData();
@@ -80,22 +83,29 @@ export default function ClientsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this API client? Access will be revoked immediately.')) return;
-    
-    try {
-      setActionLoading(true);
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) throw new Error('No authentication token');
+    openDialog({
+      title: 'Revoke Access',
+      message: 'Are you sure you want to delete this API client? Access will be revoked immediately.',
+      variant: 'danger',
+      confirmLabel: 'Revoke',
+      onConfirm: async () => {
+        try {
+          setActionLoading(true);
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) throw new Error('No authentication token');
 
-      const res = await clientAppsService.delete(id, token);
-      if (res.success) {
-        setClients(clients.filter(c => c.id !== id));
+          const res = await clientAppsService.delete(id, token);
+          if (res.success) {
+            setClients(clients.filter(c => c.id !== id));
+            toast.success('Access revoked successfully');
+          }
+        } catch (err: any) {
+          toast.error('Error: ' + err.message);
+        } finally {
+          setActionLoading(false);
+        }
       }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setActionLoading(false);
-    }
+    });
   };
 
   if (loading) return <AdminLoading />;

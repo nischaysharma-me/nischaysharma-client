@@ -6,6 +6,7 @@ import { conversationsService, Thread } from '@/services/conversations.service';
 import { Button } from '@/components/ui/Button';
 import { useRouter, useParams } from 'next/navigation';
 import { useThreadsStore } from '@/store/admin/useThreadsStore';
+import { toast } from 'sonner';
 
 export default function ThreadsSidebar() {
   const router = useRouter();
@@ -58,7 +59,7 @@ export default function ThreadsSidebar() {
       }
     } catch (err) {
       console.error('Error creating new chat:', err);
-      alert('Failed to create new conversation');
+      toast.error('Failed to create new conversation');
     } finally {
       setIsCreating(false);
     }

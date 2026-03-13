@@ -8,6 +8,7 @@ import TiptapEditor from '@/components/editor/TiptapEditor';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import ArticlesLoading from '@/app/admin/articles/loading';
+import { toast } from 'sonner';
 
 export default function CreateArticlePage() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function CreateArticlePage() {
 
   const handleCreate = async () => {
     if (!title || !content) {
-      alert('Title and Content are required');
+      toast.error('Title and Content are required');
       return;
     }
 
@@ -36,10 +37,11 @@ export default function CreateArticlePage() {
       }, token);
 
       if (response.success) {
+        toast.success('Article created successfully!');
         router.push('/admin/articles');
       }
     } catch (err: any) {
-      alert('Error creating article: ' + err.message);
+      toast.error('Error creating article: ' + err.message);
     } finally {
       setLoading(false);
     }

@@ -7,6 +7,7 @@ import { Book, Page, Chapter, booksService } from '@/services/books.service';
 import { Button } from '@/components/ui/Button';
 import AdminLoading from '@/app/admin/loading';
 import TiptapEditor from '@/components/editor/TiptapEditor';
+import { toast } from 'sonner';
 
 interface BookDetailClientProps {
   bookId: string;
@@ -56,7 +57,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
       }
     } catch (err) {
       console.error('Error fetching book details:', err);
-      alert('Failed to load book data');
+      toast.error('Failed to load book data');
       router.push('/admin/books');
     } finally {
       setLoading(false);
@@ -116,7 +117,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
             </Button>
             <Button 
               variant="primary" 
-              onClick={() => alert('Save coming soon!')}
+              onClick={() => toast.info('Save coming soon!')}
             >
               <i className="ph ph-floppy-disk" />
               <span>Save</span>

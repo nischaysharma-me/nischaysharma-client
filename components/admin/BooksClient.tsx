@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import AdminLoading from '@/app/admin/loading';
 import { useBookStore } from '@/store/admin/useBookStore';
+import { toast } from 'sonner';
 
 interface BooksClientProps {
   initialBooks: Book[];
@@ -58,10 +59,10 @@ export default function BooksClient({ initialBooks }: BooksClientProps) {
         addBook(response.data);
         setNewBookTitle('');
         setNewBookDescription('');
-        alert('Book created successfully!');
+        toast.success('Book created successfully!');
       }
     } catch (err: any) {
-      alert('Error creating book: ' + err.message);
+      toast.error('Error creating book: ' + err.message);
     } finally {
       setIsCreating(false);
     }

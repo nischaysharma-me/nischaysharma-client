@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { Book, Page, Chapter, booksService } from '@/services/books.service';
 import AdminLoading from '@/app/admin/loading';
+import { toast } from 'sonner';
 
 interface BookPreviewClientProps {
   bookId: string;
@@ -48,7 +49,7 @@ export default function BookPreviewClient({ bookId }: BookPreviewClientProps) {
       }
     } catch (err) {
       console.error('Error fetching book details:', err);
-      alert('Failed to load book preview');
+      toast.error('Failed to load book preview');
       router.push('/admin/books');
     } finally {
       setLoading(false);

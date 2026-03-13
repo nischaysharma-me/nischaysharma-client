@@ -5,6 +5,7 @@ import { auth } from '@/lib/firebase';
 import { usersService } from '@/services/users.service';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { toast } from 'sonner';
 
 export default function ProfileClient() {
   const [loading, setLoading] = useState(true);
@@ -62,12 +63,12 @@ export default function ProfileClient() {
       } as any, token);
 
       if (response.success) {
-        alert('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
       } else {
-        alert('Failed to update profile');
+        toast.error('Failed to update profile');
       }
     } catch (err: any) {
-      alert('Error updating profile: ' + err.message);
+      toast.error('Error updating profile: ' + err.message);
     } finally {
       setSaving(false);
     }

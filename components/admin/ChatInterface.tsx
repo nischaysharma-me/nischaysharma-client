@@ -10,6 +10,8 @@ import { useThreadsStore } from '@/store/admin/useThreadsStore';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import { useDialogStore } from '@/store/useDialogStore';
 
 export default function ChatInterface() {
   const router = useRouter();
@@ -28,6 +30,7 @@ export default function ChatInterface() {
     updateLastAssistantMessage,
     setSending
   } = useThreadsStore();
+  const { openDialog } = useDialogStore();
 
   const [input, setInput] = useState('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -196,20 +199,29 @@ export default function ChatInterface() {
   };
 
   const handleDelete = async () => {
-    if (!threadId || !confirm('Are you sure you want to delete this conversation?')) return;
+    if (!threadId) return;
     
-    try {
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) return;
-      const response = await conversationsService.deleteThread(threadId, token);
-      if (response.success) {
-        deleteThread(threadId);
-        router.push('/admin/threads');
+    openDialog({
+      title: 'Delete Conversation',
+      message: 'Are you sure you want to delete this conversation?',
+      variant: 'danger',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) return;
+          const response = await conversationsService.deleteThread(threadId, token);
+          if (response.success) {
+            deleteThread(threadId);
+            toast.success('Conversation deleted');
+            router.push('/admin/threads');
+          }
+        } catch (err) {
+          console.error('Error deleting thread:', err);
+          toast.error('Failed to delete');
+        }
       }
-    } catch (err) {
-      console.error('Error deleting thread:', err);
-      alert('Failed to delete');
-    }
+    });
   };
 
   const handlePinToggle = async (e: React.MouseEvent) => {
@@ -244,11 +256,12 @@ export default function ChatInterface() {
       const response = await conversationsService.updateThread(currentThread.id, { title: titleInput }, token);
       if (response.success) {
         updateThread(currentThread.id, { title: titleInput });
+        toast.success('Title updated');
         setIsEditingTitle(false);
       }
     } catch (err) {
       console.error('Error updating title:', err);
-      alert('Failed to update title');
+      toast.error('Failed to update title');
     }
   };
 

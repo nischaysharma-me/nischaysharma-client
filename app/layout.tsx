@@ -5,6 +5,7 @@ import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { Toaster } from "sonner";
 import RealtimeNotificationHandler from "@/components/RealtimeNotificationHandler";
 import SplashLoader from "@/components/SplashLoader";
+import { Dialog } from "@/components/ui/Dialog";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -45,6 +46,7 @@ export default function RootLayout({
       >
         <SplashLoader />
         <Toaster position="top-right" richColors expand closeButton />
+        <Dialog />
         <RealtimeNotificationHandler />
         <SmoothScrollProvider>
           {children}

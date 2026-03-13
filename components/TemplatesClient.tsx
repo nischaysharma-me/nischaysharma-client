@@ -7,6 +7,8 @@ import { generateTemplateAction, deleteTemplateAction } from '@/actions/template
 import AdminLoading from '@/app/admin/loading';
 import { useTemplateStore } from '@/store/admin/useTemplateStore';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { useDialogStore } from '@/store/useDialogStore';
 
 interface TemplatesClientProps {
   initialTemplates: any[];
@@ -23,6 +25,7 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
     generating,
     setGenerating
   } = useTemplateStore();
+  const { openDialog } = useDialogStore();
 
   // Generator Form State
   const [description, setDescription] = useState('');
@@ -48,13 +51,17 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
       }, token);
 
       if (response.success) {
-        alert('Template generation job started! You will be notified when it is ready.');
+        toast.success('Template generation job started!', {
+          description: 'You will be notified when it is ready.'
+        });
         setDescription('');
       } else {
-        alert('Error: ' + (('error' in response) ? response.error : 'Failed to generate'));
+        toast.error('Failed to generate template', {
+          description: (('error' in response) ? response.error : 'Please try again')
+        });
       }
     } catch (err: any) {
-      alert('Error: ' + err.message);
+      toast.error('Error: ' + err.message);
     } finally {
       setGenerating(false);
     }
@@ -65,25 +72,32 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
   };
 
   const handleDeleteTemplate = async (id: string) => {
-    if (!confirm('Are you sure you want to permanently delete this template?')) return;
+    openDialog({
+      title: 'Delete Template',
+      message: 'Are you sure you want to permanently delete this template?',
+      variant: 'danger',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        try {
+          setGenerating(true);
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) return;
 
-    try {
-      setGenerating(true);
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) return;
+          const response = await deleteTemplateAction(id, token);
 
-      const response = await deleteTemplateAction(id, token);
-
-      if (response.success) {
-        setTemplates(templates.filter(t => t.id !== id));
-      } else {
-        alert('Failed to delete template');
+          if (response.success) {
+            setTemplates(templates.filter(t => t.id !== id));
+            toast.success('Template deleted successfully');
+          } else {
+            toast.error('Failed to delete template');
+          }
+        } catch (err: any) {
+          toast.error('Error deleting template: ' + err.message);
+        } finally {
+          setGenerating(false);
+        }
       }
-    } catch (err: any) {
-      alert('Error deleting template: ' + err.message);
-    } finally {
-      setGenerating(false);
-    }
+    });
   };
 
   if (generating) return <AdminLoading />;

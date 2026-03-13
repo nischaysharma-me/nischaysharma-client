@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import Image from 'next/image';
 import ArticlesLoading from '@/app/admin/articles/loading';
+import { toast } from 'sonner';
+import { useDialogStore } from '@/store/useDialogStore';
 
 export default function ArticleEditPage() {
   const { id } = useParams() as { id: string };
@@ -23,6 +25,7 @@ export default function ArticleEditPage() {
   const [description, setDescription] = useState('');
   const [backgroundImage, setBackgroundImage] = useState('');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const { openDialog } = useDialogStore();
 
   useEffect(() => {
     fetchArticle();
@@ -63,33 +66,38 @@ export default function ArticleEditPage() {
       }, token);
 
       if (response.success) {
-        alert('Article updated successfully!');
+        toast.success('Article updated successfully!');
       }
     } catch (err: any) {
-      alert('Error saving article: ' + err.message);
+      toast.error('Error saving article: ' + err.message);
     } finally {
       setSaving(false);
     }
   };
 
   const handlePublish = async () => {
-    if (!confirm('Are you sure you want to publish this article? It will become visible on the public site.')) return;
-    
-    try {
-      setPublishing(true);
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) throw new Error('No authentication token');
+    openDialog({
+      title: 'Publish Article',
+      message: 'Are you sure you want to publish this article? It will become visible on the public site.',
+      confirmLabel: 'Publish',
+      onConfirm: async () => {
+        try {
+          setPublishing(true);
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) throw new Error('No authentication token');
 
-      const response = await articlesService.publish(id, token);
-      if (response.success) {
-        setArticle(response.data);
-        alert('Article published successfully!');
+          const response = await articlesService.publish(id, token);
+          if (response.success) {
+            setArticle(response.data);
+            toast.success('Article published successfully!');
+          }
+        } catch (err: any) {
+          toast.error('Error publishing article: ' + err.message);
+        } finally {
+          setPublishing(false);
+        }
       }
-    } catch (err: any) {
-      alert('Error publishing article: ' + err.message);
-    } finally {
-      setPublishing(false);
-    }
+    });
   };
 
   if (loading) return <ArticlesLoading />;
