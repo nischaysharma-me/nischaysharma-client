@@ -55,6 +55,7 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
           description: 'You will be notified when it is ready.'
         });
         setDescription('');
+        setShowGenerator(false);
       } else {
         toast.error('Failed to generate template', {
           description: (('error' in response) ? response.error : 'Please try again')
@@ -99,8 +100,6 @@ export default function TemplatesClient({ initialTemplates, templateConfig }: Te
       }
     });
   };
-
-  if (generating) return <AdminLoading />;
 
   return (
     <div className="templates">
