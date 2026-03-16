@@ -83,20 +83,14 @@ export const conversationsService = {
    * Pin a conversation thread
    */
   pinThread: (threadId: string, token: string) => {
-    return apiFetch<{ success: boolean; data: Thread }>(`/conversations/${threadId}/pin`, {
-      method: 'PATCH',
-      token,
-    });
+    return conversationsService.updateThread(threadId, { isPinned: true }, token);
   },
 
   /**
    * Unpin a conversation thread
    */
   unpinThread: (threadId: string, token: string) => {
-    return apiFetch<{ success: boolean; data: Thread }>(`/conversations/${threadId}/unpin`, {
-      method: 'PATCH',
-      token,
-    });
+    return conversationsService.updateThread(threadId, { isPinned: false }, token);
   },
 
   /**
