@@ -79,5 +79,57 @@ export const usersService = {
       method: 'PATCH',
       token,
     });
+  },
+
+  /**
+   * Update profile picture
+   */
+  updateProfilePicture: (file: File, token: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiFetch<any>('/users/me/photo', {
+      method: 'PATCH',
+      token,
+      body: formData,
+    });
+  },
+
+  /**
+   * Update cover photo
+   */
+  updateCoverPhoto: (file: File, token: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiFetch<any>('/users/me/cover', {
+      method: 'PATCH',
+      token,
+      body: formData,
+    });
+  },
+
+  /**
+   * Add asset to gallery
+   */
+  addGalleryAsset: (file: File, metadata: { title?: string; description?: string }, token: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (metadata.title) formData.append('title', metadata.title);
+    if (metadata.description) formData.append('description', metadata.description);
+    return apiFetch<any>('/users/me/gallery', {
+      method: 'POST',
+      token,
+      body: formData,
+    });
+  },
+
+  /**
+   * Delete asset from gallery
+   */
+  deleteGalleryAsset: (assetUrl: string, token: string) => {
+    return apiFetch<any>('/users/me/gallery', {
+      method: 'DELETE',
+      token,
+      body: { assetUrl },
+    });
   }
 };
