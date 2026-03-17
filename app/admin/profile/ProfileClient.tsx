@@ -32,6 +32,8 @@ export default function ProfileClient() {
   const [expertise, setExpertise] = useState<string[]>([]);
   const [expertiseInput, setExpertiseInput] = useState('');
   const [socialLinks, setSocialLinks] = useState({ twitter: '', linkedin: '', github: '', website: '' });
+  const [projects, setProjects] = useState<{title: string, description: string, link?: string}[]>([]);
+  const [newProject, setNewProject] = useState({title: '', description: '', link: ''});
 
   useEffect(() => {
     fetchProfile();
@@ -53,6 +55,7 @@ export default function ProfileClient() {
         setSkills(userData.skills || []);
         setExpertise(userData.expertise || []);
         setSocialLinks(userData.socialLinks || { twitter: '', linkedin: '', github: '', website: '' });
+        setProjects(userData.projects || []);
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
@@ -75,7 +78,8 @@ export default function ProfileClient() {
         writingStyle,
         skills,
         expertise,
-        socialLinks
+        socialLinks,
+        projects
       } as any, token);
 
       if (response.success) {
@@ -161,6 +165,17 @@ export default function ProfileClient() {
     } else {
       setExpertise(expertise.filter(e => e !== tag));
     }
+  };
+
+  const addProject = () => {
+    if (newProject.title.trim() && newProject.description.trim()) {
+      setProjects([...projects, { ...newProject }]);
+      setNewProject({ title: '', description: '', link: '' });
+    }
+  };
+
+  const removeProject = (index: number) => {
+    setProjects(projects.filter((_, i) => i !== index));
   };
 
   if (loading) return <AdminLoading />;
@@ -301,6 +316,71 @@ export default function ProfileClient() {
                     {e}
                     <i className="ph ph-x" style={{ cursor: 'pointer', opacity: 0.5 }} onClick={() => removeTag(e, 'expertise')} />
                   </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-divider" style={{ borderTop: '1px solid var(--color-border)', margin: '2rem 0' }}></div>
+            
+            <h3 className="label" style={{ marginBottom: '1.5rem', fontSize: '0.875rem' }}>Featured Projects</h3>
+
+            <div className="form-group" style={{ marginBottom: '2rem' }}>
+              <div style={{ display: 'grid', gap: '1rem', padding: '1.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+                <Input 
+                  type="text" 
+                  value={newProject.title}
+                  onChange={(e) => setNewProject({...newProject, title: e.target.value})}
+                  placeholder="Project Title"
+                />
+                <textarea 
+                  className="input"
+                  style={{ minHeight: '80px', padding: '0.75rem', resize: 'vertical' }}
+                  value={newProject.description}
+                  onChange={(e) => setNewProject({...newProject, description: e.target.value})}
+                  placeholder="Short project description..."
+                />
+                <Input 
+                  type="url" 
+                  value={newProject.link}
+                  onChange={(e) => setNewProject({...newProject, link: e.target.value})}
+                  placeholder="Link (Optional) - https://..."
+                />
+                <Button 
+                  type="button" 
+                  variant="secondary" 
+                  onClick={addProject}
+                  disabled={!newProject.title || !newProject.description}
+                >
+                  <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} />
+                  <span>Add Project</span>
+                </Button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {projects.length === 0 && <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', textAlign: 'center' }}>No projects added yet.</p>}
+                {projects.map((project, index) => (
+                  <div key={index} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'flex-start',
+                    padding: '1rem',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: '0.5rem',
+                    background: 'var(--color-bg-primary)'
+                  }}>
+                    <div style={{ flex: 1, minWidth: 0, paddingRight: '1rem' }}>
+                      <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>{project.title}</h4>
+                      <p style={{ margin: '0.5rem 0', fontSize: '0.875rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>{project.description}</p>
+                      {project.link && <a href={project.link} target="_blank" rel="noreferrer" style={{ fontSize: '0.75rem', color: 'var(--color-text-primary)', textDecoration: 'underline' }}>{project.link}</a>}
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => removeProject(index)}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-error)', cursor: 'pointer', padding: '0.2rem' }}
+                    >
+                      <i className="ph ph-trash" style={{ fontSize: '1.25rem' }} />
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
