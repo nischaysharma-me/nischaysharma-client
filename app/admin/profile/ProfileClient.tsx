@@ -51,6 +51,7 @@ export default function ProfileClient() {
     
     if (success) {
       toast.success(`Successfully connected to ${success}!`);
+      fetchIntegrations(); // Refresh immediately
       // Clean URL
       router.replace('/admin/profile');
     } else if (error) {
