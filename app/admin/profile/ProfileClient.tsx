@@ -153,6 +153,7 @@ export default function ProfileClient() {
         toast.success(`${configModal} configuration saved to profile!`);
         setConfigModal(null);
         fetchProfile(); // Refresh main user state
+        fetchIntegrations(); // Refresh integration state for connect button logic
       } else {
         toast.error('Failed to save configuration');
       }
