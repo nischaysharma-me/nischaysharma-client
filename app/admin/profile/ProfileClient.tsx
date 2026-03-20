@@ -131,14 +131,30 @@ export default function ProfileClient() {
   const handleSaveConfig = async () => {
     if (!configModal) return;
     try {
+      // Update local state first
+      const updatedIntegrations = {
+        ...integrations,
+        [configModal]: {
+          ...(integrations[configModal] || {}),
+          ...tempConfig
+        }
+      };
+      setIntegrations(updatedIntegrations);
+
+      // Persist to user profile route
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
       
-      const res = await integrationsService.updateConfig(configModal, tempConfig, token);
-      if (res.success) {
-        toast.success(`${configModal} configuration saved!`);
+      const response = await usersService.updateMe({
+        integrations: updatedIntegrations
+      } as any, token);
+
+      if (response.success) {
+        toast.success(`${configModal} configuration saved to profile!`);
         setConfigModal(null);
-        fetchIntegrations();
+        fetchProfile(); // Refresh main user state
+      } else {
+        toast.error('Failed to save configuration');
       }
     } catch (err: any) {
       toast.error('Failed to save configuration: ' + err.message);
