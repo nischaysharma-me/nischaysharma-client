@@ -24,6 +24,7 @@ export default function ProfileClient() {
   
   const [user, setUser] = useState<any>(null);
   const [integrations, setIntegrations] = useState<IntegrationsList>({});
+  const [connectingProvider, setConnectingProvider] = useState<'github' | 'linkedin' | null>(null);
   
   const photoInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -112,14 +113,18 @@ export default function ProfileClient() {
     }
 
     try {
+      setConnectingProvider(provider);
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
       const res = await integrationsService.initiateAuth(provider, token);
       if (res.success && res.authUrl) {
         window.location.href = res.authUrl;
+      } else {
+        setConnectingProvider(null);
       }
     } catch (err: any) {
       toast.error(`Failed to initiate ${provider} connection: ` + err.message);
+      setConnectingProvider(null);
     }
   };
 
@@ -583,15 +588,29 @@ export default function ProfileClient() {
                         title="Configure Keys"
                       />
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                      {integrations.github?.connected ? `@${integrations.github.accountName}` : 'Not connected'}
+                    <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      {integrations.github?.connected ? (
+                        <>
+                          <span style={{ color: '#10b981', fontWeight: 800 }}>●</span>
+                          <span>@{integrations.github.accountName}</span>
+                        </>
+                      ) : (
+                        'Not connected'
+                      )}
                     </div>
                   </div>
                 </div>
                 {integrations.github?.connected ? (
                   <button onClick={() => handleDisconnect('github')} style={{ background: 'none', border: 'none', color: 'var(--color-error)', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}>Disconnect</button>
                 ) : (
-                  <button onClick={() => handleConnect('github')} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}>Connect</button>
+                  <Button 
+                    variant="ghost" 
+                    style={{ fontSize: '0.7rem', height: 'auto', padding: '0.25rem 0.5rem' }} 
+                    onClick={() => handleConnect('github')}
+                    loading={connectingProvider === 'github'}
+                  >
+                    Connect
+                  </Button>
                 )}
               </div>
 
@@ -615,15 +634,29 @@ export default function ProfileClient() {
                         title="Configure Keys"
                       />
                     </div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
-                      {integrations.linkedin?.connected ? 'Connected' : 'Not connected'}
+                    <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      {integrations.linkedin?.connected ? (
+                        <>
+                          <span style={{ color: '#10b981', fontWeight: 800 }}>●</span>
+                          <span>Connected</span>
+                        </>
+                      ) : (
+                        'Not connected'
+                      )}
                     </div>
                   </div>
                 </div>
                 {integrations.linkedin?.connected ? (
                   <button onClick={() => handleDisconnect('linkedin')} style={{ background: 'none', border: 'none', color: 'var(--color-error)', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}>Disconnect</button>
                 ) : (
-                  <button onClick={() => handleConnect('linkedin')} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}>Connect</button>
+                  <Button 
+                    variant="ghost" 
+                    style={{ fontSize: '0.7rem', height: 'auto', padding: '0.25rem 0.5rem' }} 
+                    onClick={() => handleConnect('linkedin')}
+                    loading={connectingProvider === 'linkedin'}
+                  >
+                    Connect
+                  </Button>
                 )}
               </div>
             </div>
