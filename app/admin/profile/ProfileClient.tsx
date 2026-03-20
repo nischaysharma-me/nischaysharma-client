@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import AdminLoading from '@/app/admin/loading';
 import { format } from 'date-fns';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProfileClient() {
   const router = useRouter();
@@ -40,6 +41,8 @@ export default function ProfileClient() {
   const [socialLinks, setSocialLinks] = useState({ twitter: '', linkedin: '', github: '', website: '' });
   const [projects, setProjects] = useState<{title: string, description: string, link?: string}[]>([]);
   const [newProject, setNewProject] = useState({title: '', description: '', link: ''});
+  const [configModal, setConfigModal] = useState<'github' | 'linkedin' | null>(null);
+  const [tempConfig, setTempConfig] = useState({ clientId: '', clientSecret: '' });
 
   useEffect(() => {
     fetchProfile();
@@ -97,6 +100,17 @@ export default function ProfileClient() {
   };
 
   const handleConnect = async (provider: 'github' | 'linkedin') => {
+    // Check if configured (has clientId)
+    const currentIntegrations = integrations as any;
+    if (!currentIntegrations[provider]?.clientId) {
+      setTempConfig({ 
+        clientId: currentIntegrations[provider]?.clientId || '', 
+        clientSecret: currentIntegrations[provider]?.clientSecret || '' 
+      });
+      setConfigModal(provider);
+      return;
+    }
+
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
@@ -106,6 +120,23 @@ export default function ProfileClient() {
       }
     } catch (err: any) {
       toast.error(`Failed to initiate ${provider} connection: ` + err.message);
+    }
+  };
+
+  const handleSaveConfig = async () => {
+    if (!configModal) return;
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+      
+      const res = await integrationsService.updateConfig(configModal, tempConfig, token);
+      if (res.success) {
+        toast.success(`${configModal} configuration saved!`);
+        setConfigModal(null);
+        fetchIntegrations();
+      }
+    } catch (err: any) {
+      toast.error('Failed to save configuration: ' + err.message);
     }
   };
 
@@ -537,7 +568,21 @@ export default function ProfileClient() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <i className="ph ph-github-logo" style={{ fontSize: '1.25rem' }} />
                   <div>
-                    <div style={{ fontSize: '0.875rem', fontWeight: 700 }}>GitHub</div>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      GitHub
+                      <i 
+                        className="ph ph-gear-six" 
+                        style={{ fontSize: '0.75rem', cursor: 'pointer', opacity: 0.5 }} 
+                        onClick={() => {
+                          setTempConfig({ 
+                            clientId: (integrations.github as any)?.clientId || '', 
+                            clientSecret: (integrations.github as any)?.clientSecret || '' 
+                          });
+                          setConfigModal('github');
+                        }}
+                        title="Configure Keys"
+                      />
+                    </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
                       {integrations.github?.connected ? `@${integrations.github.accountName}` : 'Not connected'}
                     </div>
@@ -555,7 +600,21 @@ export default function ProfileClient() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <i className="ph ph-linkedin-logo" style={{ fontSize: '1.25rem' }} />
                   <div>
-                    <div style={{ fontSize: '0.875rem', fontWeight: 700 }}>LinkedIn</div>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      LinkedIn
+                      <i 
+                        className="ph ph-gear-six" 
+                        style={{ fontSize: '0.75rem', cursor: 'pointer', opacity: 0.5 }} 
+                        onClick={() => {
+                          setTempConfig({ 
+                            clientId: (integrations.linkedin as any)?.clientId || '', 
+                            clientSecret: (integrations.linkedin as any)?.clientSecret || '' 
+                          });
+                          setConfigModal('linkedin');
+                        }}
+                        title="Configure Keys"
+                      />
+                    </div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)' }}>
                       {integrations.linkedin?.connected ? 'Connected' : 'Not connected'}
                     </div>
@@ -622,6 +681,73 @@ export default function ProfileClient() {
 
         </div>
       </div>
+
+      <AnimatePresence>
+        {configModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="modal-overlay"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9999,
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              backdropFilter: 'blur(10px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '2rem'
+            }}
+            onClick={() => setConfigModal(null)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="card card--padded"
+              style={{ width: '100%', maxWidth: '400px', background: '#fff' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h3 className="label" style={{ margin: 0 }}>Configure {configModal}</h3>
+                <button onClick={() => setConfigModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                  <i className="ph ph-x" style={{ fontSize: '1.25rem' }} />
+                </button>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                <label className="label">Client ID</label>
+                <Input 
+                  value={tempConfig.clientId}
+                  onChange={(e) => setTempConfig({ ...tempConfig, clientId: e.target.value })}
+                  placeholder="Enter your Client ID"
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '2rem' }}>
+                <label className="label">Client Secret</label>
+                <Input 
+                  type="password"
+                  value={tempConfig.clientSecret}
+                  onChange={(e) => setTempConfig({ ...tempConfig, clientSecret: e.target.value })}
+                  placeholder="Enter your Client Secret"
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <Button variant="secondary" className="btn--full" onClick={() => setConfigModal(null)}>Cancel</Button>
+                <Button variant="primary" className="btn--full" onClick={handleSaveConfig}>Save Keys</Button>
+              </div>
+              
+              <p style={{ fontSize: '0.65rem', color: '#a3a3a3', marginTop: '1.5rem', textAlign: 'center', lineHeight: 1.4 }}>
+                These keys are stored in your private profile and used only for your own OAuth connections.
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style jsx>{`
         .profile-admin__photo-btn {

@@ -46,6 +46,17 @@ export const integrationsService = {
   },
 
   /**
+   * Update integration configuration (e.g., Client ID, Secret)
+   */
+  updateConfig: (provider: 'github' | 'linkedin', config: { clientId?: string; clientSecret?: string; redirectUri?: string }, token: string) => {
+    return apiFetch<{ success: boolean; data: any }>(`/integrations/${provider}`, {
+      method: 'PUT',
+      token,
+      body: config,
+    });
+  },
+
+  /**
    * Sync projects from GitHub
    */
   syncGitHubProjects: (token: string) => {
