@@ -27,10 +27,6 @@ export default function Menu({ isOpen, onClose }: MenuProps) {
           transition={{ duration: 0.3, ease: 'easeInOut' }}
           className="menu"
         >
-          <button onClick={onClose} className="menu__close">
-            — Close
-          </button>
-
           <nav className="menu__nav">
             {menuItems.map((item, index) => (
               <motion.div

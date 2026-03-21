@@ -7,7 +7,7 @@ import { useStore } from '@/store/useStore';
 
 export default function Header() {
   const pathname = usePathname();
-  const { toggleMenu } = useStore();
+  const { isMenuOpen, toggleMenu } = useStore();
 
   // Don't show this header on admin pages
   if (pathname.startsWith('/admin')) return null;
@@ -23,7 +23,7 @@ export default function Header() {
       </div>
       
       <button onClick={toggleMenu} className="landing__menu-btn">
-        Menu
+        {isMenuOpen ? 'Close' : 'Menu'}
       </button>
     </header>
   );
