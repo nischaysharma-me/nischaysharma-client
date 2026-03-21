@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { auth } from '@/lib/firebase';
 import { usersService } from '@/services/users.service';
 import AdminLoading from '@/app/admin/loading';
+import { format, parseISO } from 'date-fns';
 
 export default function AboutPage() {
   const { isMenuOpen, toggleMenu } = useStore();
@@ -101,7 +102,7 @@ export default function AboutPage() {
                   <div 
                     key={i}
                     className="activity-monitor__day"
-                    title={`${day.date}: ${day.count} contributions`}
+                    title={`${day.count} ${day.count === 1 ? 'Contribution' : 'Contributions'} on ${format(parseISO(day.date), 'MMMM do')}`}
                     style={{
                       background: day.level === 0 ? '#eee' : 
                                   day.level === 1 ? 'rgba(0,0,0,0.1)' :
@@ -111,6 +112,7 @@ export default function AboutPage() {
                   />
                 ))}
               </div>
+
             </div>
           </div>
 
