@@ -8,6 +8,7 @@ import { eventsService, TCodeEvent } from '@/services/events.service';
 import { format, subDays, startOfToday, isSameDay, parseISO } from 'date-fns';
 import AdminLoading from '@/app/admin/loading';
 import Link from 'next/link';
+import ActivityHeatmap from '../ui/ActivityHeatmap';
 
 export default function OverviewClient() {
   const [loading, setLoading] = useState(true);
@@ -106,31 +107,11 @@ export default function OverviewClient() {
 
       {/* Activity Heatmap */}
       <div className="card card--padded" style={{ marginBottom: '2rem' }}>
-        <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '1.5rem', opacity: 0.5 }}>
-          Activity Monitor
-        </h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-          {heatmapData.map((day, i) => (
-            <div 
-              key={i}
-              title={`${format(day.date, 'MMM do')}: ${day.count} events`}
-              style={{
-                width: '12px',
-                height: '12px',
-                borderRadius: '2px',
-                backgroundColor: day.count === 0 ? '#eee' : 
-                                 day.count < 3 ? 'rgba(0,0,0,0.1)' :
-                                 day.count < 6 ? 'rgba(0,0,0,0.3)' :
-                                 day.count < 10 ? 'rgba(0,0,0,0.6)' : '#000',
-                transition: 'transform 0.2s ease'
-              }}
-            />
-          ))}
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', fontSize: '0.65rem', color: '#a3a3a3' }}>
-          <span>{format(heatmapData[0].date, 'MMM d, yyyy')}</span>
-          <span>Today</span>
-        </div>
+        <ActivityHeatmap 
+          data={heatmapData} 
+          title="Platform Activity Monitor"
+          limitDays={100}
+        />
       </div>
 
       <div className="dashboard__grid-layout">
