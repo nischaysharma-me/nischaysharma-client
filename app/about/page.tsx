@@ -45,6 +45,92 @@ export default function AboutPage() {
   const github = profile?.analytics?.github;
   const linkedin = profile?.analytics?.linkedin;
 
+  // Process Heatmap Data for GitHub Style Grid
+  const renderHeatmap = () => {
+    if (!github?.contributionCalendar) return null;
+
+    const days = github.contributionCalendar.slice(-371); // Show ~1 year
+    const monthLabels: { label: string; span: number }[] = [];
+    
+    let currentMonth = '';
+    let span = 0;
+
+    days.forEach((day: any, i: number) => {
+      const date = new Date(day.date);
+      const month = date.toLocaleString('default', { month: 'short' });
+      
+      if (i % 7 === 0) { // Every new column (week)
+        if (month !== currentMonth) {
+          if (currentMonth !== '') {
+            monthLabels.push({ label: currentMonth, span });
+          }
+          currentMonth = month;
+          span = 1;
+        } else {
+          span++;
+        }
+      }
+    });
+    // Add the last month
+    monthLabels.push({ label: currentMonth, span });
+
+    return (
+      <section className="activity-monitor">
+        <div className="activity-monitor__container">
+          <h3 className="about-stats__label" style={{ marginBottom: '3rem' }}>Productivity Index</h3>
+          
+          <div className="activity-monitor__wrapper">
+            <div className="activity-monitor__y-axis">
+              <span>Sun</span>
+              <span>Mon</span>
+              <span>Tue</span>
+              <span>Wed</span>
+              <span>Thu</span>
+              <span>Fri</span>
+              <span>Sat</span>
+            </div>
+
+            <div className="activity-monitor__main">
+              <div className="activity-monitor__x-axis">
+                {monthLabels.map((m, i) => (
+                  <span key={i} style={{ minWidth: `${m.span * 16}px` }}>{m.label}</span>
+                ))}
+              </div>
+              <div className="activity-monitor__grid">
+                {days.map((day: any, i: number) => (
+                  <div 
+                    key={i}
+                    className="activity-monitor__day"
+                    title={`${day.date}: ${day.count} contributions`}
+                    style={{
+                      background: day.level === 0 ? '#f5f5f5' : 
+                                  day.level === 1 ? '#d1d5db' :
+                                  day.level === 2 ? '#9ca3af' :
+                                  day.level === 3 ? '#4b5563' : '#000'
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="activity-monitor__meta">
+            <span>Synced via GitHub GraphQL</span>
+            <div className="activity-monitor__legend">
+              <span style={{ opacity: 0.5 }}>Less</span>
+              <span style={{ background: '#f5f5f5', border: '1px solid #eee' }} />
+              <span style={{ background: '#d1d5db' }} />
+              <span style={{ background: '#9ca3af' }} />
+              <span style={{ background: '#4b5563' }} />
+              <span style={{ background: '#000' }} />
+              <span style={{ opacity: 0.5 }}>More</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  };
+
   return (
     <div className="landing-container">
       <Menu isOpen={isMenuOpen} onClose={() => toggleMenu()} />
@@ -131,35 +217,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {github?.contributionCalendar && (
-          <section className="activity-monitor">
-            <div className="activity-monitor__container">
-              <h3 className="about-stats__label" style={{ marginBottom: '3rem' }}>Activity Monitor</h3>
-              <div className="activity-monitor__grid">
-                {github.contributionCalendar.slice(-150).map((day: any, i: number) => (
-                  <div 
-                    key={i}
-                    className="activity-monitor__day"
-                    title={`${day.date}: ${day.count} contributions`}
-                    style={{
-                      background: day.level === 0 ? '#eee' : 
-                                  day.level === 1 ? 'rgba(0,0,0,0.1)' :
-                                  day.level === 2 ? 'rgba(0,0,0,0.3)' :
-                                  day.level === 3 ? 'rgba(0,0,0,0.6)' : '#000'
-                    }}
-                  />
-                ))}
-              </div>
-              <div className="activity-monitor__meta">
-                 <span>{github.contributionCalendar[github.contributionCalendar.length - 150]?.date}</span>
-                 <span>Today</span>
-              </div>
-              <p style={{ marginTop: '2rem', fontSize: '0.65rem', opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Real-time frequency synced via GitHub GraphQL
-              </p>
-            </div>
-          </section>
-        )}
+        {renderHeatmap()}
 
         {linkedin?.positions && linkedin.positions.length > 0 && (
           <section className="timeline-section">
