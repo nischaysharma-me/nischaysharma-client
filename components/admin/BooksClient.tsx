@@ -158,7 +158,7 @@ export default function BooksClient({ initialBooks }: BooksClientProps) {
              <p style={{ fontSize: '0.75rem', color: '#737373', lineHeight: 1.5 }}>
                Books allow you to organize complex topics into structured chapters. 
                <br/><br/>
-               You can use <strong>AI Threads</strong> to draft content for specific pages and sync them directly to your book's manuscript.
+               You can use <strong>AI Threads</strong> to draft content for specific pages and sync them directly to your book&apos;s manuscript.
              </p>
           </div>
         </div>

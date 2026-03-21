@@ -11,26 +11,11 @@ import { clientAppsService } from '@/services/clientApps.service';
 import NotificationBell from '@/components/admin/NotificationBell';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, setUser, activeAdminTab, setActiveAdminTab } = useStore();
+  const { user, setUser, setActiveAdminTab } = useStore();
   const [loading, setLoading] = React.useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const router = useRouter();
   const pathname = usePathname();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
-        router.push('/admin/login');
-      } else {
-        setUser(currentUser);
-        // Register device after login
-        registerCurrentDevice(currentUser);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [router, setUser]);
 
   const registerCurrentDevice = async (user: any) => {
     try {
@@ -56,6 +41,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       console.error('WebSocket: Device registration failed', error);
     }
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        router.push('/admin/login');
+      } else {
+        setUser(currentUser);
+        // Register device after login
+        registerCurrentDevice(currentUser);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [router, setUser]);
 
   // Sync active tab with pathname
   useEffect(() => {

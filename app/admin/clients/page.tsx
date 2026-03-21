@@ -233,7 +233,7 @@ export default function ClientsPage() {
             <p style={{ fontSize: '0.875rem', lineHeight: 1.6, color: '#737373' }}>
               Register external domains here to allow them to fetch data from your platform.
               <br /><br />
-              <strong>Permissions Matrix:</strong> Use this to strictly control which routes each domain can access. For example, your portfolio might only need 'Read Articles' and 'Read Profile'.
+              <strong>Permissions Matrix:</strong> Use this to strictly control which routes each domain can access. For example, your portfolio might only need &apos;Read Articles&apos; and &apos;Read Profile&apos;.
             </p>
           </div>
         </div>

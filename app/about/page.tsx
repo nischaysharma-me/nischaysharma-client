@@ -1,15 +1,53 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { auth } from '@/lib/firebase';
 import { usersService } from '@/services/users.service';
 import AdminLoading from '@/app/admin/loading';
-import { format, parseISO } from 'date-fns';
 import ActivityHeatmap from '@/components/ui/ActivityHeatmap';
 
+interface Profile {
+  displayName?: string;
+  bio?: string;
+  occupation?: string;
+  email?: string;
+  socialLinks?: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+  };
+  preferences?: {
+    visionStatement?: string;
+  };
+  analytics?: {
+    github?: {
+      stats: {
+        totalRepos: number;
+        totalStars: number;
+        totalContributions: number;
+        followerCount: number;
+      };
+      languages?: Array<{
+        name: string;
+        percentage: number;
+        color?: string;
+      }>;
+      contributionCalendar?: any[];
+    };
+    linkedin?: {
+      positions?: Array<{
+        startDate: string;
+        endDate: string;
+        title: string;
+        company: string;
+        description: string;
+      }>;
+    };
+  };
+}
+
 export default function AboutPage() {
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

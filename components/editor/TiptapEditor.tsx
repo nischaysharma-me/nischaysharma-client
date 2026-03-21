@@ -63,8 +63,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
 
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content);
-      setRawHtml(content);
+      editor.commands.setContent(content, { emitUpdate: false });
     }
   }, [content, editor]);
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { initSocket, onJobEvent, disconnectSocket } from '@/services/socketService';
 import { toast } from 'sonner';
 import { eventsService } from '@/services/events.service';
@@ -11,34 +11,29 @@ export const useJobSocket = (userId?: string, deviceId?: string) => {
   const { addNotification } = useNotificationStore();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!userId) return;
+  const handleDataRefresh = useCallback((jobType: string) => {
+    console.log(`Refreshing data for job type: ${jobType}`);
 
-    let cleanup: (() => void) | undefined;
+    // Refresh the current Next.js route data
+    router.refresh();
 
-    const setupSocket = async () => {
-      const socket = await initSocket(deviceId);
-      if (socket) {
-        setIsConnected(socket.connected);
+    // Trigger specific window events that components can listen to
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('tc:data-refresh', { detail: { type: jobType } }));
 
-        socket.on('connect', () => setIsConnected(true));
-        socket.on('disconnect', () => setIsConnected(false));
-
-        cleanup = onJobEvent((data) => {
-          handleJobNotification(data, deviceId);
-        });
+      // Specifically handle article generation to let the UI know to re-fetch
+      if (jobType === 'article-generation') {
+        window.dispatchEvent(new CustomEvent('tc:articles-update'));
       }
-    };
 
-    setupSocket();
+      // Specifically handle book page generation
+      if (jobType === 'book-page-generation') {
+        window.dispatchEvent(new CustomEvent('tc:book-update'));
+      }
+    }
+  }, [router]);
 
-    return () => {
-      if (cleanup) cleanup();
-      disconnectSocket();
-    };
-  }, [userId, deviceId]);
-
-  const handleJobNotification = async (data: any, devId?: string) => {
+  const handleJobNotification = useCallback(async (data: any, devId?: string) => {
     const { type, status, id } = data;
 
     let message = '';
@@ -109,28 +104,34 @@ export const useJobSocket = (userId?: string, deviceId?: string) => {
     } catch (err) {
       console.error('Failed to store received event:', err);
     }
-  };
+  }, [addNotification, handleDataRefresh]);
 
-  const handleDataRefresh = (jobType: string) => {
-    console.log(`Refreshing data for job type: ${jobType}`);
+  useEffect(() => {
+    if (!userId) return;
 
-    // Refresh the current Next.js route data
-    router.refresh();
+    let cleanup: (() => void) | undefined;
 
-    // Trigger specific window events that components can listen to
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('tc:data-refresh', { detail: { type: jobType } }));
+    const setupSocket = async () => {
+      const socket = await initSocket(deviceId);
+      if (socket) {
+        setIsConnected(socket.connected);
 
-      // Specifically handle article generation to let the UI know to re-fetch
-      if (jobType === 'article-generation') {
-        window.dispatchEvent(new CustomEvent('tc:articles-update'));
+        socket.on('connect', () => setIsConnected(true));
+        socket.on('disconnect', () => setIsConnected(false));
+
+        cleanup = onJobEvent((data) => {
+          handleJobNotification(data, deviceId);
+        });
       }
+    };
 
-      // Specifically handle book page generation
-      if (jobType === 'book-page-generation') {
-        window.dispatchEvent(new CustomEvent('tc:book-update'));
-      }
-    }
-  };
+    setupSocket();
+
+    return () => {
+      if (cleanup) cleanup();
+      disconnectSocket();
+    };
+  }, [userId, deviceId, handleJobNotification]);
+
   return { isConnected };
 };

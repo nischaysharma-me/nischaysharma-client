@@ -13,7 +13,12 @@ import { useRouter } from 'next/navigation';
 export default function RealtimeNotificationHandler() {
   const router = useRouter();
   const processedJobs = useRef<Set<string>>(new Set());
-  const [deviceId, setDeviceId] = useState<string | undefined>(undefined);
+  const [deviceId, setDeviceId] = useState<string | undefined>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('tc_device_id') || undefined;
+    }
+    return undefined;
+  });
   const [user, setUser] = useState<any>(null);
   const { addNotification } = useNotificationStore();
 
@@ -22,14 +27,13 @@ export default function RealtimeNotificationHandler() {
     return onAuthStateChanged(auth, (u) => setUser(u));
   }, []);
 
-  // Initialize unique device ID for this session/browser
+  // Initialize unique device ID if missing
   useEffect(() => {
-    let id = localStorage.getItem('tc_device_id');
-    if (!id) {
-      id = uuidv4();
+    if (typeof window !== 'undefined' && !localStorage.getItem('tc_device_id')) {
+      const id = uuidv4();
       localStorage.setItem('tc_device_id', id);
+      setDeviceId(id);
     }
-    setDeviceId(id);
   }, []);
 
   // Use the new WebSocket hook - only connects when user is present
@@ -109,7 +113,7 @@ export default function RealtimeNotificationHandler() {
 
       return () => off(notificationsRef);
     }
-  }, [user, addNotification]);
+  }, [user, addNotification, router]);
 
   return null;
 }
