@@ -29,6 +29,12 @@ export const usersService = {
     });
   },
 
+  getPublicAdmin: () => {
+    return apiFetch<any>('/users/public/admin', {
+      method: 'GET',
+    });
+  },
+
   updateMe: (data: { displayName?: string; bio?: string }, token: string) => {
     return apiFetch<any>('/users/me', {
       method: 'PATCH',

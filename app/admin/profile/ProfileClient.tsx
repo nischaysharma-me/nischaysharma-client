@@ -18,6 +18,7 @@ export default function ProfileClient() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [syncingRepos, setSyncingRepos] = useState(false);
+  const [syncingStats, setSyncingStats] = useState<'github' | 'linkedin' | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
@@ -211,6 +212,23 @@ export default function ProfileClient() {
       toast.error('Failed to sync projects: ' + err.message);
     } finally {
       setSyncingRepos(false);
+    }
+  };
+
+  const handleSyncStats = async (provider: 'github' | 'linkedin') => {
+    try {
+      setSyncingStats(provider);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+      const res = await integrationsService.syncStats(provider, token);
+      if (res.success) {
+        toast.success(`Successfully synced ${provider} stats!`);
+        fetchProfile();
+      }
+    } catch (err: any) {
+      toast.error(`Failed to sync ${provider} stats: ` + err.message);
+    } finally {
+      setSyncingStats(null);
     }
   };
 
@@ -610,6 +628,14 @@ export default function ProfileClient() {
                         <>
                           <span style={{ color: '#10b981', fontWeight: 800 }}>●</span>
                           <span>@{integrations.github.accountName}</span>
+                          <button 
+                            type="button"
+                            onClick={() => handleSyncStats('github')} 
+                            disabled={!!syncingStats}
+                            style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontSize: '0.6rem', cursor: 'pointer', marginLeft: '0.5rem', padding: 0, textDecoration: 'underline' }}
+                          >
+                            {syncingStats === 'github' ? 'Syncing...' : 'Sync Stats'}
+                          </button>
                         </>
                       ) : (
                         'Not connected'
@@ -656,6 +682,14 @@ export default function ProfileClient() {
                         <>
                           <span style={{ color: '#10b981', fontWeight: 800 }}>●</span>
                           <span>Connected</span>
+                          <button 
+                            type="button"
+                            onClick={() => handleSyncStats('linkedin')} 
+                            disabled={!!syncingStats}
+                            style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontSize: '0.6rem', cursor: 'pointer', marginLeft: '0.5rem', padding: 0, textDecoration: 'underline' }}
+                          >
+                            {syncingStats === 'linkedin' ? 'Syncing...' : 'Sync Stats'}
+                          </button>
                         </>
                       ) : (
                         'Not connected'

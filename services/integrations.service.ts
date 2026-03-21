@@ -68,6 +68,17 @@ export const integrationsService = {
   },
 
   /**
+   * Sync deep stats from a provider
+   */
+  syncStats: (provider: 'github' | 'linkedin', token: string) => {
+    return apiFetch<{ success: boolean; data: any }>(`/integrations/${provider}/sync`, {
+      method: 'POST',
+      token,
+      body: { action: provider === 'github' ? 'get_stats' : 'sync_profile' }
+    });
+  },
+
+  /**
    * Sync projects from GitHub
    */
   syncGitHubProjects: (token: string) => {
