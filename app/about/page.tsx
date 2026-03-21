@@ -161,9 +161,13 @@ export default function AboutPage() {
                 <p className="about-text__bio">
                   {profile?.bio || 'I am a lead developer specializing in building scalable backend systems, architecting cloud-native applications, and creating intuitive developer experiences.'}
                 </p>
-                
+                {/* GitHub Summary Stats */}
                 {github && (
                   <div className="github-impact">
+                    <div className="github-impact__stat">
+                      <span className="github-impact__number">{github.stats.totalRepos}</span>
+                      <span className="github-impact__label">Repositories</span>
+                    </div>
                     <div className="github-impact__stat">
                       <span className="github-impact__number">{github.stats.totalStars}</span>
                       <span className="github-impact__label">Stars Earned</span>
@@ -178,6 +182,7 @@ export default function AboutPage() {
                     </div>
                   </div>
                 )}
+
               </div>
               
               <div className="about-stats">
