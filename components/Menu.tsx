@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 interface MenuProps {
   isOpen: boolean;
@@ -8,10 +9,11 @@ interface MenuProps {
 }
 
 const menuItems = [
-  { label: 'About', href: '#about' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Blogs', href: '#blogs' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Home', href: '/' },
+  { label: 'About', href: '/about' },
+  { label: 'Skills', href: '/#skills' },
+  { label: 'Blogs', href: '/#blogs' },
+  { label: 'Contact', href: '/#contact' },
 ];
 
 export default function Menu({ isOpen, onClose }: MenuProps) {
@@ -31,17 +33,20 @@ export default function Menu({ isOpen, onClose }: MenuProps) {
 
           <nav className="menu__nav">
             {menuItems.map((item, index) => (
-              <motion.a
+              <motion.div
                 key={item.label}
-                href={item.href}
-                onClick={onClose}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 * index }}
-                className="menu__link"
               >
-                {item.label}
-              </motion.a>
+                <Link
+                  href={item.href}
+                  onClick={onClose}
+                  className="menu__link"
+                >
+                  {item.label}
+                </Link>
+              </motion.div>
             ))}
           </nav>
 
