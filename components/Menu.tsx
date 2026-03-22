@@ -11,6 +11,7 @@ interface MenuProps {
 const menuItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
+  { label: 'Docs', href: '/docs' },
   { label: 'Skills', href: '/#skills' },
   { label: 'Blogs', href: '/#blogs' },
   { label: 'Contact', href: '/#contact' },
