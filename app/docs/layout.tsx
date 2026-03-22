@@ -202,6 +202,20 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           color: #444;
         }
 
+        .docs-content a {
+          color: #000;
+          text-decoration: none;
+          border-bottom: 1px solid rgba(0,0,0,0.1);
+          padding-bottom: 1px;
+          transition: all 0.2s ease;
+          font-weight: 600;
+        }
+
+        .docs-content a:hover {
+          border-bottom-color: #000;
+          background: rgba(0,0,0,0.02);
+        }
+
         .docs-content ul, .docs-content ol {
           margin-bottom: 2rem;
           padding-left: 1.25rem;
