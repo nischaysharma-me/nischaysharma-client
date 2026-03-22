@@ -30,3 +30,4 @@
 ## Phase 5: Next.js & Layout Optimizations [PENDING] (GitHub Issue #46)
 - [ ] ISSUE-020: Refactor `app/admin/layout.tsx` (modularize header and sidebar)
 - [ ] ISSUE-021: Audit and implement granular `loading.tsx` across admin routes
+- [ ] ISSUE-028: Add backdrop-blur effect to landing Header (GitHub Issue #48)
