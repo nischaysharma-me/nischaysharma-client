@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
+import mermaid from 'mermaid';
 
 interface MarkdownProps {
   content: string;
@@ -12,15 +13,26 @@ interface MarkdownProps {
 }
 
 export default function Markdown({ content, className = '' }: MarkdownProps) {
-  // Effect to apply syntax highlighting after rendering
-  React.useEffect(() => {
-    document.querySelectorAll('pre code').forEach((block) => {
-      hljs.highlightElement(block as HTMLElement);
-    });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Highlight code blocks
+    if (containerRef.current) {
+      containerRef.current.querySelectorAll('pre code:not(.language-mermaid)').forEach((block) => {
+        hljs.highlightElement(block as HTMLElement);
+      });
+    }
+
+    // Render Mermaid diagrams
+    try {
+      mermaid.contentLoaded();
+    } catch (err) {
+      console.error('Mermaid rendering error:', err);
+    }
   }, [content]);
 
   return (
-    <div className={`markdown-body ${className}`}>
+    <div ref={containerRef} className={`markdown-body ${className}`}>
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]}
         components={{
@@ -29,7 +41,11 @@ export default function Markdown({ content, className = '' }: MarkdownProps) {
             const lang = match ? match[1] : '';
             
             if (lang === 'mermaid') {
-              return <pre className="mermaid">{children}</pre>;
+              return (
+                <div className="mermaid">
+                  {String(children).replace(/\n$/, '')}
+                </div>
+              );
             }
             
             return (
@@ -38,7 +54,6 @@ export default function Markdown({ content, className = '' }: MarkdownProps) {
               </code>
             );
           },
-          // Customize other elements if needed
           a: ({ node, ...props }) => <a target="_blank" rel="noopener noreferrer" {...props} />,
         }}
       >
