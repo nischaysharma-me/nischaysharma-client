@@ -33,23 +33,23 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     mermaid.initialize({
       startOnLoad: true,
-      theme: 'neutral',
+      theme: 'dark',
       securityLevel: 'loose',
       fontFamily: 'Poppins, system-ui, sans-serif',
       themeVariables: {
-        primaryColor: '#ffffff',
-        primaryTextColor: '#000000',
-        primaryBorderColor: '#000000',
-        lineColor: '#000000',
-        secondaryColor: '#f9f9f9',
-        tertiaryColor: '#ffffff',
+        primaryColor: '#1a1a1a',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#ffffff',
+        lineColor: '#ffffff',
+        secondaryColor: '#222222',
+        tertiaryColor: '#1a1a1a',
         fontSize: '14px',
-        mainBkg: '#ffffff',
-        nodeBorder: '#000000',
-        clusterBkg: '#fcfcfc',
-        clusterBorder: '#eee',
-        titleColor: '#000000',
-        edgeLabelBackground: '#ffffff'
+        mainBkg: '#000000',
+        nodeBorder: '#ffffff',
+        clusterBkg: '#0a0a0a',
+        clusterBorder: '#333',
+        titleColor: '#ffffff',
+        edgeLabelBackground: '#000000'
       },
       flowchart: {
         curve: 'basis',
