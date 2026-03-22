@@ -10,6 +10,7 @@ import mermaid from 'mermaid';
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   const [navigation, setNavigation] = useState<DocSection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -55,8 +56,18 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <div className="docs-layout">
-      <div className="docs-layout__container">
-        <DocsSidebar navigation={navigation} />
+      <button 
+        className={`docs-sidebar-toggle ${isSidebarCollapsed ? 'is-collapsed' : ''}`}
+        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        title={isSidebarCollapsed ? "Show Sidebar" : "Hide Sidebar"}
+      >
+        <i className={`ph ${isSidebarCollapsed ? 'ph-list' : 'ph-caret-left'}`} />
+      </button>
+
+      <div className={`docs-layout__container ${isSidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
+        <div className="docs-layout__sidebar-wrapper">
+          <DocsSidebar navigation={navigation} />
+        </div>
         <main className="docs-layout__main">
           <div className="docs-layout__content-wrapper">
             {children}
@@ -69,6 +80,35 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           min-height: 100vh;
           background: #fff;
           padding-top: 100px; 
+          position: relative;
+        }
+
+        .docs-sidebar-toggle {
+          position: fixed;
+          left: 2rem;
+          bottom: 2rem;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: #000;
+          color: #fff;
+          border: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 2000;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .docs-sidebar-toggle:hover {
+          transform: scale(1.1);
+        }
+
+        .docs-sidebar-toggle.is-collapsed {
+          background: #f5f5f5;
+          color: #000;
         }
 
         .docs-layout__container {
@@ -77,14 +117,35 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
           display: flex;
           gap: 4rem;
           padding: 0 2rem;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .docs-layout__sidebar-wrapper {
+          width: 260px;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          opacity: 1;
+        }
+
+        .docs-layout__container.is-sidebar-collapsed {
+          gap: 0;
+        }
+
+        .docs-layout__container.is-sidebar-collapsed .docs-layout__sidebar-wrapper {
+          width: 0;
+          opacity: 0;
+          pointer-events: none;
+          transform: translateX(-20px);
         }
 
         .docs-layout__main {
           flex: 1;
-          min-width: 0; // Prevent content from breaking flexbox
+          min-width: 0; 
+          display: flex;
+          justify-content: center;
         }
 
         .docs-layout__content-wrapper {
+          width: 100%;
           max-width: 800px;
           padding-bottom: 10rem;
         }
