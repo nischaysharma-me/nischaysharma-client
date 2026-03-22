@@ -1,7 +1,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { articlesService, Article } from '@/services/articles.service';
+import { articlesService } from '@/services/articles.service';
+import { Article } from '@/lib/types/article';
 
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
@@ -16,7 +17,7 @@ export default async function PublicArticleView({ params }: PageProps) {
 
   try {
     const response = await articlesService.getArticleBySlug(slug);
-    if (response.success) {
+    if (response.success && response.data) {
       article = response.data;
     } else {
       error = 'Article not found';

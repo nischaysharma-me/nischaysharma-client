@@ -1,7 +1,7 @@
 import React from 'react';
 import { cookies } from 'next/headers';
 import BooksClient from '@/components/admin/BooksClient';
-import { getUserBooksAction } from '@/actions/books';
+import { getUserBooksAction } from '@/lib/actions/books';
 
 export default async function BooksPage() {
   const cookieStore = await cookies();

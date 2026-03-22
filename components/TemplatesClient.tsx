@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/Button';
-import { generateTemplateAction, deleteTemplateAction } from '@/actions/templates';
+import { generateTemplateAction, deleteTemplateAction } from '@/lib/actions/templates';
 import AdminLoading from '@/app/admin/loading';
 import { useTemplateStore } from '@/store/admin/useTemplateStore';
 import { useRouter } from 'next/navigation';

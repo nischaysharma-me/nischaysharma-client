@@ -36,12 +36,12 @@ export default function OverviewClient() {
       ]);
 
       setStats({
-        articles: articlesRes.success ? articlesRes.data.length : 0,
-        books: booksRes.success ? booksRes.data.length : 0,
-        totalEvents: eventsRes.success ? eventsRes.data.length : 0
+        articles: (articlesRes.success && articlesRes.data) ? articlesRes.data.length : 0,
+        books: (booksRes.success && booksRes.data) ? booksRes.data.length : 0,
+        totalEvents: (eventsRes.success && eventsRes.data) ? eventsRes.data.length : 0
       });
 
-      if (eventsRes.success) {
+      if (eventsRes.success && eventsRes.data) {
         setEvents(eventsRes.data);
       }
     } catch (err) {

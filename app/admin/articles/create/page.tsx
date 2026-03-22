@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { articlesService } from '@/services/articles.service';
+import { Article } from '@/lib/types/article';
 import TiptapEditor from '@/components/editor/TiptapEditor';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';

@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
-import { articlesService, Article } from '@/services/articles.service';
+import { articlesService } from '@/services/articles.service';
+import { Article } from '@/lib/types/article';
 import TiptapEditor from '@/components/editor/TiptapEditor';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -57,7 +58,7 @@ export default function ArticleEditPage() {
       if (!token) throw new Error('No authentication token');
 
       const response = await articlesService.getById(id, token);
-      if (response.success) {
+      if (response.success && response.data) {
         setArticle(response.data);
         setTitle(response.data.title);
         setDescription(response.data.description);
@@ -107,7 +108,7 @@ export default function ArticleEditPage() {
           if (!token) throw new Error('No authentication token');
 
           const response = await articlesService.publish(id, token);
-          if (response.success) {
+          if (response.success && response.data) {
             setArticle(response.data);
             toast.success('Article published successfully!');
           }

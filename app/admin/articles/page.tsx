@@ -1,6 +1,6 @@
 import React from 'react';
 import ArticlesClient from '@/components/ArticlesClient';
-import { getTopArticlesAction } from '@/actions/articles';
+import { getTopArticlesAction } from '@/lib/actions/articles';
 
 // This is a Server Component
 export default async function ArticlesPage() {

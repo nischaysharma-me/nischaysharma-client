@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Article } from '@/services/articles.service';
+import { Article } from '@/lib/types/article';
 
 const ArticleSection = ({ 
   article, 

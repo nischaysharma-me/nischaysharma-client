@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { 
   createOrganizationAction, 
   updateOrganizationAction 
-} from '@/actions/organizations';
+} from '@/lib/actions/organizations';
 import { organizationsService } from '@/services/organizations.service';
 import AdminLoading from '@/app/admin/loading';
 
