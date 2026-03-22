@@ -53,18 +53,23 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
       },
       flowchart: {
         curve: 'basis',
-        padding: 20
+        padding: 20,
+        useMaxWidth: false
       },
       sequence: {
         actorMargin: 50,
-        mirrorActors: false
+        mirrorActors: false,
+        useMaxWidth: false
+      },
+      er: {
+        useMaxWidth: false
       }
     });
     
     // Use a small delay to ensure DOM is ready
     const timeout = setTimeout(() => {
       mermaid.contentLoaded();
-    }, 150);
+    }, 200);
     
     return () => clearTimeout(timeout);
   }, [pathname, loading]);

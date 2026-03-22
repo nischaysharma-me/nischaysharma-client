@@ -150,19 +150,24 @@
     color: #aaa
 
   .mermaid
-    background: transparent !important
+    background: #0a0a0a !important
     margin: 6rem 0
-    display: flex
-    justify-content: center
-    padding: 3rem
+    display: block
+    padding: 2rem
     border: 1px solid #222
-    border-radius: 8px
+    border-radius: 12px
     overflow-x: auto
+    text-align: center
 
     svg
-      max-width: 100% !important
+      display: inline-block
+      min-width: 600px
+      max-width: 100%
       height: auto !important
       transition: transform 0.3s ease
 
+      @media (max-width: 768px)
+        min-width: 100%
+
       &:hover
-        transform: scale(1.02)
+        transform: scale(1.01)
