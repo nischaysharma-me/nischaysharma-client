@@ -23,7 +23,7 @@ export const docsService = {
    * Get the documentation navigation structure
    */
   getNavigation: () => {
-    return apiFetch<{ success: boolean; data: DocSection[] }>('/docs/navigation', {
+    return apiFetch<{ success: boolean; data: DocContent }>('/docs/navigation', {
       method: 'GET',
     });
   },
