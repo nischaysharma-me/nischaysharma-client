@@ -15,7 +15,7 @@ export default function Header() {
   return (
     <header className="landing__header">
       <Link href="/" className="landing__brand">
-        NISCHAY SHARMA
+        NISCHAY
       </Link>
       
       <div className="landing__logo">
