@@ -13,6 +13,28 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const pathname = usePathname();
 
+  // Handle mobile initial state and resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarCollapsed(true);
+      } else {
+        setIsSidebarCollapsed(false);
+      }
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Auto-collapse on navigation for mobile
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setIsSidebarCollapsed(true);
+    }
+  }, [pathname]);
+
   useEffect(() => {
     const fetchNav = async () => {
       try {
