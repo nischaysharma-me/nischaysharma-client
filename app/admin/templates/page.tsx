@@ -1,6 +1,6 @@
 import React from 'react';
 import TemplatesClient from '@/components/TemplatesClient';
-import { listTemplatesAction, getTemplateConfigAction } from '@/actions/templates';
+import { listTemplatesAction, getTemplateConfigAction } from '@/lib/actions/templates';
 
 // This is a Server Component
 export default async function TemplatesPage() {

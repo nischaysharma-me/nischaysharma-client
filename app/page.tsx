@@ -1,6 +1,6 @@
 import React from 'react';
 import HomeClient from '@/components/HomeClient';
-import { getTopArticlesAction } from '@/actions/articles';
+import { getTopArticlesAction } from '@/lib/actions/articles';
 
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
 

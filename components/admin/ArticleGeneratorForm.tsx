@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
 import { Card } from '@/components/ui/Card';
 import { templatesService } from '@/services/templates.service';
-import { generateArticleAction } from '@/actions/articles';
+import { generateArticleAction } from '@/lib/actions/articles';
 import { auth } from '@/lib/firebase';
 import { toast } from 'sonner';
 

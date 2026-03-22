@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { updateTemplateAction, deleteTemplateAction } from '@/actions/templates';
+import { updateTemplateAction, deleteTemplateAction } from '@/lib/actions/templates';
 import AdminLoading from '@/app/admin/loading';
 import { useTemplateStore } from '@/store/admin/useTemplateStore';
 import { toast } from 'sonner';

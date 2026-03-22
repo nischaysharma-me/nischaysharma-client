@@ -1,6 +1,6 @@
 import React from 'react';
 import TemplateEditClient from './TemplateEditClient';
-import { listTemplatesAction, getTemplateConfigAction } from '@/actions/templates';
+import { listTemplatesAction, getTemplateConfigAction } from '@/lib/actions/templates';
 
 interface PageProps {
   params: Promise<{ id: string }>;
