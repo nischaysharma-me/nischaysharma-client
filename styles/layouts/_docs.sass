@@ -152,23 +152,22 @@
   .mermaid
     background: #0a0a0a !important
     margin: 6rem 0
-    padding: 3rem
+    padding: 2rem
     border: 1px solid #222
     border-radius: 12px
     overflow-x: auto
-    display: flex
-    flex-direction: column
-    align-items: center
+    display: block
     width: 100%
+    text-align: center
+    white-space: nowrap
 
     svg
-      flex-shrink: 0
-      display: block
+      display: inline-block
       max-width: none !important
       height: auto !important
-      margin: 0 auto
-      // Add buffer padding to the SVG itself to prevent label clipping
-      padding: 0 4rem 
+      // Prevent the SVG from being squashed and ensure full visibility
+      min-width: max-content
+      padding: 1rem
       transition: transform 0.3s ease
 
       &:hover
