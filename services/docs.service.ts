@@ -1,43 +1,50 @@
 import { apiFetch } from './apiClient';
 
-export interface DocNode {
+export interface DocNavItem {
   name: string;
   path: string;
-  type: 'file' | 'directory';
-  children?: DocNode[];
+}
+
+export interface DocSection {
+  section: string;
+  items: DocNavItem[];
 }
 
 export interface DocContent {
   title: string;
-  content: string; // HTML or Markdown string
-  path: string;
-  metadata?: any;
+  content: string;
+  markdown?: string;
+  path?: string;
+  navigation?: DocSection[];
 }
 
 export const docsService = {
   /**
-   * List documentation files and directories
+   * Get the documentation navigation structure
    */
-  listDocs: (password?: string) => {
-    const options: any = { method: 'GET' };
-    if (password) {
-      options.method = 'POST';
-      options.body = { password };
-    }
-    return apiFetch<{ success: boolean; data: DocNode[] }>('/docs', options);
+  getNavigation: () => {
+    return apiFetch<{ success: boolean; data: DocSection[] }>('/docs/navigation', {
+      method: 'GET',
+    });
   },
 
   /**
-   * Get a specific documentation page by its path
+   * Get documentation content by path
+   * @param path - The relative path to the doc (e.g., 'guides/quick-start')
    */
-  getDoc: (path: string, password?: string) => {
-    const options: any = { method: 'GET' };
-    if (password) {
-      options.method = 'POST';
-      options.body = { password };
-    }
-    // path should start with /
-    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-    return apiFetch<{ success: boolean; data: DocContent }>(`/docs${normalizedPath}`, options);
+  getDoc: (path: string) => {
+    // We use the content endpoint which supports catch-all
+    return apiFetch<{ success: boolean; data: DocContent }>(`/docs/content/${path}`, {
+      method: 'GET',
+    });
+  },
+
+  /**
+   * Get the documentation index (landing page)
+   */
+  getIndex: () => {
+    return apiFetch<{ success: boolean; data: DocContent }>('/docs/navigation', {
+      method: 'GET',
+    });
   }
 };
