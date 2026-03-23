@@ -7,10 +7,18 @@ import { useStore } from '@/store/useStore';
 
 export default function Header() {
   const pathname = usePathname();
-  const { isMenuOpen, toggleMenu } = useStore();
+  const { previousPath, setPreviousPath } = useStore();
 
   // Don't show this header on admin pages
   if (pathname.startsWith('/admin')) return null;
+
+  const isBillboard = pathname === '/billboard';
+
+  const handleMenuClick = () => {
+    if (!isBillboard) {
+      setPreviousPath(pathname);
+    }
+  };
 
   return (
     <header className="landing__header">
@@ -22,9 +30,14 @@ export default function Header() {
         <i className="ph ph-stack" style={{ fontSize: '1.5rem' }} />
       </Link>
       
-      <button onClick={toggleMenu} className="landing__menu-btn" style={{ justifySelf: 'end' }}>
-        {isMenuOpen ? 'Close' : 'Menu'}
-      </button>
+      <Link 
+        href={isBillboard ? (previousPath || '/') : '/billboard'} 
+        onClick={handleMenuClick}
+        className="landing__menu-btn" 
+        style={{ justifySelf: 'end' }}
+      >
+        {isBillboard ? 'Close' : 'Menu'}
+      </Link>
     </header>
   );
 }

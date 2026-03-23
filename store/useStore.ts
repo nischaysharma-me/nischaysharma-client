@@ -6,6 +6,10 @@ interface AppState {
   isMenuOpen: boolean;
   setIsMenuOpen: (isOpen: boolean) => void;
   toggleMenu: () => void;
+  
+  // Navigation State
+  previousPath: string | null;
+  setPreviousPath: (path: string | null) => void;
 
   // Auth State (Client-side mirror)
   user: User | null;
@@ -20,6 +24,9 @@ export const useStore = create<AppState>((set) => ({
   isMenuOpen: false,
   setIsMenuOpen: (isOpen) => set({ isMenuOpen: isOpen }),
   toggleMenu: () => set((state) => ({ isMenuOpen: !state.isMenuOpen })),
+  
+  previousPath: null,
+  setPreviousPath: (path) => set({ previousPath: path }),
 
   user: null,
   setUser: (user) => set({ user }),
