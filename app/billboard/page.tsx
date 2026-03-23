@@ -14,6 +14,12 @@ const navArticles = [
   { id: 8, label: 'Services', headline: 'Expert Technical Solutions for Modern Business', summary: 'Custom software development, system audits, and architectural consulting tailored for growth.', href: '/about' },
 ];
 
+const socialArticles = [
+  { id: 9, label: 'LinkedIn', headline: 'Professional Network: Strategy & Leadership', summary: 'Connecting with industry leaders and sharing insights on technical management and system design.', href: 'https://linkedin.com' },
+  { id: 10, label: 'Twitter', headline: 'Real-time Tech: The Bleeding Edge of Code', summary: 'Quick thoughts on the latest releases in the JavaScript ecosystem and architectural patterns.', href: 'https://twitter.com' },
+  { id: 11, label: 'Instagram', headline: 'Visual Journal: Life Behind the Terminal', summary: 'A curated look at the inspiration, workspace, and lifestyle of a modern software architect.', href: 'https://instagram.com' },
+];
+
 export default function BillboardPage() {
   return (
     <motion.div
@@ -42,7 +48,7 @@ export default function BillboardPage() {
           <article className="billboard__item billboard__item--lead">
             <Link href={navArticles[0].href} className="billboard__link">
               <div className="billboard__image-box">
-                <span className="billboard__placeholder">Featured Image</span>
+                <span className="billboard__placeholder">Image {navArticles[0].id}</span>
               </div>
               <div className="billboard__content">
                 <span className="billboard__label">{navArticles[0].label}</span>
@@ -52,11 +58,14 @@ export default function BillboardPage() {
             </Link>
           </article>
 
-          {/* Secondary Stories */}
+          {/* Middle Column */}
           <div className="billboard__middle-column">
-            {navArticles.slice(1, 3).map((item) => (
+            {navArticles.slice(1, 4).map((item) => (
               <article key={item.id} className="billboard__item">
                 <Link href={item.href} className="billboard__link">
+                  <div className="billboard__image-box billboard__image-box--small">
+                    <span className="billboard__placeholder">Image {item.id}</span>
+                  </div>
                   <div className="billboard__content">
                     <span className="billboard__label">{item.label}</span>
                     <h2 className="billboard__headline">{item.headline}</h2>
@@ -67,16 +76,35 @@ export default function BillboardPage() {
             ))}
           </div>
 
-          {/* Sidebar / Snippets */}
+          {/* Side Column (Now including Social Media as cards) */}
           <div className="billboard__side-column">
-            {navArticles.slice(3).map((item) => (
+            <div className="billboard__section-title">Latest Updates</div>
+            {navArticles.slice(4).map((item) => (
               <article key={item.id} className="billboard__item billboard__item--mini">
                 <Link href={item.href} className="billboard__link">
+                  <div className="billboard__image-box billboard__image-box--thumb">
+                    <span className="billboard__placeholder">Img {item.id}</span>
+                  </div>
                   <div className="billboard__content">
                     <span className="billboard__label">{item.label}</span>
                     <h2 className="billboard__headline">{item.headline}</h2>
                   </div>
                 </Link>
+              </article>
+            ))}
+
+            <div className="billboard__section-title">Follow the Story</div>
+            {socialArticles.map((item) => (
+              <article key={item.id} className="billboard__item billboard__item--mini">
+                <a href={item.href} target="_blank" rel="noopener noreferrer" className="billboard__link">
+                  <div className="billboard__image-box billboard__image-box--thumb">
+                    <span className="billboard__placeholder">Img {item.id}</span>
+                  </div>
+                  <div className="billboard__content">
+                    <span className="billboard__label">{item.label}</span>
+                    <h2 className="billboard__headline">{item.headline}</h2>
+                  </div>
+                </a>
               </article>
             ))}
             
@@ -88,13 +116,7 @@ export default function BillboardPage() {
       </div>
 
       <footer className="billboard__footer">
-        <div className="billboard__socials">
-          {['Instagram', 'LinkedIn', 'Twitter'].map((social) => (
-            <a key={social} href="#" className="billboard__social-link">
-              {social}
-            </a>
-          ))}
-        </div>
+        <p className="billboard__copyright">© {new Date().getFullYear()} NISCHAY SHARMA. ALL RIGHTS RESERVED.</p>
       </footer>
     </motion.div>
   );
