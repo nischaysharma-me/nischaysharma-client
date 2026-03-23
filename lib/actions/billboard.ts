@@ -1,13 +1,20 @@
 'use server';
 
-import { billboardService } from '@/services/billboard.service';
-import { CreateBillboardData, UpdateBillboardData } from '@/lib/types/billboard';
+import { apiFetch } from '@/services/apiClient';
+import { Billboard, CreateBillboardData, UpdateBillboardData } from '@/lib/types/billboard';
 import { ActionResponse } from '@/lib/types/common';
 import { revalidatePath } from 'next/cache';
 
 export async function listBillboardsAction(token?: string, isActive?: boolean): Promise<ActionResponse> {
   try {
-    return await billboardService.listBillboards(token, isActive);
+    const queryParams = new URLSearchParams();
+    if (isActive !== undefined) queryParams.append('isActive', String(isActive));
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    
+    return await apiFetch<ActionResponse>(`/billboards${queryString}`, {
+      method: 'GET',
+      token,
+    });
   } catch (error: any) {
     console.error('Server Action Error (listBillboards):', error);
     return { success: false, error: error.message || 'Failed to fetch billboards' };
@@ -16,7 +23,11 @@ export async function listBillboardsAction(token?: string, isActive?: boolean): 
 
 export async function createBillboardAction(data: CreateBillboardData, token: string): Promise<ActionResponse> {
   try {
-    const response = await billboardService.createBillboard(data, token);
+    const response = await apiFetch<ActionResponse>('/billboards', {
+      method: 'POST',
+      token,
+      body: data,
+    });
     if (response.success) {
       revalidatePath('/admin/billboard');
       revalidatePath('/billboard');
@@ -30,7 +41,11 @@ export async function createBillboardAction(data: CreateBillboardData, token: st
 
 export async function updateBillboardAction(id: string, data: UpdateBillboardData, token: string): Promise<ActionResponse> {
   try {
-    const response = await billboardService.updateBillboard(id, data, token);
+    const response = await apiFetch<ActionResponse>(`/billboards/${id}`, {
+      method: 'PATCH',
+      token,
+      body: data,
+    });
     if (response.success) {
       revalidatePath('/admin/billboard');
       revalidatePath('/billboard');
@@ -44,7 +59,10 @@ export async function updateBillboardAction(id: string, data: UpdateBillboardDat
 
 export async function deleteBillboardAction(id: string, token: string): Promise<ActionResponse> {
   try {
-    const response = await billboardService.deleteBillboard(id, token);
+    const response = await apiFetch<ActionResponse>(`/billboards/${id}`, {
+      method: 'DELETE',
+      token,
+    });
     if (response.success) {
       revalidatePath('/admin/billboard');
       revalidatePath('/billboard');
@@ -58,7 +76,11 @@ export async function deleteBillboardAction(id: string, token: string): Promise<
 
 export async function generateBillboardImageAction(id: string, token: string, prompt?: string): Promise<ActionResponse> {
   try {
-    const response = await billboardService.generateImage(id, token, prompt);
+    const response = await apiFetch<ActionResponse>(`/billboards/${id}/generate-image`, {
+      method: 'POST',
+      token,
+      body: { prompt },
+    });
     if (response.success) {
       revalidatePath('/admin/billboard');
       revalidatePath('/billboard');
