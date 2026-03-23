@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Billboard, CreateBillboardData, UpdateBillboardData } from '@/lib/types/billboard';
+import { Billboard } from '@/lib/types/billboard';
 import { listBillboardsAction, createBillboardAction, updateBillboardAction, deleteBillboardAction, generateBillboardImageAction } from '@/lib/actions/billboard';
 import { auth } from '@/lib/firebase';
 
@@ -9,8 +9,8 @@ interface BillboardState {
   error: string | null;
   
   fetchBillboards: () => Promise<void>;
-  createBillboard: (data: CreateBillboardData) => Promise<boolean>;
-  updateBillboard: (id: string, data: UpdateBillboardData) => Promise<boolean>;
+  createBillboard: (formData: FormData) => Promise<boolean>;
+  updateBillboard: (id: string, formData: FormData) => Promise<boolean>;
   deleteBillboard: (id: string) => Promise<boolean>;
   generateImage: (id: string, prompt?: string) => Promise<boolean>;
 }
@@ -37,13 +37,13 @@ export const useBillboardStore = create<BillboardState>((set, get) => ({
     }
   },
 
-  createBillboard: async (data) => {
+  createBillboard: async (formData) => {
     try {
       const user = auth.currentUser;
       const token = await user?.getIdToken();
       if (!token) return false;
       
-      const response = await createBillboardAction(data, token);
+      const response = await createBillboardAction(formData, token);
       if (response.success) {
         await get().fetchBillboards();
         return true;
@@ -54,13 +54,13 @@ export const useBillboardStore = create<BillboardState>((set, get) => ({
     }
   },
 
-  updateBillboard: async (id, data) => {
+  updateBillboard: async (id, formData) => {
     try {
       const user = auth.currentUser;
       const token = await user?.getIdToken();
       if (!token) return false;
       
-      const response = await updateBillboardAction(id, data, token);
+      const response = await updateBillboardAction(id, formData, token);
       if (response.success) {
         await get().fetchBillboards();
         return true;

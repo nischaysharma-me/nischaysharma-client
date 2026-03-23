@@ -1,7 +1,6 @@
 'use server';
 
 import { apiFetch } from '@/services/apiClient';
-import { Billboard, CreateBillboardData, UpdateBillboardData } from '@/lib/types/billboard';
 import { ActionResponse } from '@/lib/types/common';
 import { revalidatePath } from 'next/cache';
 
@@ -21,12 +20,12 @@ export async function listBillboardsAction(token?: string, isActive?: boolean): 
   }
 }
 
-export async function createBillboardAction(data: CreateBillboardData, token: string): Promise<ActionResponse> {
+export async function createBillboardAction(formData: FormData, token: string): Promise<ActionResponse> {
   try {
     const response = await apiFetch<ActionResponse>('/billboards', {
       method: 'POST',
       token,
-      body: data,
+      body: formData, // Sending multipart/form-data
     });
     if (response.success) {
       revalidatePath('/admin/billboard');
@@ -39,12 +38,12 @@ export async function createBillboardAction(data: CreateBillboardData, token: st
   }
 }
 
-export async function updateBillboardAction(id: string, data: UpdateBillboardData, token: string): Promise<ActionResponse> {
+export async function updateBillboardAction(id: string, formData: FormData, token: string): Promise<ActionResponse> {
   try {
     const response = await apiFetch<ActionResponse>(`/billboards/${id}`, {
       method: 'PATCH',
       token,
-      body: data,
+      body: formData, // Sending multipart/form-data
     });
     if (response.success) {
       revalidatePath('/admin/billboard');

@@ -6,9 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { auth } from '@/lib/firebase';
 import { toast } from 'sonner';
-import { CreateBillboardData, Billboard, UpdateBillboardData } from '@/lib/types/billboard';
+import { Billboard } from '@/lib/types/billboard';
 import { motion, AnimatePresence } from 'framer-motion';
-import { uploadFile } from '@/lib/storage';
 
 export default function BillboardManagement() {
   const { 
@@ -23,10 +22,11 @@ export default function BillboardManagement() {
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
   
-  const [formData, setFormData] = useState<UpdateBillboardData>({
+  const [formData, setFormData] = useState({
     label: '',
     headline: '',
     summary: '',
@@ -45,18 +45,34 @@ export default function BillboardManagement() {
     return () => unsubscribe();
   }, [fetchBillboards]);
 
+  const resetForm = () => {
+    setFormData({ label: '', headline: '', summary: '', href: '/', layoutType: 'mini', position: 0, isActive: true, imagePrompt: '', imageUrl: '' });
+    setSelectedFile(null);
+    setPreviewUrl('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      data.append(key, String(value));
+    });
+    if (selectedFile) {
+      data.append('image', selectedFile);
+    }
+
     if (editingId) {
-      const success = await updateBillboard(editingId, formData);
+      const success = await updateBillboard(editingId, data);
       if (success) {
         toast.success('Billboard item updated');
         setEditingId(null);
+        setIsAdding(false);
         resetForm();
       }
     } else {
-      const success = await createBillboard(formData as any);
+      const success = await createBillboard(data);
       if (success) {
         toast.success('Billboard item created');
         setIsAdding(false);
@@ -65,10 +81,6 @@ export default function BillboardManagement() {
         toast.error('Failed to create item');
       }
     }
-  };
-
-  const resetForm = () => {
-    setFormData({ label: '', headline: '', summary: '', href: '/', layoutType: 'mini', position: 0, isActive: true, imagePrompt: '', imageUrl: '' });
   };
 
   const handleEdit = (item: Billboard) => {
@@ -80,28 +92,20 @@ export default function BillboardManagement() {
       layoutType: item.layoutType,
       position: item.position,
       isActive: item.isActive,
-      imagePrompt: item.imagePrompt,
-      imageUrl: item.imageUrl
+      imagePrompt: item.imagePrompt || '',
+      imageUrl: item.imageUrl || ''
     });
+    setPreviewUrl(item.imageUrl || '');
     setEditingId(item.id);
     setIsAdding(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    try {
-      const path = `billboard_images/${Date.now()}_${file.name}`;
-      const url = await uploadFile(file, path);
-      setFormData({ ...formData, imageUrl: url });
-      toast.success('Image uploaded successfully');
-    } catch (err) {
-      toast.error('Failed to upload image');
-    } finally {
-      setUploading(false);
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
@@ -224,8 +228,8 @@ export default function BillboardManagement() {
                     <label>Headline Image</label>
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                       <div className="billboard-admin__form-image-preview">
-                        {formData.imageUrl ? (
-                          <img src={formData.imageUrl} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', border: '1px solid #ddd' }} />
+                        {previewUrl ? (
+                          <img src={previewUrl} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', border: '1px solid #ddd' }} />
                         ) : (
                           <div style={{ width: '100px', height: '100px', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed #ddd' }}>
                             <i className="ph ph-image" style={{ fontSize: '1.5rem', color: '#ccc' }} />
@@ -238,15 +242,16 @@ export default function BillboardManagement() {
                           variant="secondary" 
                           size="sm" 
                           onClick={() => fileInputRef.current?.click()}
-                          loading={uploading}
                         >
-                          Upload Custom Image
+                          {selectedFile ? 'Change Image' : 'Upload Custom Image'}
                         </Button>
-                        <p style={{ fontSize: '0.65rem', color: '#737373' }}>Or use the AI generator after publishing.</p>
+                        <p style={{ fontSize: '0.65rem', color: '#737373' }}>
+                          {selectedFile ? `Selected: ${selectedFile.name}` : 'Or use the AI generator after publishing.'}
+                        </p>
                         <input 
                           type="file" 
                           ref={fileInputRef} 
-                          onChange={handleFileUpload} 
+                          onChange={handleFileChange} 
                           accept="image/*" 
                           style={{ display: 'none' }} 
                         />
