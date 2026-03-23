@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useBillboardStore } from '@/store/admin/useBillboardStore';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { auth } from '@/lib/firebase';
 import { toast } from 'sonner';
-import { CreateBillboardData, Billboard } from '@/lib/types/billboard';
+import { CreateBillboardData, Billboard, UpdateBillboardData } from '@/lib/types/billboard';
 import { motion, AnimatePresence } from 'framer-motion';
+import { uploadFile } from '@/lib/storage';
 
 export default function BillboardManagement() {
   const { 
@@ -22,8 +23,10 @@ export default function BillboardManagement() {
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const [formData, setFormData] = useState<CreateBillboardData>({
+  const [formData, setFormData] = useState<UpdateBillboardData>({
     label: '',
     headline: '',
     summary: '',
@@ -31,7 +34,8 @@ export default function BillboardManagement() {
     layoutType: 'mini',
     position: 0,
     isActive: true,
-    imagePrompt: ''
+    imagePrompt: '',
+    imageUrl: ''
   });
 
   useEffect(() => {
@@ -52,7 +56,7 @@ export default function BillboardManagement() {
         resetForm();
       }
     } else {
-      const success = await createBillboard(formData);
+      const success = await createBillboard(formData as any);
       if (success) {
         toast.success('Billboard item created');
         setIsAdding(false);
@@ -64,7 +68,7 @@ export default function BillboardManagement() {
   };
 
   const resetForm = () => {
-    setFormData({ label: '', headline: '', summary: '', href: '/', layoutType: 'mini', position: 0, isActive: true, imagePrompt: '' });
+    setFormData({ label: '', headline: '', summary: '', href: '/', layoutType: 'mini', position: 0, isActive: true, imagePrompt: '', imageUrl: '' });
   };
 
   const handleEdit = (item: Billboard) => {
@@ -76,11 +80,29 @@ export default function BillboardManagement() {
       layoutType: item.layoutType,
       position: item.position,
       isActive: item.isActive,
-      imagePrompt: item.imagePrompt
+      imagePrompt: item.imagePrompt,
+      imageUrl: item.imageUrl
     });
     setEditingId(item.id);
     setIsAdding(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const path = `billboard_images/${Date.now()}_${file.name}`;
+      const url = await uploadFile(file, path);
+      setFormData({ ...formData, imageUrl: url });
+      toast.success('Image uploaded successfully');
+    } catch (err) {
+      toast.error('Failed to upload image');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleGenerateImage = async (id: string) => {
@@ -196,6 +218,40 @@ export default function BillboardManagement() {
                       value={formData.imagePrompt} 
                       onChange={e => setFormData({...formData, imagePrompt: e.target.value})} 
                     />
+                  </div>
+
+                  <div className="field full">
+                    <label>Headline Image</label>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      <div className="billboard-admin__form-image-preview">
+                        {formData.imageUrl ? (
+                          <img src={formData.imageUrl} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', border: '1px solid #ddd' }} />
+                        ) : (
+                          <div style={{ width: '100px', height: '100px', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed #ddd' }}>
+                            <i className="ph ph-image" style={{ fontSize: '1.5rem', color: '#ccc' }} />
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <Button 
+                          type="button" 
+                          variant="secondary" 
+                          size="sm" 
+                          onClick={() => fileInputRef.current?.click()}
+                          loading={uploading}
+                        >
+                          Upload Custom Image
+                        </Button>
+                        <p style={{ fontSize: '0.65rem', color: '#737373' }}>Or use the AI generator after publishing.</p>
+                        <input 
+                          type="file" 
+                          ref={fileInputRef} 
+                          onChange={handleFileUpload} 
+                          accept="image/*" 
+                          style={{ display: 'none' }} 
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="billboard-admin__form-actions">
