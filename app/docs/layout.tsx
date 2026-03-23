@@ -13,6 +13,28 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const pathname = usePathname();
 
+  // Handle mobile initial state and resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarCollapsed(true);
+      } else {
+        setIsSidebarCollapsed(false);
+      }
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Auto-collapse on navigation for mobile
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setIsSidebarCollapsed(true);
+    }
+  }, [pathname]);
+
   useEffect(() => {
     const fetchNav = async () => {
       try {
@@ -33,21 +55,50 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     mermaid.initialize({
       startOnLoad: true,
-      theme: 'base',
+      theme: 'dark',
+      securityLevel: 'loose',
+      fontFamily: 'Poppins, system-ui, sans-serif',
       themeVariables: {
-        primaryColor: '#000',
-        primaryTextColor: '#fff',
-        primaryBorderColor: '#000',
-        lineColor: '#333',
-        secondaryColor: '#f5f5f5',
-        tertiaryColor: '#fff'
-      }
-    });
+        primaryColor: '#1a1a1a',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#ffffff',
+        lineColor: '#ffffff',
+        secondaryColor: '#222222',
+        tertiaryColor: '#1a1a1a',
+        fontSize: '10px',
+        mainBkg: '#000000',
+        nodeBorder: '#ffffff',
+        clusterBkg: '#0a0a0a',
+        clusterBorder: '#333',
+        titleColor: '#ffffff',
+        edgeLabelBackground: '#000000'
+        },
+        flowchart: {
+        curve: 'basis',
+        padding: 15,
+        useMaxWidth: true,
+        htmlLabels: true
+        },
+        sequence: {
+        actorMargin: 40,
+        mirrorActors: false,
+        useMaxWidth: true,
+        rightAngles: false,
+        showSequenceNumbers: false
+        },
+        er: {
+        useMaxWidth: true,
+        layoutDirection: 'TB',
+        minEntityWidth: 80,
+        minEntityHeight: 60
+        }
+        });
+
     
-    // Use a small delay to ensure DOM is ready
+    // Use a small delay to ensure DOM is ready and styles are applied
     const timeout = setTimeout(() => {
       mermaid.contentLoaded();
-    }, 100);
+    }, 300);
     
     return () => clearTimeout(timeout);
   }, [pathname, loading]);

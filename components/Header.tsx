@@ -18,9 +18,9 @@ export default function Header() {
         NISCHAY
       </Link>
       
-      <div className="landing__logo">
+      <Link href="/docs" className="landing__logo" style={{ textDecoration: 'none', color: 'inherit' }}>
         <i className="ph ph-stack" style={{ fontSize: '1.5rem' }} />
-      </div>
+      </Link>
       
       <button onClick={toggleMenu} className="landing__menu-btn" style={{ justifySelf: 'end' }}>
         {isMenuOpen ? 'Close' : 'Menu'}

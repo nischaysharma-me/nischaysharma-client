@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { docsService, DocContent } from '@/services/docs.service';
 import AdminLoading from '@/app/admin/loading';
+import Markdown from '@/components/ui/Markdown';
 
 export default function DocPage() {
   const { slug } = useParams();
@@ -56,10 +57,14 @@ export default function DocPage() {
          <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#a3a3a3', display: 'block', marginBottom: '1rem' }}>
            Documentation / {Array.isArray(slug) ? slug[0] : ''}
          </span>
-         <h1>{data?.title}</h1>
+         {/* <h1>{data?.title}</h1> */}
       </header>
       
-      <div dangerouslySetInnerHTML={{ __html: data?.content || '' }} />
+      {data?.markdown ? (
+        <Markdown content={data.markdown} />
+      ) : (
+        <div dangerouslySetInnerHTML={{ __html: data?.content || '' }} />
+      )}
       
       <footer style={{ marginTop: '6rem', paddingTop: '2rem', borderTop: '1px solid #eee' }}>
          <p style={{ fontSize: '0.75rem', color: '#a3a3a3' }}>

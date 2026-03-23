@@ -37,7 +37,7 @@ export default function DocsSidebar({ navigation }: DocsSidebarProps) {
   };
 
   return (
-    <aside className="docs-sidebar">
+    <aside className="docs-sidebar" data-lenis-prevent>
       <div className="docs-sidebar__inner">
         {Array.isArray(navigation) && navigation.map((section) => {
           const isExpanded = !!expandedSections[section.section];

@@ -3,17 +3,30 @@
 
 .docs-sidebar
   width: 260px
-  height: calc(100vh - 100px)
+  height: calc(100vh - 120px)
   position: sticky
   top: 100px
   padding: 0 1.5rem 4rem 0
   overflow-y: auto
+  overflow-x: hidden
+  scrollbar-width: thin
+  scrollbar-color: rgba(255, 255, 255, 0.4) transparent
+  z-index: 100
+  -webkit-overflow-scrolling: touch // Smooth momentum scrolling on iOS
 
   &::-webkit-scrollbar
-    width: 4px
+    width: 6px
+  &::-webkit-scrollbar-track
+    background: transparent
   &::-webkit-scrollbar-thumb
-    background: #eee
-    border-radius: 2px
+    background: rgba(255, 255, 255, 0.4)
+    border-radius: 10px
+
+    &:hover
+      background: rgba(255, 255, 255, 0.6)
+
+  &__inner
+    padding-bottom: 2rem
 
   &__section
     margin-bottom: 0.5rem
@@ -37,17 +50,17 @@
     font-weight: 800
     text-transform: uppercase
     letter-spacing: 0.15em
-    color: #111
+    color: #fff
     transition: opacity 0.2s ease
 
   &__caret
     font-size: 0.75rem
-    color: #ccc
+    color: #444
     transition: transform 0.2s ease
 
     &.is-expanded
       transform: rotate(90deg)
-      color: $color-black
+      color: #fff
 
   &__list
     list-style: none
@@ -61,7 +74,7 @@
     position: relative
 
   &__link
-    color: $color-black
+    color: rgba(255, 255, 255, 0.6)
     white-space: nowrap
     font-size: 0.8rem
     text-decoration: none
@@ -74,24 +87,25 @@
     font-weight: 500
 
     &:hover
-      opacity: 0.6
+      color: #fff
       transform: translateX(4px)
 
       .docs-sidebar__bullet
         width: 14px
-        background: $color-black
+        background: #fff
 
     &.is-active
+      color: #fff
       font-weight: 800
 
       .docs-sidebar__bullet
         width: 20px
-        background: $color-black
+        background: #fff
 
   &__bullet
     width: 6px
     height: 1px
-    background: #e5e5e5
+    background: #333
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
 
   @media (max-width: 768px)
@@ -101,5 +115,5 @@
     top: 0
     padding: 2rem 0
     border-right: none
-    border-bottom: 1px solid #eee
+    border-bottom: 1px solid #222
     margin-bottom: 2rem
