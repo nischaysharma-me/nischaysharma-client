@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import AdminLoading from '@/app/admin/loading';
 import { useBookStore } from '@/store/admin/useBookStore';
+import { useDialogStore } from '@/store/useDialogStore';
 import { toast } from 'sonner';
 
 interface BooksClientProps {
@@ -17,7 +18,8 @@ interface BooksClientProps {
 }
 
 export default function BooksClient({ initialBooks }: BooksClientProps) {
-  const { books, setBooks, addBook, setLoading, loading } = useBookStore();
+  const { books, setBooks, addBook, deleteBook, setLoading, loading } = useBookStore();
+  const { openDialog } = useDialogStore();
   const [isCreating, setIsCreating] = useState(false);
   const [newBookTitle, setNewBookTitle] = useState('');
   const [newBookDescription, setNewBookDescription] = useState('');
@@ -107,6 +109,29 @@ export default function BooksClient({ initialBooks }: BooksClientProps) {
     }
   };
 
+  const handleDeleteBook = async (bookId: string, title: string) => {
+    openDialog({
+      title: 'Delete Book',
+      message: `Are you sure you want to delete "${title}"? This will permanently remove all chapters and pages associated with this book.`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) return;
+
+          const response = await booksService.deleteBook(bookId, token);
+          if (response.success) {
+            deleteBook(bookId);
+            toast.success('Book deleted successfully');
+          }
+        } catch (err) {
+          toast.error('Failed to delete book: ' + (err as Error).message);
+        }
+      }
+    });
+  };
+
   if (loading) return <AdminLoading />;
 
   return (
@@ -142,6 +167,13 @@ export default function BooksClient({ initialBooks }: BooksClientProps) {
                           View & Edit
                         </Button>
                       </Link>
+                      <Button 
+                        variant="secondary" 
+                        onClick={() => handleDeleteBook(book.id, book.title)}
+                        style={{ padding: '0.4rem 0.5rem', fontSize: '0.75rem', minWidth: 'unset', background: '#fff' }}
+                      >
+                        <i className="ph ph-trash" style={{ color: '#ff4d4f' }} />
+                      </Button>
                     </div>
                   </div>
                 ))

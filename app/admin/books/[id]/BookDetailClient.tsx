@@ -7,6 +7,7 @@ import { Book, Page, Chapter, booksService } from '@/services/books.service';
 import { Thread, conversationsService } from '@/services/conversations.service';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
+import { useDialogStore } from '@/store/useDialogStore';
 import AdminLoading from '@/app/admin/loading';
 import TiptapEditor from '@/components/editor/TiptapEditor';
 import { toast } from 'sonner';
@@ -34,6 +35,7 @@ type FullBook = {
 
 export default function BookDetailClient({ bookId }: BookDetailClientProps) {
   const router = useRouter();
+  const { openDialog } = useDialogStore();
   const [book, setBook] = useState<FullBook | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeChapterId, setActiveChapterId] = useState<string | 'root' | null>(null);
@@ -147,6 +149,30 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
     } finally {
       setIsAttachingThread(false);
     }
+  };
+
+  const handleDeleteBook = async () => {
+    if (!book) return;
+    openDialog({
+      title: 'Delete Book',
+      message: `Are you sure you want to delete "${book.title}"? This will permanently remove all chapters and pages associated with this book.`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) return;
+
+          const response = await booksService.deleteBook(book.id, token);
+          if (response.success) {
+            toast.success('Book deleted successfully');
+            router.push('/admin/books');
+          }
+        } catch (err) {
+          toast.error('Failed to delete book: ' + (err as Error).message);
+        }
+      }
+    });
   };
 
   if (loading) return <AdminLoading />;
@@ -357,6 +383,18 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
                  Update Thread
                </Button>
              </div>
+           </div>
+
+           <div style={{ marginTop: '2rem', padding: '0 0.5rem' }}>
+             <h3 style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 800, marginBottom: '1rem', color: '#ff4d4f' }}>Danger Zone</h3>
+             <Button 
+               variant="secondary" 
+               className="btn--full"
+               style={{ fontSize: '0.7rem', height: '2.5rem', borderColor: '#ff4d4f', color: '#ff4d4f' }}
+               onClick={handleDeleteBook}
+             >
+               Delete {book.type === 'paper' ? 'Paper' : 'Book'}
+             </Button>
            </div>
 
            {book.status === 'published' && (
