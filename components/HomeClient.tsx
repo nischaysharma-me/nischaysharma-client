@@ -97,7 +97,7 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
           <section className="landing__hero">
             <div className="landing__hero-wrapper">
               <h1 className="landing__title">
-                Nischay Sharma<br />
+                Digital<br />
                 <span>Anthology</span>
               </h1>
               <p style={{ color: 'rgba(0,0,0,0.4)', marginTop: '2rem', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase' }}>

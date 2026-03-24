@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "About Nischay Sharma | Lead Developer & Architect",
     description: "Learn about Nischay Sharma, a lead developer specializing in scalable backend systems, cloud-native architectures, and AI orchestration.",
-    url: "https://taughtcode.com/about",
+    url: "https://nischaysharma.com/about",
     type: "profile",
     firstName: "Nischay",
     lastName: "Sharma",

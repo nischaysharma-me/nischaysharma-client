@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "The Daily Digital | Billboard",
     description: "Explore the latest digital stories, lead articles, and updates in The Daily Digital broadsheet.",
-    url: "https://taughtcode.com/billboard",
+    url: "https://nischaysharma.com/billboard",
     type: "website",
   }
 };

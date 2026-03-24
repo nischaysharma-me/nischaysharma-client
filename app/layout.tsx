@@ -21,7 +21,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://taughtcode.com'),
+  metadataBase: new URL('https://nischaysharma.com'),
   title: {
     default: "Nischay Sharma - For Downtime & Inspiration",
     template: "%s | Nischay Sharma"
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://taughtcode.com",
+    url: "https://nischaysharma.com",
     siteName: "Nischay Sharma",
     title: "Nischay Sharma - For Downtime & Inspiration",
     description: "Minimalist portfolio and magazine for Nischay Sharma.",
@@ -82,7 +82,7 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Person",
     "name": "Nischay Sharma",
-    "url": "https://taughtcode.com",
+    "url": "https://nischaysharma.com",
     "jobTitle": "Software Engineer & Creator",
     "sameAs": [
       "https://github.com/nishuns",

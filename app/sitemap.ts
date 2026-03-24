@@ -3,7 +3,7 @@ import { articlesService } from '@/services/articles.service';
 import { docsService } from '@/services/docs.service';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://taughtcode.com';
+  const baseUrl = 'https://nischaysharma.com';
 
   // Base routes
   const routes = [

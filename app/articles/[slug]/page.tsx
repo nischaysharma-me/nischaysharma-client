@@ -99,14 +99,14 @@ export default async function PublicArticleView({ params }: PageProps) {
     "author": {
       "@type": "Person",
       "name": "Nischay Sharma",
-      "url": "https://taughtcode.com"
+      "url": "https://nischaysharma.com"
     },
     "publisher": {
       "@type": "Organization",
       "name": "TaughtCode",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://taughtcode.com/logo.png"
+        "url": "https://nischaysharma.com/logo.png"
       }
     }
   };
