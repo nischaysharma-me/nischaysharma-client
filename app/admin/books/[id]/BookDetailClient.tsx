@@ -4,7 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { Book, Page, Chapter, booksService } from '@/services/books.service';
+import { Thread, conversationsService } from '@/services/conversations.service';
 import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
+import { useDialogStore } from '@/store/useDialogStore';
 import AdminLoading from '@/app/admin/loading';
 import TiptapEditor from '@/components/editor/TiptapEditor';
 import { toast } from 'sonner';
@@ -23,18 +26,26 @@ type FullBook = {
   coverImage: string;
   status: 'draft' | 'published';
   type: 'book' | 'paper';
-  chapters: (Chapter & { pages: any[] })[];
-  metadata: Record<string, any>;
+  chapters: (Chapter & { pages: Page[] })[];
+  metadata: Record<string, unknown>;
   createdAt: Date | string;
   updatedAt: Date | string;
-  pages?: any[];
+  pages?: Page[];
 };
 
 export default function BookDetailClient({ bookId }: BookDetailClientProps) {
   const router = useRouter();
+  const { openDialog } = useDialogStore();
   const [book, setBook] = useState<FullBook | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeChapterId, setActiveChapterId] = useState<string | 'root' | null>(null);
+  
+  // Thread state
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [selectedThreadId, setSelectedThreadId] = useState<string>('none');
+  const [isAttachingThread, setIsAttachingThread] = useState(false);
+
+  // Integrations state
   const [sharing, setSharing] = useState(false);
   const [generatingPost, setGeneratingPost] = useState(false);
   const [linkedinPostText, setLinkedinPostText] = useState('');
@@ -43,7 +54,21 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
   useEffect(() => {
     fetchBookData();
     fetchIntegrations();
+    fetchThreads();
   }, [bookId]);
+
+  const fetchThreads = async () => {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+      const res = await conversationsService.listThreads(token);
+      if (res.success) {
+        setThreads(res.data);
+      }
+    } catch (err) {
+      console.error('Error fetching threads:', err);
+    }
+  };
 
   const fetchIntegrations = async () => {
     try {
@@ -66,8 +91,12 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
 
       if (response.success) {
         setBook(response.data);
+        setSelectedThreadId(response.data.threadId || 'none');
         setLinkedinPostText(`📚 Just published a new technical collection: "${response.data.title}"\n\n${response.data.description || ''}\n\nExplore it on TaughtCode.`);
-        if (response.data.chapters && response.data.chapters.length > 0) {
+        
+        if (response.data.type === 'paper') {
+          setActiveChapterId('root');
+        } else if (response.data.chapters && response.data.chapters.length > 0) {
           setActiveChapterId(response.data.chapters[0].id);
         } else if (response.data.pages && response.data.pages.length > 0) {
           setActiveChapterId('root');
@@ -82,11 +111,75 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
     }
   };
 
+  const handleAttachThread = async () => {
+    if (!book) return;
+    try {
+      setIsAttachingThread(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      let finalThreadId: string | null = null;
+      if (selectedThreadId === 'new') {
+        const threadRes = await conversationsService.createThread({
+          title: `${book.title} - Drafting`,
+          message: `I'm writing a ${book.type} called "${book.title}".`
+        }, token);
+        if (threadRes.success) {
+          finalThreadId = threadRes.data.id;
+        }
+      } else if (selectedThreadId !== 'none') {
+        finalThreadId = selectedThreadId;
+      }
+
+      const res = await booksService.updateBook(book.id, { threadId: finalThreadId } as Partial<Book>, token);
+      if (res.success) {
+        setBook({ ...book, threadId: finalThreadId });
+        setSelectedThreadId(finalThreadId || 'none');
+        setThreads(prev => {
+          if (finalThreadId && !prev.some(t => t.id === finalThreadId) && res.data.threadId === finalThreadId) {
+             // Re-fetch threads if we created a new one so it appears in list
+             fetchThreads();
+          }
+          return prev;
+        });
+        toast.success('Thread attachment updated!');
+      }
+    } catch (err) {
+      toast.error('Failed to update thread: ' + (err as Error).message);
+    } finally {
+      setIsAttachingThread(false);
+    }
+  };
+
+  const handleDeleteBook = async () => {
+    if (!book) return;
+    openDialog({
+      title: 'Delete Book',
+      message: `Are you sure you want to delete "${book.title}"? This will permanently remove all chapters and pages associated with this book.`,
+      confirmLabel: 'Delete',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) return;
+
+          const response = await booksService.deleteBook(book.id, token);
+          if (response.success) {
+            toast.success('Book deleted successfully');
+            router.push('/admin/books');
+          }
+        } catch (err) {
+          toast.error('Failed to delete book: ' + (err as Error).message);
+        }
+      }
+    });
+  };
+
   if (loading) return <AdminLoading />;
   if (!book) return <div style={{ padding: '4rem', textAlign: 'center' }}>Book not found</div>;
 
-  const activeChapter = activeChapterId === 'root' 
-    ? { title: 'General Content', pages: book.pages || [] }
+  const activeChapter = activeChapterId === 'root' || book.type === 'paper'
+    ? { title: book.type === 'paper' ? 'Pages' : 'General Content', pages: book.pages || [] }
     : book.chapters.find(c => c.id === activeChapterId);
 
   const handlePageContentChange = (pageId: string, newContent: string) => {
@@ -94,7 +187,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
     setBook((prevBook) => {
       if (!prevBook) return prevBook;
       const newBook = { ...prevBook };
-      if (activeChapterId === 'root') {
+      if (activeChapterId === 'root' || book.type === 'paper') {
         newBook.pages = newBook.pages?.map((p) => p.id === pageId ? { ...p, content: newContent } : p);
       } else {
         newBook.chapters = newBook.chapters.map((c) => {
@@ -129,8 +222,8 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
       if (response.success) {
         toast.success('Successfully shared to LinkedIn!');
       }
-    } catch (err: any) {
-      toast.error('Failed to share to LinkedIn: ' + err.message);
+    } catch (err) {
+      toast.error('Failed to share to LinkedIn: ' + (err as Error).message);
     } finally {
       setSharing(false);
     }
@@ -153,8 +246,8 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
         setLinkedinPostText(response.data);
         toast.success('AI post generated!');
       }
-    } catch (err: any) {
-      toast.error('AI generation failed: ' + err.message);
+    } catch (err) {
+      toast.error('AI generation failed: ' + (err as Error).message);
     } finally {
       setGeneratingPost(false);
     }
@@ -200,10 +293,10 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
             onClick={() => setActiveChapterId('root')}
             className={`book-editor__chapter-pill ${activeChapterId === 'root' ? 'book-editor__chapter-pill--active' : ''}`}
           >
-            General
+            {book.type === 'paper' ? 'Pages' : 'General'}
           </button>
         )}
-        {book.chapters.map((chapter) => (
+        {book.type === 'book' && book.chapters.map((chapter) => (
           <button 
             key={chapter.id}
             onClick={() => setActiveChapterId(chapter.id)}
@@ -217,10 +310,12 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
       <div className="book-editor__grid">
         {/* Sidebar: Chapters (Desktop) */}
         <aside className="book-editor__sidebar">
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 0.5rem' }}>
-             <h3 style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 800 }}>Chapters</h3>
-             <button style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}><i className="ph ph-plus-circle" /></button>
-           </div>
+           {book.type === 'book' && (
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 0.5rem', marginBottom: '1rem' }}>
+               <h3 style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 800 }}>Chapters</h3>
+               <button style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}><i className="ph ph-plus-circle" /></button>
+             </div>
+           )}
            
            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
              {book.pages && book.pages.length > 0 && (
@@ -239,11 +334,11 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
                 }}
                >
                  <i className="ph ph-file-text" style={{ opacity: 0.3 }} />
-                 <span>General Content</span>
+                 <span>{book.type === 'paper' ? 'Pages' : 'General Content'}</span>
                </div>
              )}
 
-             {book.chapters.map((chapter, idx) => (
+             {book.type === 'book' && book.chapters.map((chapter, idx) => (
                <div 
                 key={chapter.id} 
                 onClick={() => setActiveChapterId(chapter.id)}
@@ -265,8 +360,45 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
              ))}
            </div>
 
+           <div style={{ marginTop: '2rem', padding: '0 0.5rem' }}>
+             <h3 style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 800, marginBottom: '1rem' }}>Thread Settings</h3>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+               <Select
+                 value={selectedThreadId}
+                 onChange={(e) => setSelectedThreadId(e.target.value)}
+                 options={[
+                   { value: 'none', label: 'No Thread Attached' },
+                   { value: 'new', label: '+ Create new thread' },
+                   ...threads.map(t => ({ value: t.id, label: t.title || 'Untitled Thread' }))
+                 ]}
+               />
+               <Button 
+                 variant="secondary" 
+                 className="btn--full"
+                 style={{ fontSize: '0.7rem', height: '2.5rem' }}
+                 onClick={handleAttachThread}
+                 disabled={isAttachingThread || selectedThreadId === (book.threadId || 'none')}
+                 loading={isAttachingThread}
+               >
+                 Update Thread
+               </Button>
+             </div>
+           </div>
+
+           <div style={{ marginTop: '2rem', padding: '0 0.5rem' }}>
+             <h3 style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 800, marginBottom: '1rem', color: '#ff4d4f' }}>Danger Zone</h3>
+             <Button 
+               variant="secondary" 
+               className="btn--full"
+               style={{ fontSize: '0.7rem', height: '2.5rem', borderColor: '#ff4d4f', color: '#ff4d4f' }}
+               onClick={handleDeleteBook}
+             >
+               Delete {book.type === 'paper' ? 'Paper' : 'Book'}
+             </Button>
+           </div>
+
            {book.status === 'published' && (
-            <div style={{ marginTop: '4rem', padding: '0 0.5rem' }}>
+            <div style={{ marginTop: '2rem', padding: '0 0.5rem' }}>
               <h3 style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 800, marginBottom: '1.5rem' }}>Distribution</h3>
               
               {!integrations.linkedin?.connected ? (
@@ -317,8 +449,8 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
                   <input 
                     key={activeChapterId}
                     defaultValue={activeChapter.title}
-                    readOnly={activeChapterId === 'root'}
-                    style={activeChapterId === 'root' ? { opacity: 0.5 } : {}}
+                    readOnly={activeChapterId === 'root' || book.type === 'paper'}
+                    style={activeChapterId === 'root' || book.type === 'paper' ? { opacity: 0.5 } : {}}
                   />
                   <div style={{ height: '1px', background: '#eee', marginTop: '1rem' }}></div>
                 </div>
@@ -335,7 +467,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
                     ))
                   ) : (
                     <div style={{ padding: '4rem', textAlign: 'center', border: '2px dashed #eee', borderRadius: '1rem' }}>
-                       <p style={{ color: '#aaa', marginBottom: '1.5rem' }}>No content for this chapter.</p>
+                       <p style={{ color: '#aaa', marginBottom: '1.5rem' }}>No content for this {book.type === 'paper' ? 'paper' : 'chapter'}.</p>
                        <Button variant="secondary">Add New Page</Button>
                     </div>
                   )}
@@ -343,7 +475,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
              </div>
            ) : (
              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.2 }}>
-                Select a chapter to begin editing.
+                Select a {book.type === 'paper' ? 'page' : 'chapter'} to begin editing.
              </div>
            )}
         </main>

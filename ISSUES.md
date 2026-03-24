@@ -31,3 +31,8 @@
 - [ ] ISSUE-020: Refactor `app/admin/layout.tsx` (modularize header and sidebar)
 - [ ] ISSUE-021: Audit and implement granular `loading.tsx` across admin routes
 - [ ] ISSUE-028: Add backdrop-blur effect to landing Header (GitHub Issue #48)
+
+## Phase 6: Books Feature Enhancements [PENDING]
+- [x] ISSUE-029: Implement thread attachment settings in the Books frontend (dropdown for existing, setting to create/attach new).
+- [x] ISSUE-030: Implement book type selection in the Books frontend (type: page/chapter, with different interfaces).
+- [x] ISSUE-031: Implement delete book feature in the Books frontend (list and detail views with confirmation).
