@@ -7,6 +7,8 @@ import RealtimeNotificationHandler from "@/components/RealtimeNotificationHandle
 import SplashLoader from "@/components/SplashLoader";
 import { Dialog } from "@/components/ui/Dialog";
 import NavigationWrapper from "@/components/NavigationWrapper";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -114,6 +116,8 @@ export default function RootLayout({
         <SmoothScrollProvider>
           {children}
         </SmoothScrollProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
