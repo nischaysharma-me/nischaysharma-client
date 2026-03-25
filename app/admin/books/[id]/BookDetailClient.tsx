@@ -51,6 +51,22 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
   const [generatingPost, setGeneratingPost] = useState(false);
   const [linkedinPostText, setLinkedinPostText] = useState('');
   const [integrations, setIntegrations] = useState<IntegrationsList>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [isCreatingPage, setIsCreatingPage] = useState(false);
+
+  // Debugging log to see what data is actually present
+  useEffect(() => {
+    if (book) {
+      console.log('BookDetail: Current book data:', {
+        id: book.id,
+        type: book.type,
+        pagesCount: book.pages?.length,
+        allPagesCount: book.allPages?.length,
+        chaptersCount: book.chapters?.length,
+        activeChapterId
+      });
+    }
+  }, [book, activeChapterId]);
 
   useEffect(() => {
     fetchBookData();
@@ -177,13 +193,60 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
     });
   };
 
+  const handleCreatePage = async () => {
+    if (!book) return;
+    try {
+      setIsCreatingPage(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      const res = await booksService.createPage(book.id, { 
+        chapterId: activeChapterId !== 'root' ? (activeChapterId || undefined) : undefined,
+        content: '<p>Start writing...</p>'
+      }, token);
+
+      if (res.success) {
+        toast.success('Page added!');
+        fetchBookData(); // Refresh the whole book structure
+      }
+    } catch (err) {
+      toast.error('Failed to create page: ' + (err as Error).message);
+    } finally {
+      setIsCreatingPage(false);
+    }
+  };
+
+  const handleSaveContent = async () => {
+    if (!book || !activeChapter) return;
+    try {
+      setIsSaving(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      // Save all pages in the current active chapter/manuscript
+      const savePromises = activeChapter.pages.map(page => 
+        booksService.updatePage(book.id, page.id, { content: page.content }, token)
+      );
+
+      await Promise.all(savePromises);
+      toast.success('All changes saved!');
+    } catch (err) {
+      toast.error('Failed to save some pages: ' + (err as Error).message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (loading) return <AdminLoading />;
   if (!book) return <div style={{ padding: '4rem', textAlign: 'center' }}>Not found</div>;
 
   const isPaper = book.type === 'paper';
 
   const activeChapter = activeChapterId === 'root' || isPaper
-    ? { title: isPaper ? 'Manuscript' : 'General Content', pages: book.pages || [] }
+    ? { 
+        title: isPaper ? 'Manuscript' : 'General Content', 
+        pages: isPaper ? (book.allPages || book.pages || []) : (book.pages || []) 
+      }
     : book.chapters.find(c => c.id === activeChapterId);
 
   const handlePageContentChange = (pageId: string, newContent: string) => {
@@ -192,6 +255,9 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
       if (!prevBook) return prevBook;
       const newBook = { ...prevBook };
       if (activeChapterId === 'root' || isPaper) {
+        if (isPaper && newBook.allPages) {
+          newBook.allPages = newBook.allPages.map((p) => p.id === pageId ? { ...p, content: newContent } : p);
+        }
         newBook.pages = newBook.pages?.map((p) => p.id === pageId ? { ...p, content: newContent } : p);
       } else {
         newBook.chapters = newBook.chapters.map((c) => {
@@ -281,7 +347,9 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
             </Button>
             <Button 
               variant="primary" 
-              onClick={() => toast.info('Save coming soon!')}
+              onClick={handleSaveContent}
+              loading={isSaving}
+              disabled={isSaving}
             >
               <i className="ph ph-floppy-disk" />
               <span>Save</span>
@@ -474,15 +542,25 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
         <main className="book-editor__main">
            {activeChapter ? (
              <div className="book-editor__content">
-                <div className="book-editor__chapter-header">
+                <div className="book-editor__chapter-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <input 
                     key={activeChapterId}
                     defaultValue={activeChapter.title}
                     readOnly={activeChapterId === 'root' || isPaper}
-                    style={activeChapterId === 'root' || isPaper ? { opacity: 0.5 } : {}}
+                    style={activeChapterId === 'root' || isPaper ? { opacity: 0.5, border: 'none', flex: 1 } : { border: 'none', flex: 1 }}
                   />
-                  <div style={{ height: '1px', background: '#eee', marginTop: '1rem' }}></div>
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    onClick={handleCreatePage}
+                    loading={isCreatingPage}
+                    style={{ height: '1.8rem', fontSize: '0.65rem' }}
+                  >
+                    <i className="ph ph-plus" />
+                    <span>Add Page</span>
+                  </Button>
                 </div>
+                <div style={{ height: '1px', background: '#eee', margin: '0.5rem 0 1rem' }}></div>
 
                 <div className="prose-editor">
                   {activeChapter.pages && activeChapter.pages.length > 0 ? (
@@ -497,7 +575,13 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
                   ) : (
                     <div style={{ padding: '4rem', textAlign: 'center', border: '2px dashed #eee', borderRadius: '1rem' }}>
                        <p style={{ color: '#aaa', marginBottom: '1.5rem' }}>No content for this {isPaper ? 'paper' : 'chapter'}.</p>
-                       <Button variant="secondary">Add New Page</Button>
+                       <Button 
+                         variant="secondary" 
+                         onClick={handleCreatePage}
+                         loading={isCreatingPage}
+                       >
+                         Add New Page
+                       </Button>
                     </div>
                   )}
                 </div>

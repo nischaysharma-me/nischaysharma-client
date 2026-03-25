@@ -117,6 +117,17 @@ export const booksService = {
   },
 
   /**
+   * Add a new page to a book
+   */
+  createPage: (bookId: string, data: { chapterId?: string; content: string }, token: string) => {
+    return apiFetch<{ success: boolean; data: Page }>(`/books/${bookId}/pages`, {
+      method: 'POST',
+      token,
+      body: data,
+    });
+  },
+
+  /**
    * Update a specific page's content or status
    */
   updatePage: (bookId: string, pageId: string, updates: Partial<Page>, token: string) => {
