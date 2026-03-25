@@ -1,82 +1,76 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import { docsService, DocContent } from '@/services/docs.service';
-import DocPageClient from '@/components/docs/DocPageClient';
-import { Metadata } from 'next';
+import AdminLoading from '@/app/admin/loading';
+import Markdown from '@/components/ui/Markdown';
 
-interface PageProps {
-  params: Promise<{ slug: string[] }>;
-}
+export default function DocPage() {
+  const { slug } = useParams();
+  const [data, setData] = useState<DocContent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const path = slug.join('/');
+  useEffect(() => {
+    const fetchDoc = async () => {
+      if (!slug) return;
+      
+      try {
+        setLoading(true);
+        // slug is an array of path segments
+        const path = Array.isArray(slug) ? slug.join('/') : slug;
+        const res = await docsService.getDoc(path);
+        
+        if (res.success) {
+          setData(res.data);
+          // Set page title
+          document.title = `${res.data.title} | TaughtCode Documentation`;
+        } else {
+          setError('Documentation not found');
+        }
+      } catch (err: any) {
+        console.error('Failed to fetch doc:', err);
+        setError(err.message || 'Failed to load documentation');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoc();
+  }, [slug]);
+
+  if (loading) return <AdminLoading />;
   
-  try {
-    const res = await docsService.getDoc(path);
-    if (res.success) {
-      return {
-        title: `${res.data.title} | Documentation`,
-        description: `Learn about ${res.data.title} in the TaughtCode documentation.`,
-        alternates: {
-          canonical: `/docs/${path}`,
-        },
-      };
-    }
-  } catch (err) {
-    console.error('Failed to generate docs metadata:', err);
-  }
-
-  return {
-    title: 'Documentation Not Found',
-  };
-}
-
-export default async function DocPage({ params }: PageProps) {
-  const { slug } = await params;
-  const path = slug.join('/');
-  
-  let data: DocContent | null = null;
-  
-  try {
-    const res = await docsService.getDoc(path);
-    if (res.success) {
-      data = res.data;
-    }
-  } catch (err) {
-    console.error('Failed to fetch doc:', err);
-  }
-
-  if (!data) {
+  if (error) {
     return (
       <div className="docs-content">
-        <h1>Documentation Not Found</h1>
-        <p>The requested document could not be found.</p>
+        <h1>Error</h1>
+        <p>{error}</p>
       </div>
     );
   }
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "TechArticle",
-    "headline": data.title,
-    "description": `Documentation for ${data.title}`,
-    "author": {
-      "@type": "Person",
-      "name": "Nischay Sharma"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "TaughtCode"
-    }
-  };
-
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <DocPageClient data={data} slug={slug} />
-    </>
+    <article className="docs-content">
+      <header style={{ marginBottom: '4rem' }}>
+         <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em', color: '#a3a3a3', display: 'block', marginBottom: '1rem' }}>
+           Documentation / {Array.isArray(slug) ? slug[0] : ''}
+         </span>
+         {/* <h1>{data?.title}</h1> */}
+      </header>
+      
+      {data?.markdown ? (
+        <Markdown content={data.markdown} />
+      ) : (
+        <div dangerouslySetInnerHTML={{ __html: data?.content || '' }} />
+      )}
+      
+      <footer style={{ marginTop: '6rem', paddingTop: '2rem', borderTop: '1px solid #eee' }}>
+         <p style={{ fontSize: '0.75rem', color: '#a3a3a3' }}>
+           Last updated: {new Date().toLocaleDateString()}
+         </p>
+      </footer>
+    </article>
   );
 }
