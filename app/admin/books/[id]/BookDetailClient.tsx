@@ -31,6 +31,7 @@ type FullBook = {
   createdAt: Date | string;
   updatedAt: Date | string;
   pages?: Page[];
+  allPages?: Page[];
 };
 
 export default function BookDetailClient({ bookId }: BookDetailClientProps) {
@@ -90,15 +91,21 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
       const response = await booksService.getFullBook(bookId, token);
 
       if (response.success) {
-        setBook(response.data);
-        setSelectedThreadId(response.data.threadId || 'none');
+        const data = response.data;
+        // If it's a paper, we strictly use pages and ignore chapters
+        if (data.type === 'paper') {
+          data.chapters = [];
+        }
+        
+        setBook(data);
+        setSelectedThreadId(data.threadId || 'none');
         setLinkedinPostText(`📚 Just published a new technical collection: "${response.data.title}"\n\n${response.data.description || ''}\n\nExplore it on TaughtCode.`);
         
         if (response.data.type === 'paper') {
           setActiveChapterId('root');
         } else if (response.data.chapters && response.data.chapters.length > 0) {
           setActiveChapterId(response.data.chapters[0].id);
-        } else if (response.data.pages && response.data.pages.length > 0) {
+        } else {
           setActiveChapterId('root');
         }
       }
@@ -135,13 +142,8 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
       if (res.success) {
         setBook({ ...book, threadId: finalThreadId });
         setSelectedThreadId(finalThreadId || 'none');
-        setThreads(prev => {
-          if (finalThreadId && !prev.some(t => t.id === finalThreadId) && res.data.threadId === finalThreadId) {
-             // Re-fetch threads if we created a new one so it appears in list
-             fetchThreads();
-          }
-          return prev;
-        });
+        // Re-fetch threads if we created a new one so it appears in list
+        if (selectedThreadId === 'new') fetchThreads();
         toast.success('Thread attachment updated!');
       }
     } catch (err) {
@@ -155,7 +157,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
     if (!book) return;
     openDialog({
       title: 'Delete Book',
-      message: `Are you sure you want to delete "${book.title}"? This will permanently remove all chapters and pages associated with this book.`,
+      message: `Are you sure you want to delete "${book.title}"? This will permanently remove all content associated with this ${book.type}.`,
       confirmLabel: 'Delete',
       variant: 'danger',
       onConfirm: async () => {
@@ -165,21 +167,23 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
 
           const response = await booksService.deleteBook(book.id, token);
           if (response.success) {
-            toast.success('Book deleted successfully');
+            toast.success('Deleted successfully');
             router.push('/admin/books');
           }
         } catch (err) {
-          toast.error('Failed to delete book: ' + (err as Error).message);
+          toast.error('Failed to delete: ' + (err as Error).message);
         }
       }
     });
   };
 
   if (loading) return <AdminLoading />;
-  if (!book) return <div style={{ padding: '4rem', textAlign: 'center' }}>Book not found</div>;
+  if (!book) return <div style={{ padding: '4rem', textAlign: 'center' }}>Not found</div>;
 
-  const activeChapter = activeChapterId === 'root' || book.type === 'paper'
-    ? { title: book.type === 'paper' ? 'Pages' : 'General Content', pages: book.pages || [] }
+  const isPaper = book.type === 'paper';
+
+  const activeChapter = activeChapterId === 'root' || isPaper
+    ? { title: isPaper ? 'Manuscript' : 'General Content', pages: book.pages || [] }
     : book.chapters.find(c => c.id === activeChapterId);
 
   const handlePageContentChange = (pageId: string, newContent: string) => {
@@ -187,7 +191,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
     setBook((prevBook) => {
       if (!prevBook) return prevBook;
       const newBook = { ...prevBook };
-      if (activeChapterId === 'root' || book.type === 'paper') {
+      if (activeChapterId === 'root' || isPaper) {
         newBook.pages = newBook.pages?.map((p) => p.id === pageId ? { ...p, content: newContent } : p);
       } else {
         newBook.chapters = newBook.chapters.map((c) => {
@@ -265,7 +269,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
           </button>
           <div style={{ flex: 1, minWidth: 0 }}>
             <h2 style={{ fontSize: '0.9rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{book.title}</h2>
-            <div style={{ fontSize: '0.6rem', opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Editor</div>
+            <div style={{ fontSize: '0.6rem', opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{isPaper ? 'Paper' : 'Book'} Editor</div>
           </div>
           <div className="dashboard__header-actions">
             <Button 
@@ -287,78 +291,103 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
       </header>
 
       {/* Mobile Chapter Selector */}
-      <div className="book-editor__mobile-nav">
-        {book.pages && book.pages.length > 0 && (
-          <button 
-            onClick={() => setActiveChapterId('root')}
-            className={`book-editor__chapter-pill ${activeChapterId === 'root' ? 'book-editor__chapter-pill--active' : ''}`}
-          >
-            {book.type === 'paper' ? 'Pages' : 'General'}
-          </button>
-        )}
-        {book.type === 'book' && book.chapters.map((chapter) => (
-          <button 
-            key={chapter.id}
-            onClick={() => setActiveChapterId(chapter.id)}
-            className={`book-editor__chapter-pill ${activeChapterId === chapter.id ? 'book-editor__chapter-pill--active' : ''}`}
-          >
-            {chapter.title}
-          </button>
-        ))}
-      </div>
+      {!isPaper && (
+        <div className="book-editor__mobile-nav">
+          {book.pages && book.pages.length > 0 && (
+            <button 
+              onClick={() => setActiveChapterId('root')}
+              className={`book-editor__chapter-pill ${activeChapterId === 'root' ? 'book-editor__chapter-pill--active' : ''}`}
+            >
+              General
+            </button>
+          )}
+          {book.chapters.map((chapter) => (
+            <button 
+              key={chapter.id}
+              onClick={() => setActiveChapterId(chapter.id)}
+              className={`book-editor__chapter-pill ${activeChapterId === chapter.id ? 'book-editor__chapter-pill--active' : ''}`}
+            >
+              {chapter.title}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="book-editor__grid">
         {/* Sidebar: Chapters (Desktop) */}
         <aside className="book-editor__sidebar">
-           {book.type === 'book' && (
-             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 0.5rem', marginBottom: '1rem' }}>
-               <h3 style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 800 }}>Chapters</h3>
-               <button style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}><i className="ph ph-plus-circle" /></button>
+           {!isPaper && (
+             <>
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 0.5rem', marginBottom: '1rem' }}>
+                 <h3 style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 800 }}>Chapters</h3>
+                 <button style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4 }}><i className="ph ph-plus-circle" /></button>
+               </div>
+               
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                 {book.pages && book.pages.length > 0 && (
+                   <div 
+                    onClick={() => setActiveChapterId('root')}
+                    style={{ 
+                      padding: '0.75rem 1rem', 
+                      borderRadius: '0.5rem', 
+                      cursor: 'pointer',
+                      fontSize: '0.875rem',
+                      fontWeight: activeChapterId === 'root' ? 700 : 400,
+                      background: activeChapterId === 'root' ? '#fff' : 'transparent',
+                      boxShadow: activeChapterId === 'root' ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
+                      display: 'flex',
+                      gap: '0.75rem'
+                    }}
+                   >
+                     <i className="ph ph-file-text" style={{ opacity: 0.3 }} />
+                     <span>General Content</span>
+                   </div>
+                 )}
+
+                 {book.chapters.map((chapter, idx) => (
+                   <div 
+                    key={chapter.id} 
+                    onClick={() => setActiveChapterId(chapter.id)}
+                    style={{ 
+                      padding: '0.75rem 1rem', 
+                      borderRadius: '0.5rem', 
+                      cursor: 'pointer',
+                      fontSize: '0.875rem',
+                      fontWeight: activeChapterId === chapter.id ? 700 : 400,
+                      background: activeChapterId === chapter.id ? '#fff' : 'transparent',
+                      boxShadow: activeChapterId === chapter.id ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
+                      display: 'flex',
+                      gap: '0.75rem'
+                    }}
+                   >
+                     <span style={{ opacity: 0.3 }}>{idx + 1}</span>
+                     <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{chapter.title}</span>
+                   </div>
+                 ))}
+               </div>
+             </>
+           )}
+
+           {isPaper && (
+             <div 
+              onClick={() => setActiveChapterId('root')}
+              style={{ 
+                padding: '0.75rem 1rem', 
+                borderRadius: '0.5rem', 
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+                background: '#fff',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                display: 'flex',
+                gap: '0.75rem',
+                marginBottom: '1rem'
+              }}
+             >
+               <i className="ph ph-file-text" style={{ opacity: 0.3 }} />
+               <span>Manuscript</span>
              </div>
            )}
-           
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-             {book.pages && book.pages.length > 0 && (
-               <div 
-                onClick={() => setActiveChapterId('root')}
-                style={{ 
-                  padding: '0.75rem 1rem', 
-                  borderRadius: '0.5rem', 
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: activeChapterId === 'root' ? 700 : 400,
-                  background: activeChapterId === 'root' ? '#fff' : 'transparent',
-                  boxShadow: activeChapterId === 'root' ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
-                  display: 'flex',
-                  gap: '0.75rem'
-                }}
-               >
-                 <i className="ph ph-file-text" style={{ opacity: 0.3 }} />
-                 <span>{book.type === 'paper' ? 'Pages' : 'General Content'}</span>
-               </div>
-             )}
-
-             {book.type === 'book' && book.chapters.map((chapter, idx) => (
-               <div 
-                key={chapter.id} 
-                onClick={() => setActiveChapterId(chapter.id)}
-                style={{ 
-                  padding: '0.75rem 1rem', 
-                  borderRadius: '0.5rem', 
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: activeChapterId === chapter.id ? 700 : 400,
-                  background: activeChapterId === chapter.id ? '#fff' : 'transparent',
-                  boxShadow: activeChapterId === chapter.id ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
-                  display: 'flex',
-                  gap: '0.75rem'
-                }}
-               >
-                 <span style={{ opacity: 0.3 }}>{idx + 1}</span>
-                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{chapter.title}</span>
-               </div>
-             ))}
-           </div>
 
            <div style={{ marginTop: '2rem', padding: '0 0.5rem' }}>
              <h3 style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 800, marginBottom: '1rem' }}>Thread Settings</h3>
@@ -393,7 +422,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
                style={{ fontSize: '0.7rem', height: '2.5rem', borderColor: '#ff4d4f', color: '#ff4d4f' }}
                onClick={handleDeleteBook}
              >
-               Delete {book.type === 'paper' ? 'Paper' : 'Book'}
+               Delete {isPaper ? 'Paper' : 'Book'}
              </Button>
            </div>
 
@@ -449,8 +478,8 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
                   <input 
                     key={activeChapterId}
                     defaultValue={activeChapter.title}
-                    readOnly={activeChapterId === 'root' || book.type === 'paper'}
-                    style={activeChapterId === 'root' || book.type === 'paper' ? { opacity: 0.5 } : {}}
+                    readOnly={activeChapterId === 'root' || isPaper}
+                    style={activeChapterId === 'root' || isPaper ? { opacity: 0.5 } : {}}
                   />
                   <div style={{ height: '1px', background: '#eee', marginTop: '1rem' }}></div>
                 </div>
@@ -467,7 +496,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
                     ))
                   ) : (
                     <div style={{ padding: '4rem', textAlign: 'center', border: '2px dashed #eee', borderRadius: '1rem' }}>
-                       <p style={{ color: '#aaa', marginBottom: '1.5rem' }}>No content for this {book.type === 'paper' ? 'paper' : 'chapter'}.</p>
+                       <p style={{ color: '#aaa', marginBottom: '1.5rem' }}>No content for this {isPaper ? 'paper' : 'chapter'}.</p>
                        <Button variant="secondary">Add New Page</Button>
                     </div>
                   )}
@@ -475,7 +504,7 @@ export default function BookDetailClient({ bookId }: BookDetailClientProps) {
              </div>
            ) : (
              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.2 }}>
-                Select a {book.type === 'paper' ? 'page' : 'chapter'} to begin editing.
+                Select a {isPaper ? 'page' : 'chapter'} to begin editing.
              </div>
            )}
         </main>

@@ -16,7 +16,9 @@ export interface Book {
   status: 'draft' | 'published';
   type: 'book' | 'paper';
   chapters: Chapter[];
-  metadata: Record<string, any>;
+  pages?: Page[];
+  allPages?: Page[];
+  metadata: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
