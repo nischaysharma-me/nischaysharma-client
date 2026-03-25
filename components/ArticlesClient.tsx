@@ -45,21 +45,6 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
     return () => unsubscribe();
   }, [fetchArticles]);
 
-  // Listen for real-time data refresh events (e.g. from RealtimeNotificationHandler)
-  useEffect(() => {
-    const handleRefresh = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      const { type } = customEvent.detail || {};
-      if (type === 'article-generation' || type === 'article') {
-        console.log('ArticlesClient: Refreshing list due to event:', type);
-        fetchArticles();
-      }
-    };
-
-    window.addEventListener('tc:data-refresh', handleRefresh);
-    return () => window.removeEventListener('tc:data-refresh', handleRefresh);
-  }, [fetchArticles]);
-
   const handlePublish = async (id: string) => {
     openDialog({
       title: 'Publish Article',

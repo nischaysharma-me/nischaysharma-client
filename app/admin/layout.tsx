@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { primaryNavItems, secondaryNavItems } from '@/config/adminNav';
@@ -11,19 +11,20 @@ import { clientAppsService } from '@/services/clientApps.service';
 import NotificationBell from '@/components/admin/NotificationBell';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { setUser, setActiveAdminTab, user } = useStore();
+  const { user, setUser, setActiveAdminTab } = useStore();
   const [loading, setLoading] = React.useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
-  const registerCurrentDevice = useCallback(async (user: User) => {
+  const registerCurrentDevice = async (user: any) => {
     try {
       const deviceId = localStorage.getItem('tc_device_id');
       if (!deviceId) return;
 
       const token = await user.getIdToken();
       
+      // Get the primary client app for this user (or just list and pick first for now)
       const appsResponse = await clientAppsService.list(token);
       if (appsResponse.success && appsResponse.data.length > 0) {
         const primaryApp = appsResponse.data[0];
@@ -39,7 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     } catch (error) {
       console.error('WebSocket: Device registration failed', error);
     }
-  }, []);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -47,13 +48,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         router.push('/admin/login');
       } else {
         setUser(currentUser);
+        // Register device after login
         registerCurrentDevice(currentUser);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [router, setUser, registerCurrentDevice]);
+  }, [router, setUser]);
 
   // Sync active tab with pathname
   useEffect(() => {
@@ -61,15 +63,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (activeItem) {
       setActiveAdminTab(activeItem.name);
     }
-    
-    // Fix: Using setTimeout to defer state update to next tick, resolving ESLint warning
-    if (isSidebarOpen) {
-      const timer = setTimeout(() => {
-        setIsSidebarOpen(false);
-      }, 0);
-      return () => clearTimeout(timer);
-    }
-  }, [pathname, setActiveAdminTab, isSidebarOpen]);
+    setIsSidebarOpen(false);
+  }, [pathname, setActiveAdminTab]);
 
   if (loading) return null;
 
@@ -98,7 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <h1>TaughtCode<span>.</span></h1>
           </Link>
           <button className="dashboard__sidebar-close" onClick={() => setIsSidebarOpen(false)}>
-            <i className="ph ph-x" style={{ fontSize: '1.25rem' }} />
+            <i className="ph ph-x" style={{ fontSize: '1.5rem' }} />
           </button>
         </div>
 
@@ -149,7 +144,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <main className="dashboard__main">
         <header className="dashboard__header">
           <button className="dashboard__menu-toggle" onClick={() => setIsSidebarOpen(true)}>
-            <i className="ph ph-list" style={{ fontSize: '1.25rem' }} />
+            <i className="ph ph-list" style={{ fontSize: '1.5rem' }} />
           </button>
           
           <div className="dashboard__header-actions">
