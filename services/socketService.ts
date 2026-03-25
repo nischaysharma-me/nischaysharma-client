@@ -34,8 +34,26 @@ export const initSocket = async (deviceId?: string) => {
     console.log('WebSocket: Disconnected');
   });
 
-  socket.on('connect_error', (error) => {
+  socket.on('connect_error', async (error) => {
     console.error('WebSocket Connection Error:', error);
+    
+    // Handle authentication errors (e.g., expired token)
+    if (error.message.includes('Authentication') || error.message.includes('token')) {
+      console.log('WebSocket: Auth error detected, refreshing token...');
+      try {
+        const newToken = await auth.currentUser?.getIdToken(true);
+        if (newToken && socket) {
+          socket.auth = {
+            ...socket.auth,
+            token: newToken
+          };
+          console.log('WebSocket: Token refreshed, reconnecting...');
+          socket.connect();
+        }
+      } catch (err) {
+        console.error('WebSocket: Failed to refresh token:', err);
+      }
+    }
   });
 
   return socket;
