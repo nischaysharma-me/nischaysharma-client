@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Article } from '@/lib/types/article';
 import { articlesService } from '@/services/articles.service';
-import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Pagination as PaginationType } from '@/lib/types/common';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
@@ -23,50 +22,60 @@ export default function ArticlesIndexClient({
   const [pagination, setPagination] = useState<PaginationType | undefined>(initialPagination);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [page, setPage] = useState(1);
+  const isInitialMount = useRef(true);
 
-  const fetchFilteredArticles = useCallback(async (currentPage: number, search: string, tags: string[]) => {
+  const fetchFilteredArticles = useCallback(async (currentPage: number, search: string) => {
     try {
       setLoading(true);
+      console.log('ArticlesIndex: Fetching articles with params:', { currentPage, search });
       const response = await articlesService.listArticles({
         status: 'published',
         search: search || undefined,
-        tags: tags.length > 0 ? tags : undefined,
         page: currentPage,
         limit: 12
       });
 
+      console.log('ArticlesIndex: Received response:', response);
+
       if (response.success && response.data) {
         setArticles(response.data);
         setPagination(response.pagination);
+      } else {
+        setArticles([]);
+        setPagination(undefined);
       }
     } catch (err) {
-      console.error('Error filtering articles:', err);
+      console.error('ArticlesIndex: Error filtering articles:', err);
+      setArticles([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // Initial fetch if SSR provided no articles
+  useEffect(() => {
+    if (initialArticles.length === 0 && isInitialMount.current) {
+      fetchFilteredArticles(1, '');
+    }
+    isInitialMount.current = false;
+  }, [initialArticles.length, fetchFilteredArticles]);
+
   // Debounced search effect
   useEffect(() => {
+    if (isInitialMount.current) return;
+
     const timer = setTimeout(() => {
-      if (searchQuery !== '') {
-        setPage(1);
-        fetchFilteredArticles(1, searchQuery, selectedTags);
-      } else if (articles !== initialArticles) {
-        // Reset if search cleared and not on initial
-        setPage(1);
-        fetchFilteredArticles(1, '', selectedTags);
-      }
+      setPage(1);
+      fetchFilteredArticles(1, searchQuery);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, selectedTags, fetchFilteredArticles, initialArticles, articles]);
+  }, [searchQuery, fetchFilteredArticles]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    fetchFilteredArticles(newPage, searchQuery, selectedTags);
+    fetchFilteredArticles(newPage, searchQuery);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -125,10 +134,14 @@ export default function ArticlesIndexClient({
                     />
                   </div>
                   <div className="articles-index__card-content">
-                    <div className="articles-index__card-meta">
-                      <span>{new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                      {article.tags && article.tags.length > 0 && (
-                        <>
+                  <div className="articles-index__card-meta">
+                    <span>
+                      {article.publishedAt 
+                        ? new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                        : 'Recent Story'
+                      }
+                    </span>
+                    {article.tags && article.tags.length > 0 && (                        <>
                           <span className="dot" />
                           <span>{article.tags[0]}</span>
                         </>
