@@ -64,8 +64,8 @@ export const PostGeneratorForm = ({ onSuccess, onClose }: PostGeneratorFormProps
       });
 
       if (success) {
-        toast.success('Social post generated!', {
-          description: 'A new draft has been created.'
+        toast.success('AI generation started!', {
+          description: 'The social post draft will appear shortly.'
         });
         onSuccess();
         onClose();
