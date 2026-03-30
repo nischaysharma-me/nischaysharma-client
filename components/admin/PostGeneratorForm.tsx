@@ -36,7 +36,7 @@ export const PostGeneratorForm = ({ onSuccess, onClose }: PostGeneratorFormProps
       if (!token) return;
 
       const [articlesRes, booksRes] = await Promise.all([
-        articlesService.listArticles({ limit: 100 }),
+        articlesService.listArticles({ limit: 100 }, token),
         booksService.getUserBooks(token)
       ]);
       
