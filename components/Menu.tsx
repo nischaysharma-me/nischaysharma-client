@@ -11,6 +11,7 @@ interface MenuProps {
 const navArticles = [
   { id: 1, label: 'Home', headline: 'The Digital Architect: Building Scalable Futures', summary: 'A deep dive into the philosophy of Nischay Sharma and the engineering principles driving modern web excellence.', href: '/' },
   { id: 9, label: 'Stories', headline: 'The Digital Anthology: Curated Stories', summary: 'Browse the complete collection of technical insights, architectural studies, and digital narratives.', href: '/articles' },
+  { id: 10, label: 'Posts', headline: 'The Social Stream: Real-time Insights', summary: 'Bite-sized technical thoughts and updates shared across the digital landscape.', href: '/posts' },
   { id: 2, label: 'About', headline: 'From Code to Creation: The Full-Stack Journey', summary: 'Tracing the path of an engineer committed to solving complex problems with elegant code.', href: '/about' },
   { id: 3, label: 'Docs', headline: 'The Technical Blueprint: Comprehensive Guides', summary: 'Unveiling the internal documentation for architecture, schemas, and advanced system integrations.', href: '/docs' },
   { id: 4, label: 'Skills', headline: 'Mastering the Stack: Tools of the Trade in 2026', summary: 'Analyzing the current tech landscape from Next.js and React to advanced backend orchestration.', href: '/#skills' },
