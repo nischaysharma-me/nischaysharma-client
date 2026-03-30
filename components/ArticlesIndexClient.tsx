@@ -14,11 +14,11 @@ interface ArticlesIndexClientProps {
 const ITEMS_PER_PAGE = 12;
 
 const FeaturedCarousel = ({ articles }: { articles: Article[] }) => {
-  const [index, setIndex] = useState(0);
+  const [active, setActive] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % articles.length);
+      setActive((prev) => (prev + 1) % articles.length);
     }, 5000);
     return () => clearInterval(timer);
   }, [articles.length]);
@@ -33,44 +33,66 @@ const FeaturedCarousel = ({ articles }: { articles: Article[] }) => {
   return (
     <div className="articles-featured">
       <div className="articles-featured__carousel">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, scale: 0.9, rotateY: 45, x: 100 }}
-            animate={{ opacity: 1, scale: 1, rotateY: 0, x: 0 }}
-            exit={{ opacity: 0, scale: 1.1, rotateY: -45, x: -100 }}
-            transition={{ duration: 0.8, ease: "circOut" }}
-            className="articles-featured__item"
-          >
-            <div className="articles-featured__image-wrapper">
-              <Image 
-                src={getCoverImage(articles[index])} 
-                alt={articles[index].title}
-                fill
-                priority
-                style={{ objectFit: 'cover' }}
-              />
-              <div className="articles-featured__overlay" />
-            </div>
-            
-            <div className="articles-featured__content">
-              <span className="articles-featured__label">Featured Story</span>
-              <h2 className="articles-featured__title">{articles[index].title}</h2>
-              <p className="articles-featured__description">{articles[index].description}</p>
-              <Link href={`/articles/${articles[index].slug}`} className="articles-featured__link">
-                Read Full Story
-                <i className="ph ph-arrow-right" />
-              </Link>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+        {articles.map((article, i) => {
+          let position = i - active;
+          if (position < -1) position = position + articles.length;
+          if (position > articles.length - 2) position = position - articles.length;
+
+          // Only render visible or near-visible items for performance
+          const isVisible = position >= -2 && position <= 2;
+          if (!isVisible) return null;
+
+          return (
+            <motion.div
+              key={article.id}
+              initial={false}
+              animate={{
+                x: `${position * 60}%`,
+                scale: position === 0 ? 1 : 0.8,
+                zIndex: 10 - Math.abs(position),
+                opacity: Math.abs(position) > 1 ? 0 : 1 - Math.abs(position) * 0.5,
+                rotateY: position === 0 ? 0 : position > 0 ? -45 : 45,
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 260,
+                damping: 20
+              }}
+              className={`articles-featured__item ${position === 0 ? 'active' : ''}`}
+              onClick={() => setActive(i)}
+            >
+              <div className="articles-featured__card">
+                <div className="articles-featured__image-wrapper">
+                  <Image 
+                    src={getCoverImage(article)} 
+                    alt={article.title}
+                    fill
+                    priority={i === active}
+                    style={{ objectFit: 'cover' }}
+                  />
+                  <div className="articles-featured__overlay" />
+                </div>
+                
+                <div className="articles-featured__content">
+                  <span className="articles-featured__label">Journal Vol. 0{i + 1}</span>
+                  <h2 className="articles-featured__title">{article.title}</h2>
+                  <p className="articles-featured__description">{article.description}</p>
+                  <Link href={`/articles/${article.slug}`} className="articles-featured__link">
+                    Read Story
+                    <i className="ph ph-arrow-right" />
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
         
-        <div className="articles-featured__dots">
+        <div className="articles-featured__nav-dots">
           {articles.map((_, i) => (
             <button 
               key={i} 
-              className={`articles-featured__dot ${i === index ? 'active' : ''}`}
-              onClick={() => setIndex(i)}
+              className={`articles-featured__dot-pill ${i === active ? 'active' : ''}`}
+              onClick={() => setActive(i)}
             />
           ))}
         </div>
@@ -86,7 +108,7 @@ export default function ArticlesIndexClient({
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const featuredArticles = useMemo(() => initialArticles.slice(0, 5), [initialArticles]);
+  const featuredArticles = useMemo(() => initialArticles.slice(0, 7), [initialArticles]);
 
   const allTags = useMemo(() => {
     const tags = new Set<string>();
@@ -142,7 +164,7 @@ export default function ArticlesIndexClient({
             <i className="ph ph-magnifying-glass" />
             <input 
               type="text"
-              placeholder="Filter archives..."
+              placeholder="Search archives..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
