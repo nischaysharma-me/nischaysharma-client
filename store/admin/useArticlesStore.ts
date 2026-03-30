@@ -27,7 +27,7 @@ export const useArticlesStore = create<ArticleState>((set, get) => ({
       const token = await getAuthToken();
       if (!token) return;
 
-      const response = await articlesService.listArticles(undefined, token);
+      const response = await articlesService.listArticles({}, token);
       if (response.success) {
         set({ articles: response.data });
       }

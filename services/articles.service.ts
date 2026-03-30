@@ -32,9 +32,21 @@ export const articlesService = {
     });
   },
 
-  listArticles: (status?: string, token?: string): Promise<ActionResponse<Article[]>> => {
+  listArticles: (options: { 
+    status?: string; 
+    search?: string; 
+    tags?: string[]; 
+    page?: number; 
+    limit?: number; 
+  } = {}, token?: string): Promise<ActionResponse<Article[]>> => {
     const queryParams = new URLSearchParams();
-    if (status) queryParams.append('status', status);
+    if (options.status) queryParams.append('status', options.status);
+    if (options.search) queryParams.append('search', options.search);
+    if (options.page) queryParams.append('page', options.page.toString());
+    if (options.limit) queryParams.append('limit', options.limit.toString());
+    if (options.tags && options.tags.length > 0) {
+      queryParams.append('tags', options.tags.join(','));
+    }
     
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
     return apiFetch<ActionResponse<Article[]>>(`/articles${queryString}`, {

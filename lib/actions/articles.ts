@@ -50,9 +50,15 @@ export async function publishArticleAction(id: string, token: string): Promise<A
   }
 }
 
-export async function listArticlesAction(status?: string, token?: string): Promise<ActionResponse> {
+export async function listArticlesAction(options: { 
+  status?: string; 
+  search?: string; 
+  tags?: string[]; 
+  page?: number; 
+  limit?: number; 
+} = {}, token?: string): Promise<ActionResponse> {
   try {
-    return await articlesService.listArticles(status, token);
+    return await articlesService.listArticles(options, token);
   } catch (error: any) {
     console.error('Server Action Error (listArticles):', error);
     return { success: false, error: error.message || 'Failed to list articles' };
