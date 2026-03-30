@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Article } from '@/lib/types/article';
 import { Button } from '@/components/ui/Button';
 
@@ -12,6 +13,72 @@ interface ArticlesIndexClientProps {
 
 const ITEMS_PER_PAGE = 12;
 
+const FeaturedCarousel = ({ articles }: { articles: Article[] }) => {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % articles.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [articles.length]);
+
+  const getCoverImage = (article: Article) => {
+    if (article.backgroundImage) return article.backgroundImage;
+    if (!article.content) return '/architectural-concrete-monument.png';
+    const match = article.content.match(/<img[^>]+src="([^">]+)"/);
+    return match ? match[1] : '/architectural-concrete-monument.png';
+  };
+
+  return (
+    <div className="articles-featured">
+      <div className="articles-featured__carousel">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, scale: 0.9, rotateY: 45, x: 100 }}
+            animate={{ opacity: 1, scale: 1, rotateY: 0, x: 0 }}
+            exit={{ opacity: 0, scale: 1.1, rotateY: -45, x: -100 }}
+            transition={{ duration: 0.8, ease: "circOut" }}
+            className="articles-featured__item"
+          >
+            <div className="articles-featured__image-wrapper">
+              <Image 
+                src={getCoverImage(articles[index])} 
+                alt={articles[index].title}
+                fill
+                priority
+                style={{ objectFit: 'cover' }}
+              />
+              <div className="articles-featured__overlay" />
+            </div>
+            
+            <div className="articles-featured__content">
+              <span className="articles-featured__label">Featured Story</span>
+              <h2 className="articles-featured__title">{articles[index].title}</h2>
+              <p className="articles-featured__description">{articles[index].description}</p>
+              <Link href={`/articles/${articles[index].slug}`} className="articles-featured__link">
+                Read Full Story
+                <i className="ph ph-arrow-right" />
+              </Link>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+        
+        <div className="articles-featured__dots">
+          {articles.map((_, i) => (
+            <button 
+              key={i} 
+              className={`articles-featured__dot ${i === index ? 'active' : ''}`}
+              onClick={() => setIndex(i)}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function ArticlesIndexClient({ 
   initialArticles, 
 }: ArticlesIndexClientProps) {
@@ -19,7 +86,8 @@ export default function ArticlesIndexClient({
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Derive unique tags from initialArticles
+  const featuredArticles = useMemo(() => initialArticles.slice(0, 5), [initialArticles]);
+
   const allTags = useMemo(() => {
     const tags = new Set<string>();
     initialArticles.forEach(article => {
@@ -28,7 +96,6 @@ export default function ArticlesIndexClient({
     return Array.from(tags).sort();
   }, [initialArticles]);
 
-  // Local filtering logic
   const filteredArticles = useMemo(() => {
     return initialArticles.filter(article => {
       const matchesSearch = searchQuery === '' || 
@@ -41,12 +108,10 @@ export default function ArticlesIndexClient({
     });
   }, [initialArticles, searchQuery, selectedTag]);
 
-  // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedTag]);
 
-  // Local pagination logic
   const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE);
   const paginatedArticles = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -55,7 +120,7 @@ export default function ArticlesIndexClient({
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 600, behavior: 'smooth' });
   };
 
   const getCoverImage = (article: Article) => {
@@ -67,47 +132,41 @@ export default function ArticlesIndexClient({
 
   return (
     <div className="articles-index">
-      <header className="articles-index__header">
-        <div className="articles-index__header-content">
-          <h1 className="articles-index__title">The Digital Anthology</h1>
-          <p className="articles-index__subtitle">
-            Explore {initialArticles.length} curated technical stories and digital narratives.
-          </p>
-          
-          <div className="articles-index__controls">
-            <div className="articles-index__search-wrapper">
-              <i className="ph ph-magnifying-glass articles-index__search-icon" />
-              <input 
-                type="text"
-                placeholder="Search stories..."
-                className="articles-index__search-input"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+      {featuredArticles.length > 0 && (
+        <FeaturedCarousel articles={featuredArticles} />
+      )}
 
-            {allTags.length > 0 && (
-              <div className="articles-index__tags">
-                <button 
-                  className={`articles-index__tag ${!selectedTag ? 'active' : ''}`}
-                  onClick={() => setSelectedTag(null)}
-                >
-                  All
-                </button>
-                {allTags.map(tag => (
-                  <button 
-                    key={tag}
-                    className={`articles-index__tag ${selectedTag === tag ? 'active' : ''}`}
-                    onClick={() => setSelectedTag(tag)}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            )}
+      <div className="articles-index__toolbar">
+        <div className="articles-index__toolbar-container">
+          <div className="articles-index__search-minimal">
+            <i className="ph ph-magnifying-glass" />
+            <input 
+              type="text"
+              placeholder="Filter archives..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <div className="articles-index__tag-scroller">
+            <button 
+              className={`articles-index__tag-pill ${!selectedTag ? 'active' : ''}`}
+              onClick={() => setSelectedTag(null)}
+            >
+              All Topics
+            </button>
+            {allTags.map(tag => (
+              <button 
+                key={tag}
+                className={`articles-index__tag-pill ${selectedTag === tag ? 'active' : ''}`}
+                onClick={() => setSelectedTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
           </div>
         </div>
-      </header>
+      </div>
 
       <main className="articles-index__container">
         {paginatedArticles.length > 0 ? (
@@ -155,7 +214,7 @@ export default function ArticlesIndexClient({
                   Previous
                 </Button>
                 <div className="articles-index__page-info">
-                  Page {currentPage} of {totalPages}
+                  {currentPage} / {totalPages}
                 </div>
                 <Button 
                   variant="secondary" 
@@ -169,9 +228,8 @@ export default function ArticlesIndexClient({
           </>
         ) : (
           <div className="articles-index__empty">
-            <i className="ph ph-detective" style={{ fontSize: '3rem', opacity: 0.2 }} />
-            <h3>No matches found</h3>
-            <p>We couldn&apos;t find any stories matching your current filters.</p>
+            <i className="ph ph-detective" />
+            <h3>No matches in the anthology</h3>
             <Button variant="secondary" onClick={() => { setSearchQuery(''); setSelectedTag(null); }}>
               Reset Filters
             </Button>
