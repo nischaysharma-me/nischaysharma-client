@@ -21,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Article routes
   let articleRoutes: MetadataRoute.Sitemap = [];
   try {
-    const articlesRes = await articlesService.listArticles('published');
+    const articlesRes = await articlesService.listArticles({ status: 'published' });
     if (articlesRes.success && Array.isArray(articlesRes.data)) {
       articleRoutes = articlesRes.data.map((article) => ({
         url: `${baseUrl}/articles/${article.slug}`,
