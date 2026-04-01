@@ -30,7 +30,7 @@ export default function PostsClient({ initialPosts }: PostsClientProps) {
 
   // Hydrate store on mount
   useEffect(() => {
-    if (initialPosts && posts.length === 0) {
+    if (initialPosts && initialPosts.length > 0 && posts.length === 0) {
       setPosts(initialPosts);
     }
   }, [initialPosts, posts.length, setPosts]);

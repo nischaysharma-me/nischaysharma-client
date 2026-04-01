@@ -10,7 +10,7 @@ interface PostPreviewPageProps {
 }
 
 export default async function PostPreviewPage({ params }: PostPreviewPageProps) {
-  const { id } = params;
+  const { id } = await params;
   const response = await getPostAction(id);
 
   if (!response.success || !response.data) {

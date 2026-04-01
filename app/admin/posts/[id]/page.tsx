@@ -10,7 +10,7 @@ interface PostEditPageProps {
 }
 
 export default async function PostEditPage({ params }: PostEditPageProps) {
-  const { id } = params;
+  const { id } = await params;
   const response = await getPostAction(id);
 
   if (!response.success || !response.data) {

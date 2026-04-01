@@ -14,7 +14,6 @@ import ArticlesLoading from '@/app/admin/articles/loading';
 import { toast } from 'sonner';
 import { useDialogStore } from '@/store/useDialogStore';
 import { integrationsService, IntegrationsList } from '@/services/integrations.service';
-import { Interface } from 'readline';
 
 export default function ArticleEditPage() {
   const { id } = useParams() as { id: string };
