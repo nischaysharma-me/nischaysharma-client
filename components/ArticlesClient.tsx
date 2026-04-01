@@ -31,7 +31,7 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
 
   // Hydrate store on mount
   useEffect(() => {
-    if (initialArticles && initialArticles.length > 0 && articles.length === 0) {
+    if (initialArticles && articles.length === 0) {
       setArticles(initialArticles);
     }
   }, [initialArticles, articles.length, setArticles]);

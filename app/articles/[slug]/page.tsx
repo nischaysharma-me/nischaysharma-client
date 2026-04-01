@@ -125,7 +125,6 @@ export default async function PublicArticleView({ params }: PageProps) {
             fill
             style={{ objectFit: 'cover' }}
             priority
-            sizes="100vw"
           />
           <div className="article-view__hero-content">
             <h1 className="article-view__title">{article.title}</h1>

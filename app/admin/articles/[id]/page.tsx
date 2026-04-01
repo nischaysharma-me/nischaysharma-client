@@ -14,6 +14,7 @@ import ArticlesLoading from '@/app/admin/articles/loading';
 import { toast } from 'sonner';
 import { useDialogStore } from '@/store/useDialogStore';
 import { integrationsService, IntegrationsList } from '@/services/integrations.service';
+import { Interface } from 'readline';
 
 export default function ArticleEditPage() {
   const { id } = useParams() as { id: string };
@@ -295,7 +296,7 @@ export default function ArticleEditPage() {
               />
               {backgroundImage && (
                 <div className="article-edit__sidebar-image">
-                  <Image src={backgroundImage} alt="Preview" fill sizes="(max-width: 768px) 100vw, 500px" />
+                  <Image src={backgroundImage} alt="Preview" fill />
                 </div>
               )}
             </div>
