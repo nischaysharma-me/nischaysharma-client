@@ -89,6 +89,17 @@ interface PostListProps {
 }
 
 export const PostList = ({ posts, onPublish, onDelete, onShowGenerator }: PostListProps) => {
+  const renderedPosts = React.useMemo(() => {
+    return posts.map((post) => (
+      <PostRow 
+        key={post.id} 
+        post={post} 
+        onPublish={onPublish} 
+        onDelete={onDelete} 
+      />
+    ));
+  }, [posts, onPublish, onDelete]);
+
   if (posts.length === 0) {
     return (
       <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
@@ -102,14 +113,7 @@ export const PostList = ({ posts, onPublish, onDelete, onShowGenerator }: PostLi
 
   return (
     <div className="dashboard__recent-list">
-      {posts.map((post) => (
-        <PostRow 
-          key={post.id} 
-          post={post} 
-          onPublish={onPublish} 
-          onDelete={onDelete} 
-        />
-      ))}
+      {renderedPosts}
     </div>
   );
 };

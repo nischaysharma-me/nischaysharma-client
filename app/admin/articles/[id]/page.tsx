@@ -295,7 +295,7 @@ export default function ArticleEditPage() {
               />
               {backgroundImage && (
                 <div className="article-edit__sidebar-image">
-                  <Image src={backgroundImage} alt="Preview" fill />
+                  <Image src={backgroundImage} alt="Preview" fill sizes="(max-width: 768px) 100vw, 500px" />
                 </div>
               )}
             </div>

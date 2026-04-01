@@ -43,7 +43,14 @@ export default function BillboardClient({ billboards }: BillboardClientProps) {
               <Link href={leadArticle.href} className="billboard__link">
                 <div className="billboard__image-box" style={{ position: 'relative' }}>
                   {leadArticle.imageUrl ? (
-                    <Image src={leadArticle.imageUrl} alt={leadArticle.headline} fill style={{ objectFit: 'cover' }} priority />
+                    <Image 
+                      src={leadArticle.imageUrl} 
+                      alt={leadArticle.headline} 
+                      fill 
+                      style={{ objectFit: 'cover' }} 
+                      priority 
+                      sizes="100vw"
+                    />
                   ) : (
                     <span className="billboard__placeholder">Featured Image</span>
                   )}
@@ -64,7 +71,13 @@ export default function BillboardClient({ billboards }: BillboardClientProps) {
                 <Link href={item.href} className="billboard__link">
                   <div className="billboard__image-box billboard__image-box--small" style={{ position: 'relative' }}>
                     {item.imageUrl ? (
-                      <Image src={item.imageUrl} alt={item.headline} fill style={{ objectFit: 'cover' }} />
+                      <Image 
+                        src={item.imageUrl} 
+                        alt={item.headline} 
+                        fill 
+                        style={{ objectFit: 'cover' }} 
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
                     ) : (
                       <span className="billboard__placeholder">{item.label}</span>
                     )}
@@ -87,7 +100,13 @@ export default function BillboardClient({ billboards }: BillboardClientProps) {
                 <Link href={item.href} className="billboard__link">
                   <div className="billboard__image-box billboard__image-box--thumb" style={{ position: 'relative' }}>
                     {item.imageUrl ? (
-                      <Image src={item.imageUrl} alt={item.headline} fill style={{ objectFit: 'cover' }} />
+                      <Image 
+                        src={item.imageUrl} 
+                        alt={item.headline} 
+                        fill 
+                        style={{ objectFit: 'cover' }} 
+                        sizes="100px"
+                      />
                     ) : (
                       <span className="billboard__placeholder">Img</span>
                     )}

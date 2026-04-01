@@ -69,6 +69,7 @@ const FeaturedCarousel = ({ articles }: { articles: Article[] }) => {
                     fill
                     priority={i === active}
                     style={{ objectFit: 'cover' }}
+                    sizes="(max-width: 768px) 100vw, 70vw"
                   />
                   <div className="articles-featured__overlay" />
                 </div>
@@ -206,6 +207,7 @@ export default function ArticlesIndexClient({
                       alt={article.title}
                       fill
                       style={{ objectFit: 'cover' }}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
                   <div className="articles-index__card-content">

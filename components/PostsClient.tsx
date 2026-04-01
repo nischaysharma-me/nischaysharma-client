@@ -33,7 +33,7 @@ export default function PostsClient({ initialPosts }: PostsClientProps) {
     if (initialPosts && initialPosts.length > 0 && posts.length === 0) {
       setPosts(initialPosts);
     }
-  }, [initialPosts, posts.length, setPosts]);
+  }, [initialPosts, setPosts, posts.length]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {

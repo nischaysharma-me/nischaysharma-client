@@ -99,7 +99,13 @@ export default function PostEditClient({ initialPost }: PostEditClientProps) {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
                   {post.attachedMedia.map((url, idx) => (
                     <div key={idx} style={{ position: 'relative', aspectRatio: '16/9', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e5e5' }}>
-                      <Image src={url} alt="Post media" fill style={{ objectFit: 'cover' }} />
+                      <Image 
+                        src={url} 
+                        alt="Post media" 
+                        fill 
+                        style={{ objectFit: 'cover' }} 
+                        sizes="(max-width: 768px) 100vw, 300px"
+                      />
                     </div>
                   ))}
                 </div>

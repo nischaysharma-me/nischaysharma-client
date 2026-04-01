@@ -51,6 +51,7 @@ export default function PublicPostsClient({ initialPosts }: PublicPostsClientPro
                           alt="Post media" 
                           fill
                           className="post-card__image"
+                          sizes="(max-width: 768px) 100vw, 700px"
                         />
                       </div>
                     ))}
