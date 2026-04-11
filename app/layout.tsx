@@ -54,6 +54,10 @@ export const metadata: Metadata = {
     creator: "@nishuns",
     images: ["/architectural-concrete-monument.png"],
   },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
   robots: {
     index: true,
     follow: true,
