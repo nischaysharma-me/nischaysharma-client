@@ -23,11 +23,6 @@ export const primaryNavItems: NavItem[] = [
     icon: <i className="ph ph-buildings" />
   },
   { 
-    name: 'API Clients', 
-    href: '/admin/clients',
-    icon: <i className="ph ph-code" />
-  },
-  { 
     name: 'Templates', 
     href: '/admin/templates',
     icon: <i className="ph ph-layout" />

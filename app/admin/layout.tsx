@@ -7,7 +7,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { primaryNavItems, secondaryNavItems } from '@/config/adminNav';
 import { useStore } from '@/store/useStore';
-import { clientAppsService } from '@/services/clientApps.service';
 import NotificationBell from '@/components/admin/NotificationBell';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -17,39 +16,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
 
-  const registerCurrentDevice = async (user: any) => {
-    try {
-      const deviceId = localStorage.getItem('tc_device_id');
-      if (!deviceId) return;
-
-      const token = await user.getIdToken();
-      
-      // Get the primary client app for this user (or just list and pick first for now)
-      const appsResponse = await clientAppsService.list(token);
-      if (appsResponse.success && appsResponse.data.length > 0) {
-        const primaryApp = appsResponse.data[0];
-        if (primaryApp.id) {
-          await clientAppsService.registerDevice(primaryApp.id, {
-            deviceId,
-            name: `${user.displayName || 'User'}'s Browser`,
-            type: 'browser'
-          }, token);
-          console.log('WebSocket: Device registered successfully');
-        }
-      }
-    } catch (error) {
-      console.error('WebSocket: Device registration failed', error);
-    }
-  };
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!currentUser) {
         router.push('/admin/login');
       } else {
         setUser(currentUser);
-        // Register device after login
-        registerCurrentDevice(currentUser);
       }
       setLoading(false);
     });
