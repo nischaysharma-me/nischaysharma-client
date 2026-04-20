@@ -1,27 +1,6 @@
 import { apiFetch } from './apiClient';
 
-export interface OnboardUserData {
-  photo?: File;
-  email: string;
-  displayName: string;
-  writingStyle: string;
-}
-
 export const usersService = {
-  onboard: (data: OnboardUserData, token: string) => {
-    const formData = new FormData();
-    if (data.photo) formData.append('photo', data.photo);
-    formData.append('email', data.email);
-    formData.append('displayName', data.displayName);
-    formData.append('writingStyle', data.writingStyle);
-
-    return apiFetch<any>('/users/onboard', {
-      method: 'POST',
-      token,
-      body: formData,
-    });
-  },
-
   getMe: (token: string) => {
     return apiFetch<any>('/users/me', {
       method: 'GET',
