@@ -16,12 +16,10 @@
 - [x] ISSUE-011: Refactor `ArticlesClient.tsx` (extract `ArticleGeneratorForm`, `ArticleList`, `ArticleRow`)
 - [x] ISSUE-012: Refactor `ChatInterface.tsx` (extract `MessageItem`, `ChatInput`)
 - [ ] ISSUE-013: Refactor `TemplatesClient.tsx` (extract generator form and list/card components)
-- [ ] ISSUE-014: Refactor `OrganizationClient.tsx` (split into Settings, Brand, and User sections)
 
 ## Phase 3: State Management Optimization [IN-PROGRESS] (GitHub Issue #44)
 - [x] ISSUE-015: Create `useArticlesStore.ts` (centralize article fetching and publishing logic)
 - [ ] ISSUE-016: Enhance `useTemplateStore.ts` (move data fetching and template management actions)
-- [ ] ISSUE-017: Create `useOrgStore.ts` (centralize organization-wide state and configuration)
 
 ## Phase 4: Utilities & Core Logic [COMPLETED] (GitHub Issue #45)
 - [x] ISSUE-018: Create `lib/utils.ts` (add `cn` helper and standard formatters)
