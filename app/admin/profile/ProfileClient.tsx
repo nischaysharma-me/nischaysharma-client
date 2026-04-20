@@ -35,6 +35,7 @@ export default function ProfileClient() {
 
   // Form State
   const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
   const [occupation, setOccupation] = useState('');
   const [bio, setBio] = useState('');
   const [writingStyle, setWritingStyle] = useState('casual');
@@ -82,6 +83,7 @@ export default function ProfileClient() {
         const userData = response.data;
         setUser(userData);
         setDisplayName(userData.displayName || '');
+        setEmail(userData.email || '');
         setOccupation(userData.occupation || '');
         setBio(userData.bio || '');
         setWritingStyle(userData.writingStyle || 'casual');
@@ -249,6 +251,7 @@ export default function ProfileClient() {
 
       const response = await usersService.updateMe({
         displayName,
+        email,
         occupation,
         bio,
         writingStyle,
@@ -474,6 +477,19 @@ export default function ProfileClient() {
                 placeholder="e.g. John Doe"
                 required
               />
+            </div>
+
+            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+              <label className="label">Email Address</label>
+              <Input 
+                type="email" 
+                value={email}
+                disabled
+                placeholder="email@example.com"
+              />
+              <p style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '0.4rem' }}>
+                Primary identity email from authentication provider.
+              </p>
             </div>
 
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
