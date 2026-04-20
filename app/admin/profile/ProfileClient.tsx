@@ -83,7 +83,7 @@ export default function ProfileClient() {
         const userData = response.data;
         setUser(userData);
         setDisplayName(userData.displayName || '');
-        setEmail(userData.email || '');
+        setEmail(userData.email || auth.currentUser?.email || '');
         setOccupation(userData.occupation || '');
         setBio(userData.bio || '');
         setWritingStyle(userData.writingStyle || 'casual');
@@ -251,7 +251,7 @@ export default function ProfileClient() {
 
       const response = await usersService.updateMe({
         displayName,
-        email,
+        email: email || auth.currentUser?.email,
         occupation,
         bio,
         writingStyle,
