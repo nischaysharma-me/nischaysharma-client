@@ -35,9 +35,15 @@ export default function ProfileClient() {
 
   // Form State
   const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(auth.currentUser?.email || '');
   const [occupation, setOccupation] = useState('');
   const [bio, setBio] = useState('');
+  const [vision, setVision] = useState('');
+  const [experience, setExperience] = useState<any[]>([]);
+  const [newExperience, setNewExperience] = useState({ title: '', company: '', startDate: '', endDate: '', description: '' });
+  const [education, setEducation] = useState<any[]>([]);
+  const [newEducation, setNewEducation] = useState({ school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '' });
+  const [syncingProfile, setSyncingProfile] = useState(false);
   const [writingStyle, setWritingStyle] = useState('casual');
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState('');
@@ -75,6 +81,7 @@ export default function ProfileClient() {
 
   const fetchProfile = async () => {
     try {
+      console.log('xvf', auth.currentUser?.email);
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
       
@@ -86,6 +93,9 @@ export default function ProfileClient() {
         setEmail(userData.email || auth.currentUser?.email || '');
         setOccupation(userData.occupation || '');
         setBio(userData.bio || '');
+        setVision(userData.vision || '');
+        setExperience(userData.experience || []);
+        setEducation(userData.education || []);
         setWritingStyle(userData.writingStyle || 'casual');
         setSkills(userData.skills || []);
         setExpertise(userData.expertise || []);
@@ -242,6 +252,62 @@ export default function ProfileClient() {
     }
   };
 
+  const handleSyncLinkedInProfile = async () => {
+    try {
+      setSyncingProfile(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      // First trigger a fresh sync from LinkedIn to Analytics
+      const syncRes = await integrationsService.syncStats('linkedin', token);
+      if (!syncRes.success) throw new Error("LinkedIn sync failed");
+
+      // Then fetch the updated profile with analytics
+      const profileRes = await usersService.getMe(token);
+      if (profileRes.success && profileRes.data.analytics?.linkedin) {
+        const liData = profileRes.data.analytics.linkedin;
+        
+        if (liData.positions) setExperience(liData.positions);
+        if (liData.education) setEducation(liData.education);
+        if (liData.summary) setBio(liData.summary);
+        if (liData.headline) setOccupation(liData.headline);
+        if (liData.verifiedSkills) {
+          // Merge skills, avoiding duplicates
+          const mergedSkills = Array.from(new Set([...skills, ...liData.verifiedSkills]));
+          setSkills(mergedSkills);
+        }
+
+        toast.success('Profile fields updated from LinkedIn. Review and Save Changes.');
+      }
+    } catch (err: any) {
+      toast.error('Failed to sync LinkedIn profile: ' + err.message);
+    } finally {
+      setSyncingProfile(false);
+    }
+  };
+
+  const addExperience = () => {
+    if (newExperience.title && newExperience.company) {
+      setExperience([...experience, { ...newExperience }]);
+      setNewExperience({ title: '', company: '', startDate: '', endDate: '', description: '' });
+    }
+  };
+
+  const removeExperience = (index: number) => {
+    setExperience(experience.filter((_, i) => i !== index));
+  };
+
+  const addEducation = () => {
+    if (newEducation.school && newEducation.degree) {
+      setEducation([...education, { ...newEducation }]);
+      setNewEducation({ school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '' });
+    }
+  };
+
+  const removeEducation = (index: number) => {
+    setEducation(education.filter((_, i) => i !== index));
+  };
+
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -254,11 +320,14 @@ export default function ProfileClient() {
         email: email || auth.currentUser?.email,
         occupation,
         bio,
+        vision,
         writingStyle,
         skills,
         expertise,
         socialLinks,
         projects,
+        experience,
+        education,
         featured
       } as any, token);
 
@@ -514,8 +583,191 @@ export default function ProfileClient() {
               />
             </div>
 
+            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+              <label className="label">The Vision</label>
+              <textarea 
+                className="input"
+                style={{ minHeight: '120px', resize: 'vertical', padding: '1rem' }}
+                value={vision}
+                onChange={(e) => setVision(e.target.value)}
+                placeholder="What is your long-term goal or vision?"
+                maxLength={2000}
+              />
+              <p style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: '0.4rem' }}>
+                Your personal/professional mission statement displayed on the about page.
+              </p>
+            </div>
+
             <div className="form-divider" style={{ borderTop: '1px solid var(--color-border)', margin: '2rem 0' }}></div>
-            
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 className="label" style={{ margin: 0, fontSize: '0.875rem' }}>Professional Experience</h3>
+              {integrations.linkedin?.connected && (
+                <Button 
+                  variant="ghost" 
+                  style={{ fontSize: '0.7rem' }} 
+                  onClick={handleSyncLinkedInProfile}
+                  loading={syncingProfile}
+                >
+                  <i className="ph ph-linkedin-logo" style={{ marginRight: '0.4rem' }} />
+                  Sync from LinkedIn
+                </Button>
+              )}
+            </div>
+
+            <div className="form-group" style={{ marginBottom: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', padding: '1.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <Input 
+                    value={newExperience.title}
+                    onChange={(e) => setNewExperience({...newExperience, title: e.target.value})}
+                    placeholder="Job Title (e.g. Senior Developer)"
+                  />
+                </div>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <Input 
+                    value={newExperience.company}
+                    onChange={(e) => setNewExperience({...newExperience, company: e.target.value})}
+                    placeholder="Company Name"
+                  />
+                </div>
+                <Input 
+                  value={newExperience.startDate}
+                  onChange={(e) => setNewExperience({...newExperience, startDate: e.target.value})}
+                  placeholder="Start Date (e.g. Jan 2020)"
+                />
+                <Input 
+                  value={newExperience.endDate}
+                  onChange={(e) => setNewExperience({...newExperience, endDate: e.target.value})}
+                  placeholder="End Date (e.g. Present)"
+                />
+                <div style={{ gridColumn: 'span 2' }}>
+                  <textarea 
+                    className="input"
+                    style={{ minHeight: '80px', padding: '0.75rem', resize: 'vertical' }}
+                    value={newExperience.description}
+                    onChange={(e) => setNewExperience({...newExperience, description: e.target.value})}
+                    placeholder="Briefly describe your role and impact..."
+                  />
+                </div>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <Button 
+                    type="button" 
+                    variant="secondary" 
+                    className="btn--full"
+                    onClick={addExperience}
+                    disabled={!newExperience.title || !newExperience.company}
+                  >
+                    <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} />
+                    <span>Add Experience</span>
+                  </Button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {experience.map((exp, index) => (
+                  <div key={index} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'flex-start',
+                    padding: '1rem',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: '0.5rem',
+                    background: 'var(--color-bg-primary)'
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700 }}>{exp.title} @ {exp.company}</h4>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>{exp.startDate} — {exp.endDate}</p>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>{exp.description}</p>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => removeExperience(index)}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-error)', cursor: 'pointer', padding: '0.2rem' }}
+                    >
+                      <i className="ph ph-trash" style={{ fontSize: '1rem' }} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-divider" style={{ borderTop: '1px solid var(--color-border)', margin: '2rem 0' }}></div>
+
+            <h3 className="label" style={{ marginBottom: '1.5rem', fontSize: '0.875rem' }}>Academic Background</h3>
+
+            <div className="form-group" style={{ marginBottom: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', padding: '1.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <Input 
+                    value={newEducation.school}
+                    onChange={(e) => setNewEducation({...newEducation, school: e.target.value})}
+                    placeholder="Institution Name"
+                  />
+                </div>
+                <Input 
+                  value={newEducation.degree}
+                  onChange={(e) => setNewEducation({...newEducation, degree: e.target.value})}
+                  placeholder="Degree (e.g. Bachelor's)"
+                />
+                <Input 
+                  value={newEducation.fieldOfStudy}
+                  onChange={(e) => setNewEducation({...newEducation, fieldOfStudy: e.target.value})}
+                  placeholder="Field of Study"
+                />
+                <Input 
+                  value={newEducation.startDate}
+                  onChange={(e) => setNewEducation({...newEducation, startDate: e.target.value})}
+                  placeholder="Start Year"
+                />
+                <Input 
+                  value={newEducation.endDate}
+                  onChange={(e) => setNewEducation({...newEducation, endDate: e.target.value})}
+                  placeholder="End Year (or Expected)"
+                />
+                <div style={{ gridColumn: 'span 2' }}>
+                  <Button 
+                    type="button" 
+                    variant="secondary" 
+                    className="btn--full"
+                    onClick={addEducation}
+                    disabled={!newEducation.school}
+                  >
+                    <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} />
+                    <span>Add Education</span>
+                  </Button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {education.map((edu, index) => (
+                  <div key={index} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'flex-start',
+                    padding: '1rem',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: '0.5rem',
+                    background: 'var(--color-bg-primary)'
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700 }}>{edu.degree} in {edu.fieldOfStudy}</h4>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', margin: '0.2rem 0' }}>{edu.school}</p>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', margin: 0 }}>{edu.startDate} — {edu.endDate}</p>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={() => removeEducation(index)}
+                      style={{ background: 'none', border: 'none', color: 'var(--color-error)', cursor: 'pointer', padding: '0.2rem' }}
+                    >
+                      <i className="ph ph-trash" style={{ fontSize: '1rem' }} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-divider" style={{ borderTop: '1px solid var(--color-border)', margin: '2rem 0' }}></div>            
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 className="label" style={{ margin: 0, fontSize: '0.875rem' }}>Featured Content</h3>
               <Button 
