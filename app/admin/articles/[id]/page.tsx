@@ -180,7 +180,9 @@ export default function ArticleEditPage() {
       const response = await articlesService.regenerateBackgroundImage(id, {}, token);
 
       if (response.success) {
-        setRegenerationJobId(response.data.jobId);
+        if (response.data) {
+          setRegenerationJobId(response.data.jobId);
+        }
         toast.info('Background image generation started. This may take a few moments.');
         // The new background image URL will be automatically updated when the job completes
       }
