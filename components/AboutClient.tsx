@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import ActivityHeatmap, { ActivityDay } from '@/components/ui/ActivityHeatmap';
 
 interface GitHubStats {
@@ -78,6 +78,22 @@ export default function AboutClient({ profile }: AboutClientProps) {
   const skills = profile?.skills || [];
   const expertise = profile?.expertise || [];
   const projects = profile?.projects || [];
+
+  // Animation effect for career items
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    const careerItems = document.querySelectorAll('.career-item');
+    careerItems.forEach(item => observer.observe(item));
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="about-wrapper">
@@ -282,31 +298,40 @@ export default function AboutClient({ profile }: AboutClientProps) {
         :root {
           --about-bg: #0a0a0a;
           --about-text: #ffffff;
-          --about-muted: #888888;
-          --about-border: #222222;
-          --about-accent: #ffffff;
+          --about-muted: #a0a0a0;
+          --about-border: #2a2a2a;
+          --about-accent: #64ffda;
+          --about-accent-dark: #4db6ac;
+          --about-card-bg: #121212;
+          --about-hover-bg: #1a1a1a;
         }
 
         .about-wrapper {
           background: var(--about-bg);
           color: var(--about-text);
           min-height: 100vh;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .section-label {
-          font-size: 0.75rem;
+          font-size: 0.8rem;
           text-transform: uppercase;
           letter-spacing: 0.3em;
           color: var(--about-muted);
           margin-bottom: 2rem;
           display: block;
+          font-weight: 600;
         }
 
         .section-title {
-          font-size: clamp(2rem, 5vw, 3.5rem);
+          font-size: clamp(2.5rem, 6vw, 4rem);
           font-weight: 800;
-          letter-spacing: -0.02em;
+          letter-spacing: -0.03em;
           margin-bottom: 4rem;
+          background: linear-gradient(to right, #fff, #ccc);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
 
         /* --- Hero --- */
@@ -322,24 +347,30 @@ export default function AboutClient({ profile }: AboutClientProps) {
           margin-bottom: 6rem;
         }
         .about-hero__eyebrow {
-          font-size: 0.75rem;
+          font-size: 0.8rem;
           text-transform: uppercase;
           letter-spacing: 0.4em;
-          color: var(--about-muted);
+          color: var(--about-accent);
           margin-bottom: 1.5rem;
           display: block;
+          font-weight: 600;
         }
         .about-hero__title {
-          font-size: clamp(3rem, 10vw, 8rem);
+          font-size: clamp(3.5rem, 10vw, 8rem);
           font-weight: 900;
           line-height: 0.9;
           letter-spacing: -0.04em;
           margin-bottom: 1rem;
+          background: linear-gradient(45deg, #ffffff, #a0a0a0);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
         .about-hero__occupation {
-          font-size: 1.5rem;
-          opacity: 0.4;
+          font-size: 1.75rem;
+          opacity: 0.6;
           font-weight: 300;
+          letter-spacing: -0.02em;
         }
         .about-hero__grid {
           display: grid;
@@ -348,11 +379,12 @@ export default function AboutClient({ profile }: AboutClientProps) {
           align-items: start;
         }
         .about-hero__bio-text {
-          font-size: 1.75rem;
-          line-height: 1.4;
+          font-size: 1.8rem;
+          line-height: 1.5;
           font-weight: 400;
           margin-bottom: 4rem;
-          color: #ddd;
+          color: #e0e0e0;
+          letter-spacing: -0.01em;
         }
         .about-github-stats {
           display: flex;
@@ -360,35 +392,43 @@ export default function AboutClient({ profile }: AboutClientProps) {
         }
         .stat-num {
           display: block;
-          font-size: 2.5rem;
+          font-size: 2.75rem;
           font-weight: 800;
           margin-bottom: 0.5rem;
+          color: var(--about-accent);
         }
         .stat-label {
-          font-size: 0.7rem;
+          font-size: 0.75rem;
           text-transform: uppercase;
           letter-spacing: 0.2em;
           color: var(--about-muted);
+          font-weight: 500;
         }
 
         .stack-title {
-          font-size: 0.7rem;
+          font-size: 0.75rem;
           text-transform: uppercase;
           letter-spacing: 0.2em;
           color: var(--about-muted);
           margin-bottom: 2rem;
+          font-weight: 600;
         }
         .stack-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 1rem;
+          gap: 1.25rem;
           margin-bottom: 4rem;
         }
         .stack-item {
           font-size: 1.1rem;
           font-weight: 600;
-          padding: 1rem;
+          padding: 1.25rem;
           border-bottom: 1px solid var(--about-border);
+          transition: all 0.3s ease;
+        }
+        .stack-item:hover {
+          border-bottom-color: var(--about-accent);
+          padding-left: 1.5rem;
         }
 
         .contact-minimal {
@@ -397,21 +437,41 @@ export default function AboutClient({ profile }: AboutClientProps) {
         }
         .contact-label {
           display: block;
-          font-size: 0.7rem;
+          font-size: 0.75rem;
           color: var(--about-muted);
           margin-bottom: 0.5rem;
           text-transform: uppercase;
+          font-weight: 600;
         }
         .contact-link {
-          font-size: 1.2rem;
+          font-size: 1.25rem;
           text-decoration: none;
           color: var(--about-text);
           font-weight: 700;
+          position: relative;
+          display: inline-block;
+          transition: color 0.3s ease;
+        }
+        .contact-link:after {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 1px;
+          bottom: -2px;
+          left: 0;
+          background-color: var(--about-accent);
+          transition: width 0.3s ease;
+        }
+        .contact-link:hover {
+          color: var(--about-accent);
+        }
+        .contact-link:hover:after {
+          width: 100%;
         }
 
         /* --- Activity --- */
         .about-activity {
-          padding: 4rem 0;
+          padding: 6rem 0;
           background: #000;
         }
         .about-activity__container {
@@ -432,15 +492,16 @@ export default function AboutClient({ profile }: AboutClientProps) {
           text-align: center;
         }
         .vision-text {
-          font-size: clamp(1.5rem, 4vw, 3rem);
+          font-size: clamp(1.75rem, 4vw, 3.25rem);
           font-weight: 500;
-          line-height: 1.3;
+          line-height: 1.35;
           color: #fff;
+          letter-spacing: -0.02em;
         }
 
         /* --- Projects --- */
         .about-projects {
-          padding: 10rem 0;
+          padding: 12rem 0;
         }
         .about-projects__container {
           max-width: 1400px;
@@ -455,8 +516,15 @@ export default function AboutClient({ profile }: AboutClientProps) {
         .project-node {
           position: relative;
           aspect-ratio: 16/10;
-          background: #111;
+          background: var(--about-card-bg);
           overflow: hidden;
+          border-radius: 8px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .project-node:hover {
+          transform: translateY(-10px);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
         .project-node__image-wrapper {
           width: 100%;
@@ -467,12 +535,12 @@ export default function AboutClient({ profile }: AboutClientProps) {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          opacity: 0.6;
+          opacity: 0.7;
           transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .project-node:hover .project-node__img {
           transform: scale(1.05);
-          opacity: 0.3;
+          opacity: 0.4;
         }
         .project-node__overlay {
           position: absolute;
@@ -481,15 +549,16 @@ export default function AboutClient({ profile }: AboutClientProps) {
           display: flex;
           flex-direction: column;
           justify-content: flex-end;
-          background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+          background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);
         }
         .project-node__title {
-          font-size: 2rem;
+          font-size: 2.25rem;
           font-weight: 800;
           margin-bottom: 1rem;
+          letter-spacing: -0.03em;
         }
         .project-node__desc {
-          font-size: 1rem;
+          font-size: 1.1rem;
           color: #ccc;
           line-height: 1.6;
           max-width: 400px;
@@ -504,18 +573,24 @@ export default function AboutClient({ profile }: AboutClientProps) {
         }
         .project-node__link {
           text-decoration: none;
-          color: #fff;
+          color: var(--about-accent);
           font-weight: 800;
-          font-size: 0.75rem;
+          font-size: 0.8rem;
           letter-spacing: 0.2em;
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          text-transform: uppercase;
+          transition: all 0.3s ease;
+          width: fit-content;
+        }
+        .project-node__link:hover {
+          letter-spacing: 0.25em;
         }
 
         /* --- Career Timeline --- */
         .about-career {
-          padding: 10rem 0;
+          padding: 12rem 0;
           background: #0f0f0f;
         }
         .about-career__container {
@@ -531,22 +606,32 @@ export default function AboutClient({ profile }: AboutClientProps) {
         .career-item {
           display: flex;
           gap: 3rem;
+          opacity: 0;
+          transform: translateY(30px);
+          transition: all 0.6s ease;
+        }
+        .career-item.visible {
+          opacity: 1;
+          transform: translateY(0);
         }
         .career-item__logo {
           width: 64px;
           height: 64px;
           flex-shrink: 0;
-          background: #222;
+          background: var(--about-card-bg);
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 900;
           font-size: 1.5rem;
+          border-radius: 8px;
+          transition: all 0.3s ease;
         }
         .career-item__logo img {
           width: 100%;
           height: 100%;
           object-fit: contain;
+          padding: 12px;
         }
         .career-item__header {
           display: flex;
@@ -555,28 +640,30 @@ export default function AboutClient({ profile }: AboutClientProps) {
           margin-bottom: 1rem;
         }
         .career-item__title {
-          font-size: 1.5rem;
+          font-size: 1.75rem;
           font-weight: 700;
+          letter-spacing: -0.02em;
         }
         .career-item__date {
-          font-size: 0.8rem;
+          font-size: 0.85rem;
           color: var(--about-muted);
+          font-weight: 500;
         }
         .career-item__company {
-          font-size: 1.1rem;
+          font-size: 1.2rem;
           font-weight: 500;
           color: #aaa;
           margin-bottom: 1.5rem;
         }
         .career-item__description {
-          font-size: 1rem;
+          font-size: 1.05rem;
           line-height: 1.7;
-          color: #888;
+          color: #999;
         }
 
         /* --- Academic --- */
         .about-academic {
-          padding: 10rem 0;
+          padding: 12rem 0;
         }
         .about-academic__container {
           max-width: 1400px;
@@ -586,14 +673,21 @@ export default function AboutClient({ profile }: AboutClientProps) {
         .academic-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-          gap: 2rem;
+          gap: 2.5rem;
         }
         .academic-card {
           display: flex;
           gap: 2rem;
           padding: 3rem;
-          background: #111;
+          background: var(--about-card-bg);
           border: 1px solid var(--about-border);
+          border-radius: 8px;
+          transition: all 0.3s ease;
+        }
+        .academic-card:hover {
+          border-color: var(--about-accent);
+          transform: translateY(-5px);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
         .academic-card__logo {
           width: 48px;
@@ -604,33 +698,56 @@ export default function AboutClient({ profile }: AboutClientProps) {
           align-items: center;
           justify-content: center;
           font-weight: 800;
+          border-radius: 4px;
         }
         .academic-card__logo img { width: 100%; height: 100%; object-fit: contain; }
-        .academic-card__school { font-size: 1.25rem; margin-bottom: 0.5rem; }
-        .academic-card__degree { color: var(--about-muted); margin-bottom: 1rem; }
-        .academic-card__date { font-size: 0.75rem; opacity: 0.4; }
+        .academic-card__school { 
+          font-size: 1.3rem; 
+          margin-bottom: 0.5rem;
+          font-weight: 700;
+        }
+        .academic-card__degree { 
+          color: var(--about-muted); 
+          margin-bottom: 1rem;
+          font-size: 1.1rem;
+        }
+        .academic-card__date { 
+          font-size: 0.8rem; 
+          opacity: 0.6;
+          font-weight: 500;
+        }
 
         /* --- Skills --- */
         .about-skills {
-          padding: 5rem 0 10rem;
+          padding: 8rem 0 12rem;
         }
         .skills-track {
           display: flex;
           flex-wrap: wrap;
-          gap: 1rem;
+          gap: 1.25rem;
           justify-content: center;
         }
         .skill-chip {
-          padding: 1rem 2rem;
+          padding: 1.25rem 2.5rem;
           border: 1px solid var(--about-border);
-          font-size: 0.8rem;
+          font-size: 0.85rem;
           font-weight: 700;
           letter-spacing: 0.1em;
+          text-transform: uppercase;
+          border-radius: 30px;
+          transition: all 0.3s ease;
+          background: var(--about-card-bg);
+        }
+        .skill-chip:hover {
+          border-color: var(--about-accent);
+          background: var(--about-hover-bg);
+          transform: translateY(-3px);
+          box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         /* --- Footer --- */
         .about-footer {
-          padding: 6rem 0;
+          padding: 8rem 0;
           border-top: 1px solid var(--about-border);
         }
         .about-footer__container {
@@ -646,30 +763,100 @@ export default function AboutClient({ profile }: AboutClientProps) {
           flex-direction: column;
           gap: 0.5rem;
         }
-        .copyright { font-weight: 800; font-size: 0.8rem; }
-        .tagline { font-size: 0.8rem; color: var(--about-muted); }
+        .copyright { 
+          font-weight: 800; 
+          font-size: 0.85rem;
+          letter-spacing: 0.05em;
+        }
+        .tagline { 
+          font-size: 0.85rem; 
+          color: var(--about-muted);
+          font-weight: 500;
+        }
         .about-footer__right {
           display: flex;
-          gap: 2rem;
+          gap: 2.5rem;
         }
         .about-footer__right a {
           text-decoration: none;
           color: var(--about-text);
           font-weight: 800;
-          font-size: 0.75rem;
+          font-size: 0.8rem;
           letter-spacing: 0.1em;
+          text-transform: uppercase;
+          position: relative;
+          padding: 0.5rem 0;
+          transition: color 0.3s ease;
+        }
+        .about-footer__right a:after {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 1px;
+          bottom: 0;
+          left: 0;
+          background-color: var(--about-accent);
+          transition: width 0.3s ease;
+        }
+        .about-footer__right a:hover {
+          color: var(--about-accent);
+        }
+        .about-footer__right a:hover:after {
+          width: 100%;
         }
 
         @media (max-width: 1024px) {
           .about-hero__grid { grid-template-columns: 1fr; gap: 4rem; }
           .projects-wall { grid-template-columns: 1fr; }
           .about-hero__container, .about-projects__container, .about-academic__container, .about-footer__container { padding: 0 2rem; }
+          .about-hero { padding: 8rem 0 4rem; }
+          .about-hero__header { margin-bottom: 4rem; }
+          .about-hero__title { font-size: clamp(3rem, 8vw, 6rem); }
+          .about-hero__bio-text { font-size: 1.5rem; }
+          .about-projects, .about-career, .about-academic, .about-skills { padding: 8rem 0; }
         }
         
         @media (max-width: 768px) {
           .career-item { flex-direction: column; gap: 1.5rem; }
           .career-item__header { flex-direction: column; gap: 0.5rem; }
           .academic-grid { grid-template-columns: 1fr; }
+          .stack-grid { grid-template-columns: 1fr; }
+          .about-github-stats { gap: 2rem; }
+          .stat-num { font-size: 2rem; }
+          .about-footer__container { 
+            flex-direction: column; 
+            gap: 2rem;
+            text-align: center;
+          }
+          .about-footer__right {
+            justify-content: center;
+          }
+          .vision-text { font-size: clamp(1.5rem, 4vw, 2.5rem); }
+        }
+        
+        @media (max-width: 480px) {
+          .about-hero__container, .about-projects__container, .about-academic__container, .about-footer__container, .about-activity__container {
+            padding: 0 1.5rem;
+          }
+          .about-hero { padding: 6rem 0 3rem; }
+          .about-hero__title { font-size: clamp(2.5rem, 10vw, 4rem); }
+          .about-hero__occupation { font-size: 1.3rem; }
+          .about-hero__bio-text { font-size: 1.2rem; }
+          .about-github-stats { gap: 1.5rem; }
+          .stat-num { font-size: 1.75rem; }
+          .section-title { font-size: clamp(2rem, 6vw, 3rem); }
+          .project-node__title { font-size: 1.75rem; }
+          .project-node__desc { font-size: 1rem; }
+          .career-item__title { font-size: 1.4rem; }
+          .career-item__company { font-size: 1rem; }
+          .career-item__description { font-size: 0.95rem; }
+          .academic-card { padding: 2rem; }
+          .academic-card__school { font-size: 1.1rem; }
+          .academic-card__degree { font-size: 1rem; }
+          .skill-chip { 
+            padding: 1rem 1.5rem;
+            font-size: 0.7rem;
+          }
         }
       `}</style>
     </div>

@@ -439,7 +439,7 @@ export default function ProfileClient() {
           className="profile-admin__cover"
           style={{ 
             height: '240px', 
-            background: user?.coverURL ? `url(${user.coverURL}) center/cover` : '#eee',
+            background: user?.coverURL ? `url(${user.coverURL}) center/cover` : 'var(--color-bg-tertiary)',
             position: 'relative'
           }}
         >
@@ -458,13 +458,13 @@ export default function ProfileClient() {
               style={{
                 width: '120px', height: '120px', 
                 borderRadius: '50%', 
-                background: user?.photoURL ? `url(${user.photoURL}) center/cover` : '#ccc',
+                background: user?.photoURL ? `url(${user.photoURL}) center/cover` : 'var(--color-bg-tertiary)',
                 border: '4px solid var(--color-bg-primary)',
                 position: 'relative',
                 display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}
             >
-              {!user?.photoURL && <span style={{ fontSize: '3rem', color: '#fff', fontWeight: 800 }}>{displayName[0] || 'U'}</span>}
+              {!user?.photoURL && <span style={{ fontSize: '3rem', color: 'var(--color-text-primary)', fontWeight: 800 }}>{displayName[0] || 'U'}</span>}
               <button 
                 className="profile-admin__photo-btn"
                 onClick={() => photoInputRef.current?.click()}
@@ -476,7 +476,7 @@ export default function ProfileClient() {
             </div>
           </div>
           <div style={{ paddingTop: '1rem', flex: 1 }}>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>{displayName || 'Anonymous'}</h3>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: 'var(--color-text-primary)' }}>{displayName || 'Anonymous'}</h3>
             <p style={{ color: 'var(--color-text-secondary)', marginTop: '0.25rem' }}>{user?.email} • {user?.role}</p>
           </div>
         </div>
@@ -506,7 +506,7 @@ export default function ProfileClient() {
               <label className="label">Biography</label>
               <textarea 
                 className="input"
-                style={{ minHeight: '120px', resize: 'vertical', padding: '1rem' }}
+                style={{ minHeight: '120px', resize: 'vertical', padding: '1rem', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 placeholder="Tell us about yourself..."
@@ -518,7 +518,7 @@ export default function ProfileClient() {
               <label className="label">The Vision</label>
               <textarea 
                 className="input"
-                style={{ minHeight: '120px', resize: 'vertical', padding: '1rem' }}
+                style={{ minHeight: '120px', resize: 'vertical', padding: '1rem', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }}
                 value={vision}
                 onChange={(e) => setVision(e.target.value)}
                 placeholder="What is your long-term goal or vision?"
@@ -547,18 +547,18 @@ export default function ProfileClient() {
                    {newExperience.logo && <img src={newExperience.logo} style={{ height: '40px' }} alt="Logo" />}
                 </div>
                 <div style={{ gridColumn: 'span 2' }}>
-                  <textarea className="input" style={{ minHeight: '80px', padding: '0.75rem' }} value={newExperience.description} onChange={e => setNewExperience({...newExperience, description: e.target.value})} placeholder="Description" />
+                  <textarea className="input" style={{ minHeight: '80px', padding: '0.75rem', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }} value={newExperience.description} onChange={e => setNewExperience({...newExperience, description: e.target.value})} placeholder="Description" />
                 </div>
                 <Button type="button" variant="secondary" className="btn--full" onClick={addExperience} disabled={!newExperience.title || !newExperience.company}>Add Experience</Button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {experience.map((exp, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem' }}>
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem', background: 'var(--color-bg-primary)' }}>
                     <div style={{ display: 'flex', gap: '1rem' }}>
                        {exp.logo && <img src={exp.logo} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}
                        <div>
-                         <h4 style={{ margin: 0 }}>{exp.title} @ {exp.company}</h4>
-                         <p style={{ fontSize: '0.75rem', opacity: 0.6 }}>{exp.startDate} - {exp.endDate}</p>
+                         <h4 style={{ margin: 0, color: 'var(--color-text-primary)' }}>{exp.title} @ {exp.company}</h4>
+                         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{exp.startDate} - {exp.endDate}</p>
                        </div>
                     </div>
                     <button type="button" onClick={() => removeExperience(i)} style={{ background: 'none', border: 'none', color: 'var(--color-error)' }}><i className="ph ph-trash" /></button>
@@ -587,10 +587,10 @@ export default function ProfileClient() {
                 <Button type="button" variant="secondary" className="btn--full" onClick={addEducation} disabled={!newEducation.school}>Add Education</Button>
               </div>
               {education.map((edu, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem', marginBottom: '0.5rem' }}>
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem', marginBottom: '0.5rem', background: 'var(--color-bg-primary)' }}>
                   <div style={{ display: 'flex', gap: '1rem' }}>
                      {edu.logo && <img src={edu.logo} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}
-                     <div><h4 style={{ margin: 0 }}>{edu.school}</h4><p style={{ fontSize: '0.75rem' }}>{edu.degree} in {edu.fieldOfStudy}</p></div>
+                     <div><h4 style={{ margin: 0, color: 'var(--color-text-primary)' }}>{edu.school}</h4><p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{edu.degree} in {edu.fieldOfStudy}</p></div>
                   </div>
                   <button type="button" onClick={() => removeEducation(i)} style={{ background: 'none', border: 'none', color: 'var(--color-error)' }}><i className="ph ph-trash" /></button>
                 </div>
@@ -604,7 +604,7 @@ export default function ProfileClient() {
               <input type="file" ref={projectInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('project', e.target.files[0])} />
               <div style={{ display: 'grid', gap: '1rem', padding: '1.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.5rem', marginBottom: '1rem' }}>
                 <Input value={newProject.title} onChange={e => setNewProject({...newProject, title: e.target.value})} placeholder="Title" />
-                <textarea className="input" style={{ minHeight: '80px', padding: '0.75rem' }} value={newProject.description} onChange={e => setNewProject({...newProject, description: e.target.value})} placeholder="Description" />
+                <textarea className="input" style={{ minHeight: '80px', padding: '0.75rem', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }} value={newProject.description} onChange={e => setNewProject({...newProject, description: e.target.value})} placeholder="Description" />
                 <Input value={newProject.link} onChange={e => setNewProject({...newProject, link: e.target.value})} placeholder="Link" />
                 <Button type="button" variant="ghost" onClick={() => projectInputRef.current?.click()} loading={isUploadingNested === 'project'}>
                   {newProject.image ? 'Image Uploaded' : 'Upload Project Image'}
@@ -631,16 +631,16 @@ export default function ProfileClient() {
                <div style={{ flex: 1, minWidth: '300px' }}>
                   <label className="label">Technical Skills</label>
                   <Input value={skillInput} onChange={e => setSkillInput(e.target.value)} onKeyDown={e => handleAddTag(e, 'skills')} placeholder="Press Enter" />
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
-                     {skills.map(s => <span key={s} className="badge badge--draft">{s} <i className="ph ph-x" onClick={() => removeTag(s, 'skills')} /></span>)}
-                  </div>
+                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+                      {skills.map(s => <span key={s} className="badge badge--draft" style={{ color: 'var(--color-text-primary)' }}>{s} <i className="ph ph-x" onClick={() => removeTag(s, 'skills')} /></span>)}
+                   </div>
                </div>
                <div style={{ flex: 1, minWidth: '300px' }}>
                   <label className="label">Expertise</label>
                   <Input value={expertiseInput} onChange={e => setExpertiseInput(e.target.value)} onKeyDown={e => handleAddTag(e, 'expertise')} placeholder="Press Enter" />
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
-                     {expertise.map(e => <span key={e} className="badge badge--published">{e} <i className="ph ph-x" onClick={() => removeTag(e, 'expertise')} /></span>)}
-                  </div>
+                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+                      {expertise.map(e => <span key={e} className="badge badge--published" style={{ color: 'var(--color-text-primary)' }}>{e} <i className="ph ph-x" onClick={() => removeTag(e, 'expertise')} /></span>)}
+                   </div>
                </div>
             </div>
 
@@ -654,7 +654,7 @@ export default function ProfileClient() {
               <Button variant="secondary" className="btn--full" onClick={() => { setShowFeaturedModal(true); fetchAvailableItems(); }}>Manage Featured Content</Button>
               <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                  {featured.map(item => (
-                   <div key={item.id} style={{ fontSize: '0.75rem', padding: '0.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.4rem', display: 'flex', justifyContent: 'space-between' }}>
+                   <div key={item.id} style={{ fontSize: '0.75rem', padding: '0.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.4rem', display: 'flex', justifyContent: 'space-between', color: 'var(--color-text-primary)' }}>
                       <span>{item.title}</span>
                       <i className="ph ph-trash" style={{ cursor: 'pointer', color: 'var(--color-error)' }} onClick={() => toggleFeaturedItem(item)} />
                    </div>
@@ -667,7 +667,7 @@ export default function ProfileClient() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                  {['github', 'linkedin'].map((p: any) => (
                    <div key={p} style={{ padding: '1rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ textTransform: 'capitalize', fontWeight: 700 }}>{p}</span>
+                      <span style={{ textTransform: 'capitalize', fontWeight: 700, color: 'var(--color-text-primary)' }}>{p}</span>
                       <Button variant="ghost" style={{ fontSize: '0.7rem' }} onClick={() => (integrations as any)[p]?.connected ? handleDisconnect(p) : handleConnect(p)}>
                          {(integrations as any)[p]?.connected ? 'Disconnect' : 'Connect'}
                       </Button>
@@ -681,8 +681,8 @@ export default function ProfileClient() {
       <AnimatePresence>
         {configModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="card card--padded" style={{ width: '400px', background: '#fff' }}>
-               <h3 className="label">Configure {configModal}</h3>
+            <div className="card card--padded" style={{ width: '400px', background: 'var(--color-bg-secondary)' }}>
+               <h3 className="label" style={{ color: 'var(--color-text-primary)' }}>Configure {configModal}</h3>
                <Input value={tempConfig.clientId} onChange={e => setTempConfig({...tempConfig, clientId: e.target.value})} placeholder="Client ID" style={{ marginBottom: '1rem' }} />
                <Input type="password" value={tempConfig.clientSecret} onChange={e => setTempConfig({...tempConfig, clientSecret: e.target.value})} placeholder="Client Secret" />
                <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
@@ -695,19 +695,19 @@ export default function ProfileClient() {
 
         {showFeaturedModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-             <div className="card card--padded" style={{ width: '500px', background: '#fff', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+             <div className="card card--padded" style={{ width: '500px', background: 'var(--color-bg-secondary)', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                   <h3 className="label">Featured Content</h3>
-                   <i className="ph ph-x" style={{ cursor: 'pointer' }} onClick={() => setShowFeaturedModal(false)} />
+                   <h3 className="label" style={{ color: 'var(--color-text-primary)' }}>Featured Content</h3>
+                   <i className="ph ph-x" style={{ cursor: 'pointer', color: 'var(--color-text-secondary)' }} onClick={() => setShowFeaturedModal(false)} />
                 </div>
                 <Input placeholder="Search..." value={featuredSearch} onChange={e => setFeaturedSearch(e.target.value)} style={{ marginBottom: '1.5rem' }} />
                 <div style={{ flex: 1, overflowY: 'auto', marginBottom: '1.5rem' }}>
                    {availableItems.filter(i => i.title.toLowerCase().includes(featuredSearch.toLowerCase())).map(item => {
                       const isF = featured.some(f => f.id === item.id);
                       return (
-                        <div key={item.id} onClick={() => toggleFeaturedItem(item)} style={{ padding: '0.75rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem', marginBottom: '0.5rem', cursor: 'pointer', background: isF ? 'var(--color-bg-tertiary)' : 'transparent' }}>
-                           <div style={{ fontWeight: 600 }}>{item.title}</div>
-                           <div style={{ fontSize: '0.65rem', opacity: 0.5 }}>{item.type.toUpperCase()}</div>
+                        <div key={item.id} onClick={() => toggleFeaturedItem(item)} style={{ padding: '0.75rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem', marginBottom: '0.5rem', cursor: 'pointer', background: isF ? 'var(--color-bg-tertiary)' : 'var(--color-bg-primary)' }}>
+                           <div style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{item.title}</div>
+                           <div style={{ fontSize: '0.65rem', color: 'var(--color-text-secondary)' }}>{item.type.toUpperCase()}</div>
                         </div>
                       );
                    })}
@@ -724,7 +724,7 @@ export default function ProfileClient() {
           background: var(--color-text-primary); color: var(--color-bg-primary); border: 3px solid var(--color-bg-primary);
           display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        .logo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #333; color: #fff; }
+        .logo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--color-bg-tertiary); color: var(--color-text-primary); }
       `}</style>
     </div>
   );

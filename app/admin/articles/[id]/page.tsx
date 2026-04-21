@@ -25,6 +25,8 @@ export default function ArticleEditPage() {
   const [publishing, setPublishing] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [generatingPost, setGeneratingPost] = useState(false);
+  const [isRegeneratingBackground, setIsRegeneratingBackground] = useState(false);
+  const [regenerationJobId, setRegenerationJobId] = useState<string | null>(null);
   const [integrations, setIntegrations] = useState<IntegrationsList>({});
   const [error, setError] = useState('');
   const [content, setContent] = useState('');
@@ -169,6 +171,27 @@ export default function ArticleEditPage() {
     }
   };
 
+  const handleRegenerateBackgroundImage = async () => {
+    try {
+      setIsRegeneratingBackground(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error('No authentication token');
+
+      const response = await articlesService.regenerateBackgroundImage(id, {}, token);
+
+      if (response.success) {
+        setRegenerationJobId(response.data.jobId);
+        toast.info('Background image generation started. This may take a few moments.');
+        // The new background image URL will be automatically updated when the job completes
+      }
+    } catch (error: any) {
+      toast.error('Failed to start background image generation: ' + error.message);
+      console.error('Background image generation error:', error);
+    } finally {
+      setIsRegeneratingBackground(false);
+    }
+  };
+
   if (loading) return <ArticlesLoading />;
   if (!article) return <div className="error">Article not found</div>;
 
@@ -289,11 +312,35 @@ export default function ArticleEditPage() {
             
             <div className="organization__form-group">
               <label className="label">Background Image URL</label>
-              <Input 
-                value={backgroundImage} 
-                onChange={(e) => setBackgroundImage(e.target.value)}
-                placeholder="https://..."
-              />
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <Input 
+                  value={backgroundImage} 
+                  onChange={(e) => setBackgroundImage(e.target.value)}
+                  placeholder="https://..."
+                  style={{ flex: 1 }}
+                />
+                <button 
+                  onClick={handleRegenerateBackgroundImage} 
+                  disabled={isRegeneratingBackground}
+                  style={{ 
+                    background: 'none', 
+                    border: '1px solid var(--color-border)', 
+                    borderRadius: 'var(--border-radius)',
+                    color: 'var(--color-text-primary)', 
+                    fontSize: '0.8rem', 
+                    fontWeight: 600, 
+                    cursor: 'pointer', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '0.3rem',
+                    padding: '0 0.75rem',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {isRegeneratingBackground ? <i className="ph ph-spinner animate-spin" /> : <i className="ph ph-sparkle" />}
+                  <span>Generate</span>
+                </button>
+              </div>
               {backgroundImage && (
                 <div className="article-edit__sidebar-image">
                   <Image src={backgroundImage} alt="Preview" fill />
