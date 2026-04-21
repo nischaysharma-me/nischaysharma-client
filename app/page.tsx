@@ -1,6 +1,6 @@
 import React from 'react';
 import HomeClient from '@/components/HomeClient';
-import { getTopArticlesAction } from '@/lib/actions/articles';
+import { getHomeDataAction } from '@/lib/actions/users';
 import { Metadata } from 'next';
 
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 
 // This is a Server Component
 export default async function Home() {
-  const response = await getTopArticlesAction(10);
-  const articles = ('data' in response && response.success) ? response.data : [];
+  const response = await getHomeDataAction();
+  const data = ('data' in response && response.success) ? response.data : { profile: null, featured: [] };
 
-  return <HomeClient articles={articles} />;
+  return <HomeClient profile={data.profile} featured={data.featured} />;
 }

@@ -1,13 +1,20 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Article } from '@/lib/types/article';
+import AboutClient from '@/components/AboutClient';
 
-const ArticleSection = ({ 
-  article, 
+interface FeaturedItem {
+  id: string;
+  type: 'article' | 'book';
+  title: string;
+  data: any;
+}
+
+const FeaturedSection = ({ 
+  item, 
   index 
 }: { 
-  article: Article, 
+  item: FeaturedItem, 
   index: number 
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -31,16 +38,41 @@ const ArticleSection = ({
     return () => observer.disconnect();
   }, []);
 
-  const getCoverImage = (article: Article) => {
-    if (article.backgroundImage) return article.backgroundImage;
-    if (!article.content) return '/architectural-concrete-monument.png';
-    const match = article.content.match(/<img[^>]+src="([^">]+)"/);
-    return match ? match[1] : '/architectural-concrete-monument.png';
+  const getCoverImage = (item: FeaturedItem) => {
+    const { data, type } = item;
+    if (type === 'article') {
+      if (data.backgroundImage) return data.backgroundImage;
+      if (!data.content) return '/architectural-concrete-monument.png';
+      const match = data.content.match(/<img[^>]+src="([^">]+)"/);
+      return match ? match[1] : '/architectural-concrete-monument.png';
+    } else if (type === 'book') {
+      return data.coverImage || '/architectural-concrete-monument.png';
+    }
+    return '/architectural-concrete-monument.png';
   };
 
-  const plainTextPreview = article.content
-    ? article.content.replace(/<[^>]*>?/gm, ' ').trim().substring(0, 450) + '...'
-    : 'Dive into this curated story by Nischay Sharma...';
+  const getPreviewText = (item: FeaturedItem) => {
+    const { data, type } = item;
+    if (type === 'article') {
+      return data.content
+        ? data.content.replace(/<[^>]*>?/gm, ' ').trim().substring(0, 450) + '...'
+        : 'Dive into this curated story by Nischay Sharma...';
+    } else if (type === 'book') {
+      return data.description || 'Explore this comprehensive collection of knowledge...';
+    }
+    return '';
+  };
+
+  const getLink = (item: FeaturedItem) => {
+    const { data, type } = item;
+    if (type === 'article') return `/articles/${data.slug}`;
+    if (type === 'book') return `/books/${data.id}`;
+    return '#';
+  };
+
+  const getLinkLabel = (item: FeaturedItem) => {
+    return item.type === 'article' ? 'Open Journal' : 'Read Book';
+  };
 
   return (
     <section 
@@ -51,33 +83,32 @@ const ArticleSection = ({
       <div 
         className="articles-parallax__container"
         style={{ 
-          backgroundImage: `url(${getCoverImage(article)})`
+          backgroundImage: `url(${getCoverImage(item)})`
         }}
       />
       
       <div className="articles-parallax__content">
-        {/* Centered Content Block */}
         <div className="articles-parallax__main-info">
           <span className="articles-parallax__eyebrow">
-            Curated Edition / Vol. 0{index + 1}
+            {item.type === 'article' ? 'Curated Edition' : 'Digital Volume'} / Vol. 0{index + 1}
           </span>
           
           <h2 className="articles-parallax__title">
-            {article.title}
+            {item.title || item.data.title}
           </h2>
           
           <p className="articles-parallax__description">
-            {article.description || "An immersive technical study designed for the modern reader."}
+            {item.data.description || (item.type === 'article' ? "An immersive technical study designed for the modern reader." : "A curated collection of technical depth.")}
           </p>
         </div>
 
         <div className="articles-parallax__preview-col">
           <div className="articles-parallax__preview-text">
-            {plainTextPreview}
+            {getPreviewText(item)}
           </div>
           
-          <a href={`/articles/${article.slug}`} className="articles-parallax__link">
-            Open Journal
+          <a href={getLink(item)} className="articles-parallax__link">
+            {getLinkLabel(item)}
             <i className="ph ph-arrow-right" style={{ fontSize: '1.25rem' }} />
           </a>
         </div>
@@ -86,7 +117,7 @@ const ArticleSection = ({
   );
 };
 
-export default function HomeClient({ articles }: { articles: Article[] }) {
+export default function HomeClient({ profile, featured }: { profile: any; featured: FeaturedItem[] }) {
   return (
     <div className="landing-container">
       <div className="articles-parallax">
@@ -101,7 +132,7 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
                 <span>Anthology</span>
               </h1>
               <p style={{ color: 'rgba(0,0,0,0.4)', marginTop: '2rem', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-                Curated by Nischay Sharma
+                Curated by {profile?.displayName || 'Nischay Sharma'}
               </p>
             </div>
           </section>
@@ -113,12 +144,12 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
           </footer>
         </section>
 
-        {/* --- Articles --- */}
-        {articles && articles.length > 0 ? (
-          articles.map((article, index) => (
-            <ArticleSection 
-              key={article.id} 
-              article={article} 
+        {/* --- Featured Items --- */}
+        {featured && featured.length > 0 ? (
+          featured.map((item, index) => (
+            <FeaturedSection 
+              key={item.id} 
+              item={item} 
               index={index} 
             />
           ))
@@ -127,7 +158,22 @@ export default function HomeClient({ articles }: { articles: Article[] }) {
             The collection is currently empty
           </div>
         )}
+
+        {/* --- Profile Section --- */}
+        <section className="home-profile-section" style={{ zIndex: 100, position: 'relative', background: 'var(--color-bg-primary)' }}>
+            <AboutClient profile={profile} />
+        </section>
       </div>
+
+      <style jsx global>{`
+        .home-profile-section {
+            scroll-snap-align: start;
+        }
+        .home-profile-section .landing-container {
+            padding-top: 4rem;
+            min-height: auto;
+        }
+      `}</style>
     </div>
   );
 }

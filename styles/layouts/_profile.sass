@@ -103,3 +103,36 @@
     .btn
       @include mobile
         width: 100%
+
+// Profile Admin Styles
+.profile-admin
+  .card
+    background-color: variables.$color-bg-secondary
+    border: 1px solid variables.$color-border
+    border-radius: variables.$radius-md
+    box-shadow: variables.$shadow-premium
+
+  .card--padded
+    padding: 1.5rem
+    @media (min-width: 768px)
+      padding: 2rem
+
+  .profile-admin__cover
+    border-radius: variables.$radius-md variables.$radius-md 0 0
+
+  .form-divider
+    border-top: 1px solid variables.$color-border
+
+  .badge
+    &--draft
+      background-color: variables.$color-bg-tertiary
+      color: variables.$color-text-primary
+      
+    &--published
+      background-color: variables.$color-bg-tertiary
+      color: variables.$color-text-primary
+
+  // Modal styles
+  .modal-overlay
+    .card
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)

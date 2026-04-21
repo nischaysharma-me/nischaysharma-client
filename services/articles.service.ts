@@ -97,5 +97,13 @@ export const articlesService = {
       method: 'DELETE',
       token,
     });
+  },
+
+  regenerateBackgroundImage: (id: string, data: { prompt?: string }, token: string): Promise<ActionResponse<{ jobId: string; status: string }>> => {
+    return apiFetch<ActionResponse<{ jobId: string; status: string }>>(`/articles/${id}/regenerate-background-image`, {
+      method: 'POST',
+      token,
+      body: data,
+    });
   }
 };
