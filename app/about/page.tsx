@@ -33,5 +33,5 @@ export default async function AboutPage() {
     console.error('Error fetching public admin profile:', err);
   }
 
-  return <AboutClient profile={profile} />;
+  return <AboutClient profile={profile} showBanner={true} />;
 }

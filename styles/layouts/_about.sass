@@ -1,336 +1,694 @@
 @use '../abstracts/variables' as *
 @use '../abstracts/mixins' as *
 
-.about-view
-  background-color: $color-white
-  color: $color-black
+.about-wrapper
+  background-color: $color-bg-primary
+  color: $color-text-primary
   min-height: 100vh
-  overflow-x: hidden
+  font-family: $font-sans
 
-.about-hero
-  padding: 8rem 2rem 4rem
-  max-width: 1400px
-  margin: 0 auto
-  
-  @media (min-width: 768px)
-    padding: 12rem 4rem 6rem
+.about-view
+  width: 100%
 
-  &__eyebrow
-    display: block
+  .section-label
     font-size: 0.75rem
-    font-weight: 800
     text-transform: uppercase
-    letter-spacing: 0.2em
-    color: #a3a3a3
-    margin-bottom: 2rem
-
-  &__title
-    font-family: $font-sans
-    font-size: clamp(3rem, 12vw, 8rem)
-    font-weight: 800
-    line-height: 0.85
-    letter-spacing: -0.04em
-    margin-bottom: 6rem
-    text-transform: uppercase
-
-.about-grid
-  display: grid
-  grid-template-columns: 1fr
-  gap: 4rem
-  
-  @media (min-width: 1024px)
-    grid-template-columns: 1.5fr 1fr
-    gap: 8rem
-
-.about-text
-  &__bio
-    font-size: 1.25rem
-    line-height: 1.6
-    color: #333
-    margin-bottom: 3rem
-    max-width: 700px
-    
-    @media (min-width: 768px)
-      font-size: 1.5rem
-      line-height: 1.5
-
-  &__secondary
-    font-size: 1.1rem
-    line-height: 1.7
-    color: #666
-    max-width: 600px
-
-.about-stats
-  display: flex
-  flex-direction: column
-  gap: 3rem
-
-  &__item
-    border-top: 1px solid #eee
-    padding-top: 2rem
-
-  &__label
-    font-size: 0.7rem
-    font-weight: 800
-    text-transform: uppercase
-    letter-spacing: 0.15em
-    color: #a3a3a3
+    letter-spacing: 0.25em
+    color: $color-text-secondary
+    margin-bottom: $spacing-lg
     display: block
-    margin-bottom: 1rem
-
-  &__value
-    font-size: 1.125rem
     font-weight: 700
-    color: $color-black
 
-.stack-bar
-  display: flex
-  height: 6px
-  border-radius: 3px
-  overflow: hidden
-  background-color: #f5f5f5
-  margin-bottom: 1.5rem
-
-.stack-list
-  display: grid
-  grid-template-columns: 1fr 1fr
-  gap: 1rem
-
-  &__item
-    display: flex
-    align-items: center
-    gap: 0.75rem
-    font-size: 0.75rem
-    font-weight: 600
-
-  &__dot
-    width: 8px
-    height: 8px
-    border-radius: 50%
-
-.github-impact
-  display: flex
-  gap: 4rem
-  margin-top: 6rem
-  flex-wrap: wrap
-
-  &__stat
-    display: flex
-    flex-direction: column
-    gap: 0.5rem
-
-  &__number
-    font-size: 3rem
+  .section-title
+    font-size: clamp(2.5rem, 6vw, 4rem)
     font-weight: 800
-    line-height: 1
-    letter-spacing: -0.02em
+    letter-spacing: -0.03em
+    margin-bottom: $spacing-xxl
+    color: $color-text-primary
 
-  &__label
-    font-size: 0.65rem
-    font-weight: 800
-    text-transform: uppercase
-    letter-spacing: 0.1em
-    opacity: 0.4
-
-.activity-monitor
-  padding: 10rem 4rem
-  background-color: #fcfcfc
-  border-top: 1px solid #eee
-  border-bottom: 1px solid #eee
-  
-  @media (max-width: 768px)
-    padding: 6rem 2rem
-
-  &__container
-    max-width: 1200px
-    margin: 0 auto
-
-  &__wrapper
-    display: flex
-    gap: 1rem
-    margin-top: 3rem
-
-  &__y-axis
-    display: grid
-    grid-template-rows: repeat(7, 12px)
-    gap: 4px
-    padding-top: 2rem // Align with months
+  /* --- Hero Section --- */
+  .about-hero
+    padding: 8rem 0 4rem
     
-    span
-      font-size: 9px
-      font-weight: 700
-      color: #a3a3a3
-      text-transform: uppercase
-      display: flex
-      align-items: center
-      height: 12px
-      &:nth-child(even)
-        visibility: hidden
+    @include desktop
+      padding: 12rem 0 8rem
 
-  &__main
-    flex: 1
-    overflow-x: auto
-    padding-bottom: 1rem
-    &::-webkit-scrollbar
-      height: 4px
-    &::-webkit-scrollbar-thumb
-      background: #eee
-      border-radius: 2px
+    &--with-banner
+      padding-top: 4rem
+      @include desktop
+        padding-top: 6rem
 
-  &__x-axis
-    display: flex
-    margin-bottom: 0.75rem
-    height: 12px
-    
-    span
-      font-size: 9px
-      font-weight: 700
-      color: #a3a3a3
-      text-transform: uppercase
-      white-space: nowrap
+    &__container
+      max-width: 1400px
+      margin: 0 auto
+      padding: 0 $spacing-lg
+      
+      @include desktop
+        padding: 0 4rem
 
-  &__grid
-    display: grid
-    grid-template-rows: repeat(7, 12px)
-    grid-auto-flow: column
-    gap: 4px
+    &__banner
+      width: 100%
+      height: 200px
+      border-radius: $radius-lg
+      overflow: hidden
+      position: relative
+      z-index: 1
+      
+      @include desktop
+        height: 320px
+        border-radius: $radius-xl
 
-  &__day
-    width: 12px
-    height: 12px
-    border-radius: 2px
-    background-color: #f5f5f5
-    transition: all 0.2s ease
-    
-    &:hover
-      transform: scale(1.2)
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1)
+      &-img
+        width: 100%
+        height: 100%
+        object-fit: cover
+
+    &__header
+      margin-bottom: 4rem
+      position: relative
       z-index: 2
+      @include desktop
+        margin-bottom: 6rem
 
-  &__meta
+      &--overlapped
+        .about-hero__identity
+          @include desktop
+            align-items: flex-end
+            
+        .about-hero__avatar
+          margin-top: -4rem
+          @include desktop
+            margin-top: -6rem
+
+    &__identity
+      display: flex
+      flex-direction: column
+      align-items: center
+      text-align: center
+      gap: $spacing-lg
+      
+      @include desktop
+        flex-direction: row
+        align-items: center
+        text-align: left
+        gap: 3rem
+
+    &__avatar
+      width: 140px
+      height: 140px
+      border-radius: 50%
+      overflow: hidden
+      border: 6px solid $color-bg-primary
+      background-color: $color-bg-secondary
+      flex-shrink: 0
+      box-shadow: $shadow-premium
+      
+      @include desktop
+        width: 200px
+        height: 200px
+        border-width: 8px
+
+      &-img
+        width: 100%
+        height: 100%
+        object-fit: cover
+
+      .avatar-placeholder
+        width: 100%
+        height: 100%
+        @include flex-center
+        font-size: 3.5rem
+        font-weight: 800
+        color: $color-text-secondary
+        @include desktop
+          font-size: 5rem
+
+    &__titles
+      display: flex
+      flex-direction: column
+      padding-top: $spacing-xs
+      width: 100%
+      
+      @include desktop
+        width: auto
+
+    &__eyebrow
+      font-size: 0.7rem
+      text-transform: uppercase
+      letter-spacing: 0.3em
+      color: $color-text-secondary
+      margin-bottom: $spacing-sm
+      display: block
+      font-weight: 700
+      @include desktop
+        font-size: 0.75rem
+        margin-bottom: $spacing-md
+
+    &__title
+      font-size: clamp(2.5rem, 10vw, 8rem)
+      font-weight: 900
+      line-height: 1.05
+      letter-spacing: -0.04em
+      margin-bottom: $spacing-sm
+      text-transform: uppercase
+      
+      @include desktop
+        white-space: nowrap
+        font-size: clamp(3rem, 6vw, 7rem)
+
+    &__occupation
+      font-size: clamp(1.1rem, 4vw, 1.75rem)
+      color: $color-text-secondary
+      font-weight: 300
+      letter-spacing: -0.02em
+
+    &__grid
+      display: grid
+      grid-template-columns: 1fr
+      gap: $spacing-xl
+      align-items: start
+      
+      @include desktop
+        grid-template-columns: 1.5fr 1fr
+        gap: 8rem
+
+    &__bio-text
+      font-size: clamp(1.125rem, 2.5vw, 1.5rem)
+      line-height: 1.6
+      font-weight: 400
+      margin-bottom: $spacing-xl
+      color: $color-text-secondary
+      letter-spacing: -0.01em
+      
+      @include desktop
+        margin-bottom: $spacing-xxl
+
+  /* --- GitHub Stats --- */
+  .about-github-stats
     display: flex
-    justify-content: flex-end
-    align-items: center
-    gap: 1.5rem
-    margin-top: 2rem
-    font-size: 0.65rem
-    color: #a3a3a3
-    text-transform: uppercase
-    letter-spacing: 0.1em
-    font-weight: 700
+    gap: $spacing-xl
+    flex-wrap: wrap
 
-  &__legend
-    display: flex
-    align-items: center
-    gap: 4px
-    span
-      width: 10px
-      height: 10px
-      border-radius: 1px
-
-.timeline-section
-  padding: 10rem 2rem
-  max-width: 1400px
-  margin: 0 auto
-
-  &__title
-    font-size: clamp(2rem, 5vw, 3rem)
-    font-weight: 800
-    margin-bottom: 6rem
-    letter-spacing: -0.02em
-
-.timeline
-  display: flex
-  flex-direction: column
-  gap: 6rem
-
-  &__item
-    display: grid
-    grid-template-columns: 1fr
-    gap: 2rem
-    
-    @media (min-width: 768px)
-      grid-template-columns: 250px 1fr
+    @include desktop
       gap: 4rem
 
-  &__date
-    font-size: 0.875rem
-    font-weight: 800
-    color: #a3a3a3
-    letter-spacing: 0.05em
+    .stat-item
+      display: flex
+      flex-direction: column
 
-  &__content
-    max-width: 800px
+    .stat-num
+      display: block
+      font-size: 2.5rem
+      font-weight: 800
+      margin-bottom: $spacing-xs
+      color: $color-text-primary
 
-  &__job-title
-    font-size: 1.75rem
-    font-weight: 800
-    margin: 0 0 0.5rem 0
+    .stat-label
+      font-size: 0.7rem
+      text-transform: uppercase
+      letter-spacing: 0.15em
+      color: $color-text-secondary
+      font-weight: 600
 
-  &__company
-    font-size: 1.125rem
-    font-weight: 600
-    color: var(--color-primary)
-    margin-bottom: 2rem
+  /* --- Stack Capability --- */
+  .about-hero__stack-col
+    .stack-container
+      .stack-title
+        font-size: 0.7rem
+        text-transform: uppercase
+        letter-spacing: 0.15em
+        color: $color-text-secondary
+        margin-bottom: $spacing-xl
+        font-weight: 700
 
-  &__description
-    color: #555
-    line-height: 1.7
-    font-size: 1.05rem
+    .stack-grid
+      display: flex
+      flex-wrap: wrap
+      gap: $spacing-sm
+      margin-bottom: $spacing-xxl
 
-.vision-section
-  padding: 12rem 2rem
-  background-color: $color-black
-  color: $color-white
+    .stack-item
+      font-size: 0.85rem
+      font-weight: 700
+      padding: 0.75rem 1.5rem
+      background-color: $color-bg-secondary
+      border: 1px solid $color-border
+      border-radius: $radius-pill
+      text-transform: uppercase
+      letter-spacing: 0.05em
+      @include transition(all)
 
-  &__container
-    max-width: 1400px
-    margin: 0 auto
+      &:hover
+        border-color: $color-text-primary
+        background-color: $color-bg-tertiary
+        transform: translateY(-2px)
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05)
 
-  &__title
-    font-size: clamp(2.5rem, 8vw, 5rem)
-    font-weight: 800
-    margin-bottom: 4rem
-    letter-spacing: -0.03em
+  /* --- Contact Minimal --- */
+  .contact-minimal
+    border-top: 1px solid $color-border
+    padding-top: $spacing-xl
 
-  &__text
-    font-size: clamp(1.25rem, 3vw, 2rem)
-    line-height: 1.4
-    opacity: 0.8
-    max-width: 1000px
+    .contact-label
+      display: block
+      font-size: 0.7rem
+      color: $color-text-secondary
+      margin-bottom: $spacing-xs
+      text-transform: uppercase
+      font-weight: 700
 
-.about-footer
-  padding: 6rem 2rem
-  
-  &__container
-    max-width: 1400px
-    margin: 0 auto
-    display: flex
-    flex-direction: column
-    gap: 2rem
+    .contact-link
+      font-size: 1.125rem
+      text-decoration: none
+      color: $color-text-primary
+      font-weight: 700
+      position: relative
+      display: inline-block
+      @include transition(color)
+
+      &::after
+        content: ''
+        position: absolute
+        width: 0
+        height: 1px
+        bottom: -2px
+        left: 0
+        background-color: $color-text-primary
+        @include transition(width)
+
+      &:hover
+        &::after
+          width: 100%
+
+  /* --- Activity Visualization --- */
+  .about-activity
+    padding: 6rem 0
+    background-color: $color-bg-secondary
+    border-top: 1px solid $color-border
+    border-bottom: 1px solid $color-border
+
+    &__container
+      max-width: 1400px
+      margin: 0 auto
+      padding: 0 $spacing-lg
+      
+      @include desktop
+        padding: 0 4rem
+
+  /* --- Vision Statement --- */
+  .about-vision
+    padding: 6rem 0
+    background-color: $color-black
+    color: $color-white
     
-    @media (min-width: 768px)
-      flex-direction: row
-      justify-content: space-between
-      align-items: center
+    @include desktop
+      padding: 15rem 0
 
-  &__copyright
-    font-size: 0.75rem
-    font-weight: 700
-    opacity: 0.3
-    letter-spacing: 0.1em
+    &__container
+      max-width: 1000px
+      margin: 0 auto
+      padding: 0 $spacing-lg
+      text-align: center
 
-  &__socials
-    display: flex
-    gap: 3rem
+    .vision-text
+      font-size: clamp(1.25rem, 4vw, 3rem)
+      font-weight: 500
+      line-height: 1.35
+      letter-spacing: -0.02em
+      opacity: 0.9
 
-  &__link
-    font-size: 0.75rem
-    font-weight: 800
-    color: $color-black
-    text-decoration: none
-    letter-spacing: 0.1em
-    @include transition(opacity)
+  /* --- Projects --- */
+  .about-projects
+    padding: 6rem 0
     
-    &:hover
-      opacity: 0.5
+    @include desktop
+      padding: 12rem 0
+
+    &__container
+      max-width: 1400px
+      margin: 0 auto
+      padding: 0 $spacing-lg
+      
+      @include desktop
+        padding: 0 4rem
+
+    .projects-wall
+      display: grid
+      grid-template-columns: 1fr
+      gap: $spacing-xl
+      
+      @include desktop
+        grid-template-columns: repeat(2, 1fr)
+        gap: 4rem
+
+    .project-node
+      position: relative
+      aspect-ratio: 16/10
+      background-color: $color-bg-tertiary
+      overflow: hidden
+      border-radius: $radius-md
+      @include transition(all)
+
+      &:hover
+        transform: translateY(-8px)
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1)
+
+      &__image-wrapper
+        width: 100%
+        height: 100%
+        position: relative
+
+      &__img
+        width: 100%
+        height: 100%
+        object-fit: cover
+        opacity: 0.8
+        filter: grayscale(100%)
+        @include transition(all)
+
+      &:hover &__img
+        transform: scale(1.05)
+        opacity: 0.4
+        filter: grayscale(0%)
+
+      &__overlay
+        position: absolute
+        inset: 0
+        padding: $spacing-xl
+        display: flex
+        flex-direction: column
+        justify-content: flex-end
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)
+        color: $color-white
+
+        @include desktop
+          padding: 3rem
+
+      &__title
+        font-size: 1.75rem
+        font-weight: 800
+        margin-bottom: $spacing-sm
+        letter-spacing: -0.02em
+
+      &__desc
+        font-size: 1rem
+        color: rgba(255, 255, 255, 0.8)
+        line-height: 1.5
+        max-width: 400px
+        margin-bottom: $spacing-md
+        opacity: 0
+        transform: translateY(20px)
+        @include transition(all)
+        transition-delay: 100ms
+
+      &:hover &__desc
+        opacity: 1
+        transform: translateY(0)
+
+      &__link
+        text-decoration: none
+        color: $color-white
+        font-weight: 800
+        font-size: 0.75rem
+        letter-spacing: 0.2em
+        display: flex
+        align-items: center
+        gap: $spacing-xs
+        text-transform: uppercase
+        @include transition(all)
+        width: fit-content
+
+        &:hover
+          letter-spacing: 0.25em
+
+  /* --- Career Timeline --- */
+  .about-career
+    padding: 8rem 0
+    background-color: $color-bg-tertiary
+    
+    @include desktop
+      padding: 12rem 0
+
+    &__container
+      max-width: 900px
+      margin: 0 auto
+      padding: 0 $spacing-lg
+
+    .career-timeline
+      display: flex
+      flex-direction: column
+      gap: 4rem
+      
+      @include desktop
+        gap: 6rem
+
+    .career-item
+      display: flex
+      flex-direction: column
+      gap: $spacing-md
+      opacity: 0
+      transform: translateY(30px)
+      @include transition(all)
+      transition-duration: 600ms
+
+      @include desktop
+        flex-direction: row
+        gap: 3rem
+
+      &.visible
+        opacity: 1
+        transform: translateY(0)
+
+      &__logo
+        width: 64px
+        height: 64px
+        flex-shrink: 0
+        background-color: $color-bg-secondary
+        @include flex-center
+        font-weight: 900
+        font-size: 1.5rem
+        border-radius: $radius-md
+        border: 1px solid $color-border
+
+        img
+          width: 100%
+          height: 100%
+          object-fit: contain
+          padding: 12px
+
+        .logo-placeholder
+          width: 100%
+          height: 100%
+          @include flex-center
+          color: $color-text-muted
+
+      &__body
+        flex: 1
+
+      &__header
+        display: flex
+        flex-direction: column
+        margin-bottom: $spacing-sm
+        
+        @include desktop
+          flex-direction: row
+          justify-content: space-between
+          align-items: baseline
+
+      &__title
+        font-size: 1.5rem
+        font-weight: 700
+        letter-spacing: -0.01em
+        color: $color-text-primary
+
+      &__date
+        font-size: 0.8rem
+        color: $color-text-secondary
+        font-weight: 600
+        text-transform: uppercase
+        letter-spacing: 0.05em
+
+      &__company
+        font-size: 1.1rem
+        font-weight: 600
+        color: $color-text-secondary
+        margin-bottom: $spacing-md
+
+      &__description
+        font-size: 1rem
+        line-height: 1.6
+        color: $color-text-secondary
+
+  /* --- Academic Path --- */
+  .about-academic
+    padding: 8rem 0
+    
+    @include desktop
+      padding: 12rem 0
+
+    &__container
+      max-width: 1400px
+      margin: 0 auto
+      padding: 0 $spacing-lg
+      
+      @include desktop
+        padding: 0 4rem
+
+    .academic-grid
+      display: grid
+      grid-template-columns: 1fr
+      gap: $spacing-lg
+      
+      @include desktop
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr))
+        gap: 2.5rem
+
+    .academic-card
+      display: flex
+      gap: $spacing-lg
+      padding: $spacing-xl
+      background-color: $color-bg-secondary
+      border: 1px solid $color-border
+      border-radius: $radius-md
+      @include transition(all)
+
+      &:hover
+        border-color: $color-text-primary
+        transform: translateY(-5px)
+
+      &__logo
+        width: 48px
+        height: 48px
+        background-color: $color-bg-tertiary
+        flex-shrink: 0
+        @include flex-center
+        font-weight: 800
+        border-radius: $radius-sm
+
+        img
+          width: 100%
+          height: 100%
+          object-fit: contain
+
+        .logo-placeholder
+          width: 100%
+          height: 100%
+          @include flex-center
+          color: $color-text-muted
+
+      &__school
+        font-size: 1.25rem
+        margin-bottom: $spacing-xs
+        font-weight: 700
+        color: $color-text-primary
+
+      &__degree
+        color: $color-text-secondary
+        margin-bottom: $spacing-md
+        font-size: 1rem
+
+      &__date
+        font-size: 0.75rem
+        opacity: 0.6
+        font-weight: 600
+        text-transform: uppercase
+
+  /* --- Skills Section --- */
+  .about-skills
+    padding: 4rem 0 8rem
+
+    &__container
+      max-width: 1400px
+      margin: 0 auto
+      padding: 0 $spacing-lg
+
+    .skills-track
+      display: flex
+      flex-wrap: wrap
+      gap: $spacing-sm
+      justify-content: center
+
+    .skill-chip
+      padding: 0.75rem 1.5rem
+      border: 1px solid $color-border
+      font-size: 0.75rem
+      font-weight: 700
+      letter-spacing: 0.1em
+      text-transform: uppercase
+      border-radius: $radius-pill
+      background-color: $color-bg-secondary
+      @include transition(all)
+
+      &:hover
+        border-color: $color-text-primary
+        background-color: $color-bg-tertiary
+        transform: translateY(-2px)
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05)
+
+  /* --- Footer --- */
+  .about-footer
+    padding: 4rem 0
+    border-top: 1px solid $color-border
+    
+    @include desktop
+      padding: 8rem 0
+
+    &__container
+      max-width: 1400px
+      margin: 0 auto
+      padding: 0 $spacing-lg
+      display: flex
+      flex-direction: column
+      gap: $spacing-xl
+      
+      @include desktop
+        padding: 0 4rem
+        flex-direction: row
+        justify-content: space-between
+        align-items: center
+
+    &__left
+      display: flex
+      flex-direction: column
+      gap: $spacing-xs
+
+    .copyright
+      font-weight: 800
+      font-size: 0.8rem
+      letter-spacing: 0.05em
+      text-transform: uppercase
+
+    .tagline
+      font-size: 0.8rem
+      color: $color-text-secondary
+      font-weight: 500
+
+    &__right
+      display: flex
+      gap: $spacing-xl
+      flex-wrap: wrap
+
+      a
+        text-decoration: none
+        color: $color-text-primary
+        font-weight: 800
+        font-size: 0.75rem
+        letter-spacing: 0.1em
+        text-transform: uppercase
+        position: relative
+        padding: 0.5rem 0
+        @include transition(color)
+
+        &::after
+          content: ''
+          position: absolute
+          width: 0
+          height: 1px
+          bottom: 0
+          left: 0
+          background-color: $color-text-primary
+          @include transition(width)
+
+        &:hover
+          &::after
+            width: 100%
