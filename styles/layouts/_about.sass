@@ -438,14 +438,45 @@
       display: flex
       flex-direction: column
       gap: 4rem
+      position: relative
+      padding-left: 2.5rem
       
       @include desktop
         gap: 6rem
+        padding-left: 0
+
+      &::before
+        content: ''
+        position: absolute
+        left: 0
+        top: 0
+        bottom: 0
+        width: 1px
+        background: linear-gradient(to bottom, transparent, $color-border 5%, $color-border 95%, transparent)
+        z-index: 0
+        
+        @include desktop
+          left: 32px
+
+      &::after
+        content: ''
+        position: absolute
+        left: -1px
+        top: 0
+        width: 3px
+        height: 150px
+        background: linear-gradient(to bottom, transparent, $color-text-primary, transparent)
+        z-index: 1
+        animation: timeline-scan 8s linear infinite
+        
+        @include desktop
+          left: 31px
 
     .career-item
       display: flex
       flex-direction: column
       gap: $spacing-md
+      position: relative
       opacity: 0
       transform: translateY(30px)
       @include transition(all)
@@ -469,6 +500,8 @@
         font-size: 1.5rem
         border-radius: $radius-md
         border: 1px solid $color-border
+        position: relative
+        z-index: 2
 
         img
           width: 100%
@@ -481,6 +514,16 @@
           height: 100%
           @include flex-center
           color: $color-text-muted
+
+        &::after
+          content: ''
+          position: absolute
+          inset: -4px
+          border: 1px solid $color-text-primary
+          border-radius: $radius-md
+          opacity: 0
+          animation: pulse-logo 2s infinite
+          pointer-events: none
 
       &__body
         flex: 1
@@ -692,3 +735,23 @@
         &:hover
           &::after
             width: 100%
+
+@keyframes timeline-scan
+  0%
+    top: -150px
+    opacity: 0
+  10%
+    opacity: 1
+  90%
+    opacity: 1
+  100%
+    top: 100%
+    opacity: 0
+
+@keyframes pulse-logo
+  0%
+    transform: scale(1)
+    opacity: 0.5
+  100%
+    transform: scale(1.2)
+    opacity: 0
