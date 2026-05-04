@@ -34,6 +34,7 @@ export default function ProfileClient() {
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const projectInputRef = useRef<HTMLInputElement>(null);
   const experienceInputRef = useRef<HTMLInputElement>(null);
+  const editExperienceInputRef = useRef<HTMLInputElement>(null);
   const educationInputRef = useRef<HTMLInputElement>(null);
 
   // Form State
@@ -54,6 +55,8 @@ export default function ProfileClient() {
   
   const [experience, setExperience] = useState<any[]>([]);
   const [newExperience, setNewExperience] = useState({ title: '', company: '', startDate: '', endDate: '', description: '', logo: '' });
+  const [editingExperienceIndex, setEditingExperienceIndex] = useState<number | null>(null);
+  const [editExperience, setEditExperience] = useState({ title: '', company: '', startDate: '', endDate: '', description: '', logo: '' });
   
   const [education, setEducation] = useState<any[]>([]);
   const [newEducation, setNewEducation] = useState({ school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', logo: '' });
@@ -325,7 +328,13 @@ export default function ProfileClient() {
       
       if (res.success) {
         if (type === 'project') setNewProject({ ...newProject, image: res.url });
-        else if (type === 'experience') setNewExperience({ ...newExperience, logo: res.url });
+        else if (type === 'experience') {
+          if (editingExperienceIndex !== null) {
+            setEditExperience({ ...editExperience, logo: res.url });
+          } else {
+            setNewExperience({ ...newExperience, logo: res.url });
+          }
+        }
         else if (type === 'education') setNewEducation({ ...newEducation, logo: res.url });
         toast.success(`${type} image uploaded`);
       }
@@ -379,6 +388,26 @@ export default function ProfileClient() {
 
   const removeExperience = (index: number) => {
     setExperience(experience.filter((_, i) => i !== index));
+  };
+
+  const startEditExperience = (index: number) => {
+    setEditExperience({ ...experience[index] });
+    setEditingExperienceIndex(index);
+  };
+
+  const saveEditExperience = () => {
+    if (editingExperienceIndex === null) return;
+    if (!editExperience.title || !editExperience.company) return;
+    const updated = [...experience];
+    updated[editingExperienceIndex] = { ...editExperience };
+    setExperience(updated);
+    setEditingExperienceIndex(null);
+    setEditExperience({ title: '', company: '', startDate: '', endDate: '', description: '', logo: '' });
+  };
+
+  const cancelEditExperience = () => {
+    setEditingExperienceIndex(null);
+    setEditExperience({ title: '', company: '', startDate: '', endDate: '', description: '', logo: '' });
   };
 
   const addEducation = () => {
@@ -553,16 +582,46 @@ export default function ProfileClient() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {experience.map((exp, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem', background: 'var(--color-bg-primary)' }}>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                       {exp.logo && <img src={exp.logo} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}
-                       <div>
-                         <h4 style={{ margin: 0, color: 'var(--color-text-primary)' }}>{exp.title} @ {exp.company}</h4>
-                         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{exp.startDate} - {exp.endDate}</p>
-                       </div>
+                  editingExperienceIndex === i ? (
+                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', padding: '1.5rem', border: '1px solid var(--color-accent)', borderRadius: '0.5rem', background: 'var(--color-bg-tertiary)' }}>
+                      <input type="file" ref={editExperienceInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('experience', e.target.files[0])} />
+                      <div style={{ gridColumn: 'span 2' }}>
+                        <Input value={editExperience.title} onChange={e => setEditExperience({...editExperience, title: e.target.value})} placeholder="Job Title" />
+                      </div>
+                      <div style={{ gridColumn: 'span 2' }}>
+                        <Input value={editExperience.company} onChange={e => setEditExperience({...editExperience, company: e.target.value})} placeholder="Company Name" />
+                      </div>
+                      <Input value={editExperience.startDate} onChange={e => setEditExperience({...editExperience, startDate: e.target.value})} placeholder="Start Date" />
+                      <Input value={editExperience.endDate} onChange={e => setEditExperience({...editExperience, endDate: e.target.value})} placeholder="End Date" />
+                      <div style={{ gridColumn: 'span 2', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <Button type="button" variant="ghost" onClick={() => editExperienceInputRef.current?.click()} loading={isUploadingNested === 'experience'}>
+                          {editExperience.logo ? 'Logo Uploaded' : 'Upload Logo'}
+                        </Button>
+                        {editExperience.logo && <img src={editExperience.logo} style={{ height: '40px' }} alt="Logo" />}
+                      </div>
+                      <div style={{ gridColumn: 'span 2' }}>
+                        <textarea className="input" style={{ minHeight: '80px', padding: '0.75rem', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }} value={editExperience.description} onChange={e => setEditExperience({...editExperience, description: e.target.value})} placeholder="Description" />
+                      </div>
+                      <div style={{ gridColumn: 'span 2', display: 'flex', gap: '1rem' }}>
+                        <Button type="button" variant="primary" className="btn--full" onClick={saveEditExperience} disabled={!editExperience.title || !editExperience.company}><i className="ph ph-check" style={{ marginRight: '0.5rem' }} /> Save</Button>
+                        <Button type="button" variant="ghost" className="btn--full" onClick={cancelEditExperience}><i className="ph ph-x" style={{ marginRight: '0.5rem' }} /> Cancel</Button>
+                      </div>
                     </div>
-                    <button type="button" onClick={() => removeExperience(i)} style={{ background: 'none', border: 'none', color: 'var(--color-error)' }}><i className="ph ph-trash" /></button>
-                  </div>
+                  ) : (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem', background: 'var(--color-bg-primary)' }}>
+                      <div style={{ display: 'flex', gap: '1rem' }}>
+                         {exp.logo && <img src={exp.logo} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}
+                         <div>
+                           <h4 style={{ margin: 0, color: 'var(--color-text-primary)' }}>{exp.title} @ {exp.company}</h4>
+                           <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{exp.startDate} - {exp.endDate}</p>
+                         </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <button type="button" onClick={() => startEditExperience(i)} style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)' }}><i className="ph ph-pencil-simple" /></button>
+                        <button type="button" onClick={() => removeExperience(i)} style={{ background: 'none', border: 'none', color: 'var(--color-error)' }}><i className="ph ph-trash" /></button>
+                      </div>
+                    </div>
+                  )
                 ))}
               </div>
             </div>
