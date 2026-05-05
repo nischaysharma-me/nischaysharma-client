@@ -68,11 +68,7 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
         },
       }),
       Markdown.configure({
-        html: true,
-        tightLists: true,
-        bulletListMarker: '-',
-        transformPastedText: true,
-        transformCopiedText: true,
+        // Default options are sufficient as it uses marked internally
       }),
       StarterKit.configure({
         codeBlock: false,
@@ -229,7 +225,7 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
       }).run();
     } else {
       // Insert new
-      (editor as any).chain().focus().setMermaid(code).run();
+      editor.chain().focus().setMermaid(code).run();
     }
     setMermaidEditData(null);
   };

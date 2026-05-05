@@ -3,6 +3,17 @@ import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
 import React, { useEffect, useState } from 'react';
 import mermaid from 'mermaid';
 
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    mermaid: {
+      /**
+       * Insert a mermaid diagram
+       */
+      setMermaid: (content?: string) => ReturnType,
+    }
+  }
+}
+
 // Initialize mermaid
 mermaid.initialize({
   startOnLoad: false,
