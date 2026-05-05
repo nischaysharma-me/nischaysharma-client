@@ -14,7 +14,7 @@ import ArticlesLoading from '@/app/admin/articles/loading';
 import { toast } from 'sonner';
 import { useDialogStore } from '@/store/useDialogStore';
 import { integrationsService, IntegrationsList } from '@/services/integrations.service';
-import { Interface } from 'readline';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ArticleEditPage() {
   const { id } = useParams() as { id: string };
@@ -35,6 +35,7 @@ export default function ArticleEditPage() {
   const [backgroundImage, setBackgroundImage] = useState('');
   const [linkedinPostText, setLinkedinPostText] = useState('');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { openDialog } = useDialogStore();
 
   useEffect(() => {
@@ -213,12 +214,18 @@ export default function ArticleEditPage() {
             <i className="ph ph-x" style={{ marginRight: '0.4rem' }} />
             <span>Cancel</span>
           </Button>
-          <Button variant="primary" onClick={handleSave} disabled={saving}>
+          <Button variant="primary" onClick={handleSave} disabled={saving} loading={saving}>
             <i className="ph ph-floppy-disk" style={{ marginRight: '0.4rem' }} />
             <span>Save</span>
           </Button>
           {article.status !== 'published' && (
-            <Button variant="primary" onClick={handlePublish} disabled={publishing} style={{ background: '#10b981', border: 'none' }}>
+            <Button 
+              variant="primary" 
+              onClick={handlePublish} 
+              disabled={publishing} 
+              loading={publishing}
+              style={{ background: '#10b981', border: 'none' }}
+            >
               <i className="ph ph-paper-plane-tilt" style={{ marginRight: '0.4rem' }} />
               <span>Publish</span>
             </Button>
@@ -226,7 +233,7 @@ export default function ArticleEditPage() {
         </div>
       </div>
 
-      <div className="dashboard__grid-layout">
+      <div className={`dashboard__grid-layout ${isSidebarCollapsed ? 'dashboard__grid-layout--sidebar-collapsed' : ''}`}>
         <div className="dashboard__grid-main">
           {isPreviewMode ? (
             <div className="card card--padded">
@@ -258,131 +265,171 @@ export default function ArticleEditPage() {
                 <TiptapEditor 
                   content={content} 
                   onChange={setContent} 
+                  isCompact={!isSidebarCollapsed}
                 />
               </div>
             </div>
           )}
         </div>
 
-        <div className="dashboard__grid-sidebar">
-          {article.status === 'published' && (
-            <div className="card card--padded">
-              <h3 className="label" style={{ marginBottom: '1.5rem' }}>Social Distribution</h3>
-              
-              {!integrations.linkedin?.connected ? (
-                <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
-                  Connect your LinkedIn account in <Link href="/admin/profile" style={{ textDecoration: 'underline' }}>Profile Settings</Link> to share your articles directly.
-                </p>
-              ) : (
-                <div className="organization__form-group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <label className="label" style={{ margin: 0 }}>LinkedIn Post Content</label>
-                    <button 
-                      onClick={handleGenerateAIPost} 
-                      disabled={generatingPost}
-                      style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-                    >
-                      {generatingPost ? <i className="ph ph-spinner animate-spin" /> : <i className="ph ph-sparkle" />}
-                      Generate with AI
-                    </button>
+        <motion.div 
+          className={`dashboard__grid-sidebar ${isSidebarCollapsed ? 'dashboard__grid-sidebar--collapsed' : ''}`}
+          animate={{ 
+            width: isSidebarCollapsed ? 48 : 380,
+          }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        >
+          <button 
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className={`sidebar-collapse-btn ${isSidebarCollapsed ? 'sidebar-collapse-btn--collapsed' : ''}`}
+            title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            <i className={`ph ph-caret-double-${isSidebarCollapsed ? 'left' : 'right'}`} />
+          </button>
+
+          <AnimatePresence mode="wait">
+            {isSidebarCollapsed ? (
+              <motion.div
+                key="collapsed-indicators"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="sidebar-collapsed-indicators"
+              >
+                <i className="ph ph-share-network" title="Social Distribution" />
+                <i className="ph ph-magnifying-glass" title="Visuals & SEO" />
+                <i className="ph ph-dots-three-circle" title="Article Actions" />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="sidebar-content"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
+                style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+              >
+                {article.status === 'published' && (
+                  <div className="card card--padded">
+                    <h3 className="label" style={{ marginBottom: '1.5rem' }}>Social Distribution</h3>
+                    
+                    {!integrations.linkedin?.connected ? (
+                      <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                        Connect your LinkedIn account in <Link href="/admin/profile" style={{ textDecoration: 'underline' }}>Profile Settings</Link> to share your articles directly.
+                      </p>
+                    ) : (
+                      <div className="organization__form-group">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                          <label className="label" style={{ margin: 0 }}>LinkedIn Post Content</label>
+                          <button 
+                            onClick={handleGenerateAIPost} 
+                            disabled={generatingPost}
+                            style={{ background: 'none', border: 'none', color: 'var(--color-text-primary)', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                          >
+                            {generatingPost ? <i className="ph ph-spinner animate-spin" /> : <i className="ph ph-sparkle" />}
+                            Generate with AI
+                          </button>
+                        </div>
+                        <textarea 
+                          className="input" 
+                          style={{ height: '120px', resize: 'vertical', padding: '0.75rem', fontSize: '0.8rem' }}
+                          value={linkedinPostText}
+                          onChange={(e) => setLinkedinPostText(e.target.value)}
+                          placeholder="What would you like to say on LinkedIn?"
+                        />
+                        <Button 
+                          variant="secondary" 
+                          className="btn--full"
+                          style={{ marginTop: '1rem', background: '#0077b5', color: '#fff', border: 'none' }}
+                          onClick={handleShareToLinkedIn}
+                          disabled={sharing}
+                          loading={sharing}
+                        >
+                          <i className="ph ph-linkedin-logo" style={{ marginRight: '0.4rem' }} />
+                          <span>Share to LinkedIn</span>
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                  <textarea 
-                    className="input" 
-                    style={{ height: '120px', resize: 'vertical', padding: '0.75rem', fontSize: '0.8rem' }}
-                    value={linkedinPostText}
-                    onChange={(e) => setLinkedinPostText(e.target.value)}
-                    placeholder="What would you like to say on LinkedIn?"
-                  />
-                  <Button 
-                    variant="secondary" 
-                    className="btn--full"
-                    style={{ marginTop: '1rem', background: '#0077b5', color: '#fff', border: 'none' }}
-                    onClick={handleShareToLinkedIn}
-                    disabled={sharing}
-                    loading={sharing}
-                  >
-                    <i className="ph ph-linkedin-logo" style={{ marginRight: '0.4rem' }} />
-                    <span>Share to LinkedIn</span>
-                  </Button>
+                )}
+
+                <div className="card card--padded">
+                  <h3 className="label" style={{ marginBottom: '1.5rem' }}>Visuals & SEO</h3>
+                  
+                  <div className="organization__form-group">
+                    <label className="label">Background Image URL</label>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <Input 
+                        value={backgroundImage} 
+                        onChange={(e) => setBackgroundImage(e.target.value)}
+                        placeholder="https://..."
+                        style={{ flex: 1 }}
+                      />
+                      <button 
+                        onClick={handleRegenerateBackgroundImage} 
+                        disabled={isRegeneratingBackground}
+                        style={{ 
+                          background: 'none', 
+                          border: '1px solid var(--color-border)', 
+                          borderRadius: 'var(--border-radius)',
+                          color: 'var(--color-text-primary)', 
+                          fontSize: '0.8rem', 
+                          fontWeight: 600, 
+                          cursor: 'pointer', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '0.3rem',
+                          padding: '0 0.75rem',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {isRegeneratingBackground ? <i className="ph ph-spinner animate-spin" /> : <i className="ph ph-sparkle" />}
+                        <span>Generate</span>
+                      </button>
+                    </div>
+                    {backgroundImage && (
+                      <div className="article-edit__sidebar-image">
+                        <Image src={backgroundImage} alt="Preview" fill />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="organization__form-group" style={{ marginTop: '2rem' }}>
+                    <label className="label">Description</label>
+                    <textarea 
+                      className="input" 
+                      style={{ height: '100px', resize: 'none', padding: '0.75rem' }}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="stat-group" style={{ marginTop: '2rem' }}>
+                    <span className="label">Status</span>
+                    <div>
+                      <span className={`badge badge--${article.status?.toLowerCase()}`} style={{ marginTop: '0.5rem' }}>
+                        {article.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="stat-group" style={{ marginTop: '1.5rem' }}>
+                    <span className="label">Slug</span>
+                    <div className="article-edit__slug-display">{article.slug}</div>
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
 
-          <div className="card card--padded">
-            <h3 className="label" style={{ marginBottom: '1.5rem' }}>Visuals & SEO</h3>
-            
-            <div className="organization__form-group">
-              <label className="label">Background Image URL</label>
-              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                <Input 
-                  value={backgroundImage} 
-                  onChange={(e) => setBackgroundImage(e.target.value)}
-                  placeholder="https://..."
-                  style={{ flex: 1 }}
-                />
-                <button 
-                  onClick={handleRegenerateBackgroundImage} 
-                  disabled={isRegeneratingBackground}
-                  style={{ 
-                    background: 'none', 
-                    border: '1px solid var(--color-border)', 
-                    borderRadius: 'var(--border-radius)',
-                    color: 'var(--color-text-primary)', 
-                    fontSize: '0.8rem', 
-                    fontWeight: 600, 
-                    cursor: 'pointer', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '0.3rem',
-                    padding: '0 0.75rem',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {isRegeneratingBackground ? <i className="ph ph-spinner animate-spin" /> : <i className="ph ph-sparkle" />}
-                  <span>Generate</span>
-                </button>
-              </div>
-              {backgroundImage && (
-                <div className="article-edit__sidebar-image">
-                  <Image src={backgroundImage} alt="Preview" fill />
+                <div className="card card--padded">
+                   <h3 className="label" style={{ marginBottom: '1rem' }}>Article Actions</h3>
+                   <Button variant="secondary" className="btn--full" style={{ color: '#ff6b6b' }}>
+                     <i className="ph ph-archive" style={{ marginRight: '0.4rem' }} />
+                     <span>Archive Article</span>
+                   </Button>
                 </div>
-              )}
-            </div>
-
-            <div className="organization__form-group" style={{ marginTop: '2rem' }}>
-              <label className="label">Description</label>
-              <textarea 
-                className="input" 
-                style={{ height: '100px', resize: 'none', padding: '0.75rem' }}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-
-            <div className="stat-group" style={{ marginTop: '2rem' }}>
-              <span className="label">Status</span>
-              <div>
-                <span className={`badge badge--${article.status?.toLowerCase()}`} style={{ marginTop: '0.5rem' }}>
-                  {article.status}
-                </span>
-              </div>
-            </div>
-
-            <div className="stat-group" style={{ marginTop: '1.5rem' }}>
-              <span className="label">Slug</span>
-              <div className="article-edit__slug-display">{article.slug}</div>
-            </div>
-          </div>
-
-          <div className="card card--padded">
-             <h3 className="label" style={{ marginBottom: '1rem' }}>Article Actions</h3>
-             <Button variant="secondary" className="btn--full" style={{ color: '#ff6b6b' }}>
-               <i className="ph ph-archive" style={{ marginRight: '0.4rem' }} />
-               <span>Archive Article</span>
-             </Button>
-          </div>
-        </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   );

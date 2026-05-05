@@ -2,37 +2,84 @@
 
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
+import ImageResize from 'tiptap-extension-resize-image';
 import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { Markdown } from '@tiptap/markdown';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
+import Mermaid from './extensions/Mermaid';
+import { MermaidDialog } from './MermaidDialog';
 import { common, createLowlight } from 'lowlight';
+import { marked } from 'marked';
 import React, { useEffect, useState } from 'react';
+import { usersService } from '@/services/users.service';
+import { useStore } from '@/store/useStore';
+import { toast } from 'sonner';
 
 const lowlight = createLowlight(common);
 
 interface TiptapEditorProps {
   content: string;
   onChange: (html: string) => void;
+  isCompact?: boolean;
 }
 
-const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
+const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProps) => {
   const [isRawMode, setIsRawMode] = useState(false);
   const [rawHtml, setRawHtml] = useState(content);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMermaidDialogOpen, setIsMermaidDialogOpen] = useState(false);
+  const [mermaidEditData, setMermaidEditData] = useState<{ code: string; pos?: number } | null>(null);
+
+  const { user } = useStore();
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        codeBlock: false, // Disable default to use lowlight
-      }),
-      Image.configure({
+      ImageResize.configure({
         allowBase64: true,
         HTMLAttributes: {
           class: 'editor-image',
         },
+      }).extend({
+        addAttributes() {
+          return {
+            ...this.parent?.(),
+            width: {
+              default: null,
+              renderHTML: attributes => ({ width: attributes.width }),
+              parseHTML: element => element.getAttribute('width'),
+            },
+            height: {
+              default: null,
+              renderHTML: attributes => ({ height: attributes.height }),
+              parseHTML: element => element.getAttribute('height'),
+            },
+            style: {
+              default: null,
+              renderHTML: attributes => ({ style: attributes.style }),
+              parseHTML: element => element.getAttribute('style'),
+            },
+          };
+        },
       }),
+      Markdown.configure({
+        // Default options are sufficient as it uses marked internally
+      }),
+      StarterKit.configure({
+        codeBlock: false,
+      }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
+      Mermaid,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -41,7 +88,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       }),
       Underline,
       TextAlign.configure({
-        types: ['heading', 'paragraph'],
+        types: ['heading', 'paragraph', 'image'],
       }),
       CodeBlockLowlight.configure({
         lowlight,
@@ -58,14 +105,95 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       attributes: {
         class: 'tiptap-content',
       },
+      handlePaste: (view, event) => {
+        const items = Array.from(event.clipboardData?.items || []);
+        const imageItem = items.find(item => item.type.startsWith('image'));
+
+        if (imageItem && user) {
+          const file = imageItem.getAsFile();
+          if (file) {
+            handleImageUpload(file);
+            return true;
+          }
+        }
+
+        const text = event.clipboardData?.getData('text/plain');
+        if (text) {
+          // Check for markdown-like syntax
+          const isMarkdown = (
+            /^#\s/m.test(text) || 
+            /\*\*.*\*\*/.test(text) || 
+            /^---\s*$/m.test(text) || 
+            /^- [^ ]/m.test(text) || 
+            /^```/m.test(text) ||
+            /\[.*\]\(.*\)/.test(text) ||
+            /^\|.*\|$/m.test(text)
+          );
+
+          if (isMarkdown && editor) {
+            // Convert markdown to HTML and insert it
+            const html = marked.parse(text) as string;
+            editor.commands.insertContent(html);
+            return true;
+          }
+        }
+
+        return false;
+      },
+      handleDrop: (view, event) => {
+        const items = Array.from(event.dataTransfer?.items || []);
+        const imageItem = items.find(item => item.type.startsWith('image'));
+
+        if (imageItem && user) {
+          const file = imageItem.getAsFile();
+          if (file) {
+            handleImageUpload(file);
+            return true;
+          }
+        }
+        return false;
+      }
     },
   });
+
+  const handleImageUpload = async (file: File) => {
+    if (!user || !editor) return;
+
+    try {
+      const token = await user.getIdToken();
+      toast.loading('Uploading image...', { id: 'upload-image' });
+      
+      const response = await usersService.uploadAsset(file, 'editor', token);
+      
+      if (response.success && response.url) {
+        editor.chain().focus().setImage({ src: response.url }).run();
+        toast.success('Image uploaded successfully', { id: 'upload-image' });
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+      toast.error('Failed to upload image', { id: 'upload-image' });
+    }
+  };
 
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content, { emitUpdate: false });
     }
   }, [content, editor]);
+
+  // Listen for Mermaid edit events from node views
+  useEffect(() => {
+    const handleMermaidEdit = (event: any) => {
+      const { code, pos } = event.detail;
+      setMermaidEditData({ code, pos });
+      setIsMermaidDialogOpen(true);
+    };
+
+    window.addEventListener('edit-mermaid', handleMermaidEdit);
+    return () => window.removeEventListener('edit-mermaid', handleMermaidEdit);
+  }, []);
 
   if (!editor) {
     return null;
@@ -86,6 +214,20 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     const val = e.target.value;
     setRawHtml(val);
     onChange(val);
+  };
+
+  const handleMermaidSave = (code: string) => {
+    if (mermaidEditData && mermaidEditData.pos !== undefined) {
+      // Update existing
+      editor.chain().focus().command(({ tr }) => {
+        tr.setNodeMarkup(mermaidEditData.pos!, undefined, { content: code });
+        return true;
+      }).run();
+    } else {
+      // Insert new
+      editor.chain().focus().setMermaid(code).run();
+    }
+    setMermaidEditData(null);
   };
 
   return (
@@ -177,7 +319,23 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
               if (url) editor.chain().focus().setImage({ src: url }).run();
             }}
             type="button"
-            title="Insert Image"
+            title="Insert Image by URL"
+          >
+            <i className="ph ph-link-simple-horizontal" />
+          </button>
+          <button
+            onClick={() => {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/*';
+              input.onchange = (e: any) => {
+                const file = e.target.files?.[0];
+                if (file) handleImageUpload(file);
+              };
+              input.click();
+            }}
+            type="button"
+            title="Upload Image"
           >
             <i className="ph ph-image" />
           </button>
@@ -195,7 +353,20 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         </div>
 
         {/* Code & Source */}
-        <div className="editor-toolbar__group" style={{ marginLeft: 'auto' }}>
+        <div className="editor-toolbar__group">
+          <button
+            onClick={() => {
+              setMermaidEditData(null);
+              setIsMermaidDialogOpen(true);
+            }}
+            className={editor.isActive('mermaid') ? 'is-active' : ''}
+            type="button"
+            title="Mermaid Diagram"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            <i className="ph ph-tree-structure" />
+            {!isCompact && <span style={{ fontSize: '0.65rem', fontWeight: 700 }}>Mermaid</span>}
+          </button>
           <button
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             className={editor.isActive('codeBlock') ? 'is-active' : ''}
@@ -212,7 +383,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
             style={{ backgroundColor: isRawMode ? '#000' : '#eee', color: isRawMode ? '#fff' : '#000', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
           >
             <i className="ph ph-brackets-curly" />
-            <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>Source</span>
+            {!isCompact && <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>Source</span>}
           </button>
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
@@ -222,7 +393,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
             style={{ backgroundColor: isFullscreen ? '#000' : '#eee', color: isFullscreen ? '#fff' : '#000', display: 'flex', alignItems: 'center', gap: '0.4rem', marginLeft: '0.5rem' }}
           >
             <i className={isFullscreen ? "ph ph-corners-in" : "ph ph-corners-out"} />
-            <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>{isFullscreen ? 'Exit' : 'Full'}</span>
+            {!isCompact && <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>{isFullscreen ? 'Exit' : 'Full'}</span>}
           </button>
         </div>
       </div>
@@ -239,6 +410,16 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
           <EditorContent editor={editor} />
         )}
       </div>
+
+      <MermaidDialog
+        isOpen={isMermaidDialogOpen}
+        initialCode={mermaidEditData?.code}
+        onClose={() => {
+          setIsMermaidDialogOpen(false);
+          setMermaidEditData(null);
+        }}
+        onSave={handleMermaidSave}
+      />
     </div>
   );
 };

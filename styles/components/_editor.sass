@@ -25,11 +25,13 @@
 
     .tiptap-content
       max-height: none !important
-      height: 100% !important
+      min-height: 100% !important
+      height: auto !important
       padding: $spacing-xl $spacing-lg
 
     .editor-body
       height: calc(100vh - 4rem)
+      overflow-y: auto
 
 .editor-toolbar
   padding: 0.5rem
@@ -145,11 +147,48 @@
 
   .editor-image
     max-width: 100%
-    height: auto
+    height: auto // Reset to auto but allow inline styles to override
     border-radius: $radius-md
     margin: 2rem auto
     display: block
     box-shadow: $shadow-premium
+    transition: all 0.2s ease
+
+    &.ProseMirror-selectednode
+      outline: 3px solid #2563eb
+      box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.1)
+
+  // Resizer handles
+  .resizer
+    position: relative
+    display: inline-block
+    line-height: 0
+
+    &__handle
+      position: absolute
+      width: 10px
+      height: 10px
+      background: #2563eb
+      border: 1px solid white
+      border-radius: 2px
+      z-index: 10
+
+      &--nw
+        top: -5px
+        left: -5px
+        cursor: nw-resize
+      &--ne
+        top: -5px
+        right: -5px
+        cursor: ne-resize
+      &--sw
+        bottom: -5px
+        left: -5px
+        cursor: sw-resize
+      &--se
+        bottom: -5px
+        right: -5px
+        cursor: se-resize
 
   .editor-link
     color: #2563eb
@@ -176,3 +215,55 @@
     font-style: italic
     color: $color-text-secondary
     margin: 1.5rem 0
+
+  table
+    border-collapse: collapse
+    margin: 0
+    overflow: hidden
+    table-layout: fixed
+    width: 100%
+    margin: 1.5rem 0
+
+    td, th
+      border: 1px solid $color-border
+      box-sizing: border-box
+      min-width: 1em
+      padding: 6px 10px
+      position: relative
+      vertical-align: top
+
+      > *
+        margin-bottom: 0
+
+    th
+      background-color: $color-bg-tertiary
+      font-weight: bold
+      text-align: left
+
+    .selectedCell:after
+      background: rgba(200, 200, 255, 0.4)
+      content: ""
+      left: 0
+      right: 0
+      top: 0
+      bottom: 0
+      pointer-events: none
+      position: absolute
+      z-index: 2
+
+    .column-resize-handle
+      background-color: #adf
+      bottom: -2px
+      position: absolute
+      right: -2px
+      top: 0
+      width: 4px
+      z-index: 20
+
+  .tableWrapper
+    overflow-x: auto
+
+  &.resize-cursor
+    cursor: ew-resize
+    cursor: col-resize
+
