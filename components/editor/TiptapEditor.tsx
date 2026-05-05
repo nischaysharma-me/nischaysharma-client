@@ -2,16 +2,16 @@
 
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
+import ImageResize from 'tiptap-extension-resize-image';
 import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { Markdown } from '@tiptap/markdown';
-import Table from '@tiptap/extension-table';
-import TableRow from '@tiptap/extension-table-row';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
 import Mermaid from './extensions/Mermaid';
 import { MermaidDialog } from './MermaidDialog';
 import { common, createLowlight } from 'lowlight';
@@ -26,9 +26,10 @@ const lowlight = createLowlight(common);
 interface TiptapEditorProps {
   content: string;
   onChange: (html: string) => void;
+  isCompact?: boolean;
 }
 
-const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
+const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProps) => {
   const [isRawMode, setIsRawMode] = useState(false);
   const [rawHtml, setRawHtml] = useState(content);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -39,6 +40,33 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
 
   const editor = useEditor({
     extensions: [
+      ImageResize.configure({
+        allowBase64: true,
+        HTMLAttributes: {
+          class: 'editor-image',
+        },
+      }).extend({
+        addAttributes() {
+          return {
+            ...this.parent?.(),
+            width: {
+              default: null,
+              renderHTML: attributes => ({ width: attributes.width }),
+              parseHTML: element => element.getAttribute('width'),
+            },
+            height: {
+              default: null,
+              renderHTML: attributes => ({ height: attributes.height }),
+              parseHTML: element => element.getAttribute('height'),
+            },
+            style: {
+              default: null,
+              renderHTML: attributes => ({ style: attributes.style }),
+              parseHTML: element => element.getAttribute('style'),
+            },
+          };
+        },
+      }),
       Markdown.configure({
         html: true,
         tightLists: true,
@@ -56,12 +84,6 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       TableHeader,
       TableCell,
       Mermaid,
-      Image.configure({
-        allowBase64: true,
-        HTMLAttributes: {
-          class: 'editor-image',
-        },
-      }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -70,7 +92,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       }),
       Underline,
       TextAlign.configure({
-        types: ['heading', 'paragraph'],
+        types: ['heading', 'paragraph', 'image'],
       }),
       CodeBlockLowlight.configure({
         lowlight,
@@ -301,7 +323,23 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
               if (url) editor.chain().focus().setImage({ src: url }).run();
             }}
             type="button"
-            title="Insert Image"
+            title="Insert Image by URL"
+          >
+            <i className="ph ph-link-simple-horizontal" />
+          </button>
+          <button
+            onClick={() => {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/*';
+              input.onchange = (e: any) => {
+                const file = e.target.files?.[0];
+                if (file) handleImageUpload(file);
+              };
+              input.click();
+            }}
+            type="button"
+            title="Upload Image"
           >
             <i className="ph ph-image" />
           </button>
@@ -319,7 +357,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         </div>
 
         {/* Code & Source */}
-        <div className="editor-toolbar__group" style={{ marginLeft: 'auto' }}>
+        <div className="editor-toolbar__group">
           <button
             onClick={() => {
               setMermaidEditData(null);
@@ -331,7 +369,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
             style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
           >
             <i className="ph ph-tree-structure" />
-            <span style={{ fontSize: '0.65rem', fontWeight: 700 }}>Mermaid</span>
+            {!isCompact && <span style={{ fontSize: '0.65rem', fontWeight: 700 }}>Mermaid</span>}
           </button>
           <button
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
@@ -349,7 +387,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
             style={{ backgroundColor: isRawMode ? '#000' : '#eee', color: isRawMode ? '#fff' : '#000', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
           >
             <i className="ph ph-brackets-curly" />
-            <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>Source</span>
+            {!isCompact && <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>Source</span>}
           </button>
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
@@ -359,7 +397,7 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
             style={{ backgroundColor: isFullscreen ? '#000' : '#eee', color: isFullscreen ? '#fff' : '#000', display: 'flex', alignItems: 'center', gap: '0.4rem', marginLeft: '0.5rem' }}
           >
             <i className={isFullscreen ? "ph ph-corners-in" : "ph ph-corners-out"} />
-            <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>{isFullscreen ? 'Exit' : 'Full'}</span>
+            {!isCompact && <span style={{ fontSize: '0.7rem', fontWeight: 700 }}>{isFullscreen ? 'Exit' : 'Full'}</span>}
           </button>
         </div>
       </div>

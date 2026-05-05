@@ -147,11 +147,48 @@
 
   .editor-image
     max-width: 100%
-    height: auto
+    height: auto // Reset to auto but allow inline styles to override
     border-radius: $radius-md
     margin: 2rem auto
     display: block
     box-shadow: $shadow-premium
+    transition: all 0.2s ease
+
+    &.ProseMirror-selectednode
+      outline: 3px solid #2563eb
+      box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.1)
+
+  // Resizer handles
+  .resizer
+    position: relative
+    display: inline-block
+    line-height: 0
+
+    &__handle
+      position: absolute
+      width: 10px
+      height: 10px
+      background: #2563eb
+      border: 1px solid white
+      border-radius: 2px
+      z-index: 10
+
+      &--nw
+        top: -5px
+        left: -5px
+        cursor: nw-resize
+      &--ne
+        top: -5px
+        right: -5px
+        cursor: ne-resize
+      &--sw
+        bottom: -5px
+        left: -5px
+        cursor: sw-resize
+      &--se
+        bottom: -5px
+        right: -5px
+        cursor: se-resize
 
   .editor-link
     color: #2563eb
