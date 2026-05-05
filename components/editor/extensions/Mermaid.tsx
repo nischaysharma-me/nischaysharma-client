@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import mermaid from 'mermaid';
 
 // Initialize mermaid
@@ -10,14 +10,13 @@ mermaid.initialize({
   securityLevel: 'loose',
 });
 
-const MermaidComponent = ({ node }: any) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+const MermaidComponent = ({ node, getPos }: any) => {
   const [svg, setSvg] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const renderDiagram = async () => {
-      const content = node.textContent.trim();
+      const content = node.attrs.content;
       if (!content) {
         setSvg('');
         return;
@@ -31,35 +30,40 @@ const MermaidComponent = ({ node }: any) => {
       } catch (err: any) {
         console.error('Mermaid render error:', err);
         setError('Invalid Mermaid syntax');
-        // Clear SVG on error to show error message
         setSvg('');
       }
     };
 
-    const timeoutId = setTimeout(renderDiagram, 300);
-    return () => clearTimeout(timeoutId);
-  }, [node.textContent]);
+    renderDiagram();
+  }, [node.attrs.content]);
+
+  const handleClick = () => {
+    // Emit global event to be caught by TiptapEditor
+    const event = new CustomEvent('edit-mermaid', {
+      detail: {
+        code: node.attrs.content,
+        pos: getPos(),
+      },
+    });
+    window.dispatchEvent(event);
+  };
 
   return (
-    <NodeViewWrapper className="mermaid-wrapper">
-      <div className="mermaid-preview" style={{ background: '#f8f9fa', padding: '1rem', borderRadius: '8px', border: '1px solid #dee2e6', marginBottom: '0.5rem' }}>
+    <NodeViewWrapper className="mermaid-wrapper" onClick={handleClick} style={{ cursor: 'pointer' }}>
+      <div className="mermaid-preview" style={{ background: '#f8f9fa', padding: '1rem', borderRadius: '8px', border: '1px solid #dee2e6', marginBottom: '0.5rem', minHeight: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {error ? (
           <div style={{ color: '#dc3545', fontSize: '0.8rem', fontFamily: 'monospace' }}>{error}</div>
-        ) : (
+        ) : svg ? (
           <div 
-            ref={containerRef} 
             className="mermaid-svg"
             dangerouslySetInnerHTML={{ __html: svg }}
           />
+        ) : (
+          <div style={{ color: '#6c757d', fontSize: '0.8rem' }}>Click to add Mermaid diagram</div>
         )}
       </div>
-      <div className="mermaid-editor" style={{ position: 'relative' }}>
-        <pre style={{ margin: 0, padding: '0.5rem', background: '#272822', color: '#f8f8f2', borderRadius: '4px', fontSize: '0.85rem' }}>
-          <code>{node.textContent}</code>
-        </pre>
-        <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', fontSize: '0.65rem', color: '#75715e', fontWeight: 'bold' }}>
-          MERMAID
-        </div>
+      <div style={{ textAlign: 'center', fontSize: '0.65rem', color: '#adb5bd', marginTop: '-0.25rem' }}>
+        (Click to edit diagram)
       </div>
     </NodeViewWrapper>
   );
@@ -68,22 +72,29 @@ const MermaidComponent = ({ node }: any) => {
 export default Node.create({
   name: 'mermaid',
   group: 'block',
-  content: 'text*',
-  marks: '',
-  code: true,
-  defining: true,
+  atom: true, // Treat as a single unit
+  
+  addAttributes() {
+    return {
+      content: {
+        default: 'graph TD\n  A --> B',
+      },
+    };
+  },
 
   parseHTML() {
     return [
       {
         tag: 'pre',
-        getAttrs: node => (node as HTMLElement).classList.contains('mermaid') && null,
+        getAttrs: node => (node as HTMLElement).classList.contains('mermaid') && {
+          content: (node as HTMLElement).textContent,
+        },
       },
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
-    return ['pre', mergeAttributes(HTMLAttributes, { class: 'mermaid' }), 0];
+  renderHTML({ node, HTMLAttributes }) {
+    return ['pre', mergeAttributes(HTMLAttributes, { class: 'mermaid' }), node.attrs.content];
   },
 
   addNodeView() {
@@ -92,11 +103,11 @@ export default Node.create({
 
   addCommands() {
     return {
-      setMermaid: () => ({ commands }) => {
-        return commands.setNode(this.name);
-      },
-      toggleMermaid: () => ({ commands }) => {
-        return commands.toggleNode(this.name, 'paragraph');
+      setMermaid: (content?: string) => ({ commands }) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: { content: content || 'graph TD\n  A --> B' },
+        });
       },
     };
   },

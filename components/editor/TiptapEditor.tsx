@@ -8,8 +8,14 @@ import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { Markdown } from '@tiptap/markdown';
+import Table from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
 import Mermaid from './extensions/Mermaid';
+import { MermaidDialog } from './MermaidDialog';
 import { common, createLowlight } from 'lowlight';
+import { marked } from 'marked';
 import React, { useEffect, useState } from 'react';
 import { usersService } from '@/services/users.service';
 import { useStore } from '@/store/useStore';
@@ -26,18 +32,29 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
   const [isRawMode, setIsRawMode] = useState(false);
   const [rawHtml, setRawHtml] = useState(content);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMermaidDialogOpen, setIsMermaidDialogOpen] = useState(false);
+  const [mermaidEditData, setMermaidEditData] = useState<{ code: string; pos?: number } | null>(null);
+
   const { user } = useStore();
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        codeBlock: false, // Disable default to use lowlight
-      }),
       Markdown.configure({
         html: true,
         tightLists: true,
         bulletListMarker: '-',
+        transformPastedText: true,
+        transformCopiedText: true,
       }),
+      StarterKit.configure({
+        codeBlock: false,
+      }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
       Mermaid,
       Image.configure({
         allowBase64: true,
@@ -81,6 +98,28 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
             return true;
           }
         }
+
+        const text = event.clipboardData?.getData('text/plain');
+        if (text) {
+          // Check for markdown-like syntax
+          const isMarkdown = (
+            /^#\s/m.test(text) || 
+            /\*\*.*\*\*/.test(text) || 
+            /^---\s*$/m.test(text) || 
+            /^- [^ ]/m.test(text) || 
+            /^```/m.test(text) ||
+            /\[.*\]\(.*\)/.test(text) ||
+            /^\|.*\|$/m.test(text)
+          );
+
+          if (isMarkdown && editor) {
+            // Convert markdown to HTML and insert it
+            const html = marked.parse(text) as string;
+            editor.commands.insertContent(html);
+            return true;
+          }
+        }
+
         return false;
       },
       handleDrop: (view, event) => {
@@ -126,6 +165,18 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     }
   }, [content, editor]);
 
+  // Listen for Mermaid edit events from node views
+  useEffect(() => {
+    const handleMermaidEdit = (event: any) => {
+      const { code, pos } = event.detail;
+      setMermaidEditData({ code, pos });
+      setIsMermaidDialogOpen(true);
+    };
+
+    window.addEventListener('edit-mermaid', handleMermaidEdit);
+    return () => window.removeEventListener('edit-mermaid', handleMermaidEdit);
+  }, []);
+
   if (!editor) {
     return null;
   }
@@ -145,6 +196,20 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
     const val = e.target.value;
     setRawHtml(val);
     onChange(val);
+  };
+
+  const handleMermaidSave = (code: string) => {
+    if (mermaidEditData && mermaidEditData.pos !== undefined) {
+      // Update existing
+      editor.chain().focus().command(({ tr }) => {
+        tr.setNodeMarkup(mermaidEditData.pos!, undefined, { content: code });
+        return true;
+      }).run();
+    } else {
+      // Insert new
+      (editor as any).chain().focus().setMermaid(code).run();
+    }
+    setMermaidEditData(null);
   };
 
   return (
@@ -256,7 +321,10 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
         {/* Code & Source */}
         <div className="editor-toolbar__group" style={{ marginLeft: 'auto' }}>
           <button
-            onClick={() => (editor as any).chain().focus().toggleMermaid().run()}
+            onClick={() => {
+              setMermaidEditData(null);
+              setIsMermaidDialogOpen(true);
+            }}
             className={editor.isActive('mermaid') ? 'is-active' : ''}
             type="button"
             title="Mermaid Diagram"
@@ -308,6 +376,16 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
           <EditorContent editor={editor} />
         )}
       </div>
+
+      <MermaidDialog
+        isOpen={isMermaidDialogOpen}
+        initialCode={mermaidEditData?.code}
+        onClose={() => {
+          setIsMermaidDialogOpen(false);
+          setMermaidEditData(null);
+        }}
+        onSave={handleMermaidSave}
+      />
     </div>
   );
 };
