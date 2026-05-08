@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins, Playfair_Display } from "next/font/google";
+import { Space_Grotesk, Merriweather } from "next/font/google";
 import "../styles/globals.sass";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { Toaster } from "sonner";
@@ -7,18 +7,19 @@ import RealtimeNotificationHandler from "@/components/RealtimeNotificationHandle
 import SplashLoader from "@/components/SplashLoader";
 import { Dialog } from "@/components/ui/Dialog";
 import NavigationWrapper from "@/components/NavigationWrapper";
+import { ReadingModeProvider } from "@/components/ReadingModeProvider";
 import { GoogleTagManager } from '@next/third-parties/google';
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const merriweather = Merriweather({
+  variable: "--font-merriweather",
   subsets: ["latin"],
-  weight: ["400", "600"],
+  weight: ["300", "400", "700", "900"],
 });
 
 export const metadata: Metadata = {
@@ -110,16 +111,18 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${poppins.variable} ${playfair.variable} font-sans antialiased`}
+        className={`${spaceGrotesk.variable} ${merriweather.variable} font-sans antialiased`}
       >
-        <SplashLoader />
-        <Toaster position="top-right" richColors expand closeButton />
-        <Dialog />
-        <RealtimeNotificationHandler />
-        <NavigationWrapper />
-        <SmoothScrollProvider>
-          {children}
-        </SmoothScrollProvider>
+        <ReadingModeProvider>
+          <SplashLoader />
+          <Toaster position="top-right" richColors expand closeButton />
+          <Dialog />
+          <RealtimeNotificationHandler />
+          <NavigationWrapper />
+          <SmoothScrollProvider>
+            {children}
+          </SmoothScrollProvider>
+        </ReadingModeProvider>
       </body>
     </html>
   );

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Article } from '@/lib/types/article';
 import { Button } from '@/components/ui/Button';
+import { useReadingModeStore } from '@/store/useReadingModeStore';
 
 interface ArticlesIndexClientProps {
   initialArticles: Article[];
@@ -15,6 +16,7 @@ const ITEMS_PER_PAGE = 12;
 
 const FeaturedCarousel = ({ articles }: { articles: Article[] }) => {
   const [active, setActive] = useState(0);
+  const readingModeEnabled = useReadingModeStore(state => state.isEnabled);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -73,7 +75,7 @@ const FeaturedCarousel = ({ articles }: { articles: Article[] }) => {
                   <div className="articles-featured__overlay" />
                 </div>
                 
-                <div className="articles-featured__content">
+                <div className={`articles-featured__content ${readingModeEnabled ? 'reading-mode-active' : ''}`}>
                   <span className="articles-featured__label">Journal Vol. 0{i + 1}</span>
                   <h2 className="articles-featured__title">{article.title}</h2>
                   <p className="articles-featured__description">{article.description}</p>
@@ -104,6 +106,7 @@ const FeaturedCarousel = ({ articles }: { articles: Article[] }) => {
 export default function ArticlesIndexClient({ 
   initialArticles, 
 }: ArticlesIndexClientProps) {
+  const readingModeEnabled = useReadingModeStore(state => state.isEnabled);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -153,7 +156,7 @@ export default function ArticlesIndexClient({
   };
 
   return (
-    <div className="articles-index">
+    <div className={`articles-index ${readingModeEnabled ? 'reading-mode-active' : ''}`}>
       {featuredArticles.length > 0 && (
         <FeaturedCarousel articles={featuredArticles} />
       )}

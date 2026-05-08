@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import AboutClient from '@/components/AboutClient';
+import { useReadingModeStore } from '@/store/useReadingModeStore';
 
 interface FeaturedItem {
   id: string;
@@ -12,10 +13,12 @@ interface FeaturedItem {
 
 const FeaturedSection = ({ 
   item, 
-  index 
+  index,
+  readingModeEnabled
 }: { 
   item: FeaturedItem, 
-  index: number 
+  index: number,
+  readingModeEnabled: boolean
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -77,7 +80,7 @@ const FeaturedSection = ({
   return (
     <section 
       ref={sectionRef}
-      className={`articles-parallax__section ${isVisible ? 'is-visible' : ''}`}
+      className={`articles-parallax__section ${isVisible ? 'is-visible' : ''} ${readingModeEnabled ? 'reading-mode-enabled' : ''}`}
       style={{ zIndex: index + 10 }}
     >
       <div 
@@ -87,15 +90,15 @@ const FeaturedSection = ({
         }}
       />
       
-      <div className="articles-parallax__content">
+      <div className={`articles-parallax__content ${readingModeEnabled ? 'reading-mode-active' : ''}`}>
         <div className="articles-parallax__main-info">
           <span className="articles-parallax__eyebrow">
             {item.type === 'article' ? 'Curated Edition' : 'Digital Volume'} / Vol. 0{index + 1}
           </span>
           
-          <h2 className="articles-parallax__title">
+          <h3 className="articles-parallax__title">
             {item.title || item.data.title}
-          </h2>
+          </h3>
           
           <p className="articles-parallax__description">
             {item.data.description || (item.type === 'article' ? "An immersive technical study designed for the modern reader." : "A curated collection of technical depth.")}
@@ -118,11 +121,12 @@ const FeaturedSection = ({
 };
 
 export default function HomeClient({ profile, featured }: { profile: any; featured: FeaturedItem[] }) {
+  const readingModeEnabled = useReadingModeStore(state => state.isEnabled);
   return (
-    <div className="landing-container">
+    <div className={`landing-container ${readingModeEnabled ? 'reading-mode-active' : ''}`}>
       <div className="articles-parallax">
         {/* --- Hero Section --- */}
-        <section className="landing" style={{ zIndex: 1, height: '100vh', position: 'relative', scrollSnapAlign: 'start' }}>
+        <section className={`landing ${readingModeEnabled ? 'reading-mode-active' : ''}`} style={{ zIndex: 1, height: '100vh', position: 'relative', scrollSnapAlign: 'start' }}>
           <div className="landing__bg" />
           
           <section className="landing__hero">
@@ -150,7 +154,8 @@ export default function HomeClient({ profile, featured }: { profile: any; featur
             <FeaturedSection 
               key={item.id} 
               item={item} 
-              index={index} 
+              index={index}
+              readingModeEnabled={readingModeEnabled}
             />
           ))
         ) : (

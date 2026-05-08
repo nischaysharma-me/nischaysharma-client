@@ -17,6 +17,11 @@
     background-color: $color-black
     overflow: hidden
 
+    &.reading-mode-active
+      height: 60vh
+      @media (min-width: 768px)
+        height: 80vh
+
     img
       position: absolute
       inset: 0
@@ -36,9 +41,15 @@
     text-align: center
     color: $color-white
 
+    &.reading-mode-active
+      max-width: $reading-mode-max-width
+      padding: 2rem
+      @media (min-width: 768px)
+        padding: 3rem
+
   &__title
     font-family: $font-serif
-    font-size: clamp(1.75rem, 6vw, 4.5rem)
+    font-size: clamp(1.5rem, 5vw, 3.5rem)
     line-height: 1.1
     margin-bottom: 1.5rem
     @media (min-width: 768px)
@@ -46,7 +57,13 @@
     font-weight: 400
     letter-spacing: -0.02em
     @media (max-width: 320px)
-      font-size: 1.5rem
+      font-size: 1.25rem
+
+    &.reading-mode-active
+      font-size: clamp(1.75rem, 6vw, 4.25rem)
+      margin-bottom: 2rem
+      @media (min-width: 768px)
+        margin-bottom: 3rem
 
   &__meta
     display: flex
@@ -69,6 +86,18 @@
     @media (min-width: 768px)
       letter-spacing: 0.2em
     color: rgba(255, 255, 255, 0.6)
+
+    &.reading-mode-active
+      font-size: 0.7rem
+      @media (min-width: 480px)
+        font-size: 0.75rem
+      @media (min-width: 768px)
+        font-size: 0.875rem
+      gap: 1rem
+      @media (min-width: 480px)
+        gap: 1.25rem
+      @media (min-width: 768px)
+        gap: 1.75rem
 
     .dot
       width: 4px
@@ -97,6 +126,17 @@
       border-radius: 0
       padding: 2.5rem 1.25rem
 
+    &.reading-mode-active
+      max-width: $reading-mode-max-width
+      padding: 3rem 2rem
+      @media (min-width: 768px)
+        padding: 5rem 3rem
+      @media (max-width: 767px)
+        padding: 2rem 1.5rem
+
+    &.sepia-active
+      background-color: $reading-mode-sepia-bg
+
   &__description
     font-size: 1.125rem
     @media (min-width: 768px)
@@ -112,6 +152,18 @@
     @media (min-width: 768px)
       padding-left: 1.5rem
 
+    &.reading-mode-active
+      font-size: 1.25rem
+      @media (min-width: 768px)
+        font-size: 1.5rem
+      line-height: 1.8
+      margin-bottom: 2.5rem
+      @media (min-width: 768px)
+        margin-bottom: 3.5rem
+      padding-left: 1.5rem
+      @media (min-width: 768px)
+        padding-left: 2rem
+
   &__content
     font-size: 1rem
     @media (min-width: 768px)
@@ -120,6 +172,15 @@
     @media (min-width: 768px)
       line-height: 1.8
     color: $color-text-primary
+    max-width: 65ch
+
+    &.reading-mode-active
+      font-size: $reading-mode-font-base
+      @media (min-width: 768px)
+        font-size: $reading-mode-font-large
+      line-height: $reading-mode-line-height
+      max-width: $reading-mode-max-width
+      letter-spacing: 0.02em
 
     h2
       font-size: 1.5rem
