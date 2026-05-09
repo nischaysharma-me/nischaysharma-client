@@ -10,8 +10,40 @@
   position: relative
   z-index: 10
   
+  &--overlay
+    position: fixed
+    inset: 0
+    z-index: 900 // Below main header (1000)
+    overflow-y: auto
+    padding-top: 6rem // Increased to clear fixed site header
+    
+    @media (min-width: 768px)
+      padding-top: 8rem
+
   @media (min-width: 768px)
     padding: 7rem 3rem 4rem
+
+  &__nav-links
+    display: flex
+    gap: 1.5rem
+    
+  &__nav-link
+    text-decoration: none
+    color: inherit
+    font-weight: 700
+    font-size: 0.7rem
+    transition: opacity 0.2s
+    
+    &:hover
+      opacity: 0.6
+
+  &__close-btn
+    cursor: pointer
+    color: #888
+    transition: color 0.2s
+    
+    &:hover
+      color: $color-black
 
   &__container
     max-width: 1400px
@@ -196,6 +228,24 @@
     border-top: 3px double $color-black
     padding: 2rem 0
     text-align: center
+
+  &__socials
+    display: flex
+    justify-content: center
+    gap: 2rem
+    margin-bottom: 1.5rem
+
+  &__social-link
+    font-size: 1.5rem
+    color: rgba($color-black, 0.4)
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+    display: flex
+    align-items: center
+    justify-content: center
+    
+    &:hover
+      color: $color-black
+      transform: translateY(-3px) scale(1.1)
 
   &__copyright
     font-family: $font-sans
