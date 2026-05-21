@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     description: "Minimalist portfolio and magazine for Nischay Sharma. Explore technical stories, documentation, and curated collections.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Nischay Sharma | Portfolio, Technical Writing & Inspiration",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     title: "Nischay Sharma | Portfolio, Technical Writing & Inspiration",
     description: "Minimalist portfolio and magazine for Nischay Sharma. Explore technical stories, documentation, and curated collections.",
     creator: "@nishuns",
-    images: ["/og-image.png"],
+    images: ["/og-image.jpg"],
   },
   icons: {
     icon: "/icon.svg",
