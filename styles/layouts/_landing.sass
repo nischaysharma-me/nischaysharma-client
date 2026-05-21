@@ -9,6 +9,21 @@
   background-color: #e5e5e5
   scroll-snap-align: start
 
+  &.reading-mode-active
+    .landing__header
+      top: 1rem
+      padding: 0.5rem 1.25rem
+      background: rgba(255, 255, 255, 0.9)
+      backdrop-filter: blur(16px)
+      -webkit-backdrop-filter: blur(16px)
+      opacity: 0.95
+      transform: translateX(-50%) scale(0.95)
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08)
+    @media (min-width: 768px)
+      .landing__header
+        top: 1rem
+        width: 90%
+
   &__bg
     position: absolute
     inset: 0
@@ -38,7 +53,17 @@
     border: 1px solid rgba(0, 0, 0, 0.1)
     border-radius: $radius-pill
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1)
-    @include transition(background, border, box-shadow)
+    @include transition(background, border, box-shadow, transform, opacity, 200ms)
+
+    &.reading-mode-active
+      top: 1rem
+      padding: 0.5rem 1.25rem
+      background: rgba(255, 255, 255, 0.9)
+      backdrop-filter: blur(16px)
+      -webkit-backdrop-filter: blur(16px)
+      opacity: 0.95
+      transform: translateX(-50%) scale(0.95)
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08)
 
     &:hover
       background: rgba(255, 255, 255, 0.85)
@@ -47,6 +72,20 @@
     @media (min-width: 768px)
       top: 1.5rem
       width: 85%
+
+    &.reading-mode-active
+      @media (min-width: 768px)
+        top: 1rem
+        width: 90%
+
+  &__header-left
+    display: flex
+    align-items: center
+    gap: 1rem
+    justify-content: center
+
+    &.reading-mode-active
+      gap: 0.75rem
 
   &__brand
     font-size: 0.7rem
@@ -61,6 +100,14 @@
     text-transform: uppercase
     text-decoration: none
 
+    &.reading-mode-active
+      font-size: 0.8rem
+      @media (min-width: 480px)
+        font-size: 0.85rem
+      @media (min-width: 768px)
+        font-size: 0.95rem
+      letter-spacing: 2.5px
+
   &__logo
     color: $color-black
     display: flex
@@ -72,6 +119,14 @@
       @media (min-width: 768px)
         width: 24px
         height: 24px
+
+    &.reading-mode-active
+      svg, i
+        width: 24px
+        height: 24px
+        @media (min-width: 768px)
+          width: 28px
+          height: 28px
 
   &__menu-btn
     font-size: 0.75rem
@@ -90,6 +145,12 @@
     &:hover
       opacity: 0.7
 
+    &.reading-mode-active
+      font-size: 0.85rem
+      @media (min-width: 768px)
+        font-size: 0.95rem
+      letter-spacing: 1.5px
+
   &__hero
     position: absolute
     top: 0
@@ -101,12 +162,20 @@
     pointer-events: none
     padding: 2rem
 
+    &.reading-mode-active
+      padding: 3rem 2rem
+      .landing__hero-wrapper
+        max-width: $reading-mode-max-width
+
   &__hero-wrapper
     display: flex
     flex-direction: column
     align-items: center
     justify-content: center
     text-align: center
+
+    &.reading-mode-active
+      max-width: $reading-mode-max-width
 
   &__title
     font-family: $font-serif
@@ -128,6 +197,9 @@
       color: $color-black
       opacity: 0.8
 
+    &.reading-mode-active
+      font-size: clamp(2.5rem, 12vw, 7rem)
+
   &__footer
     position: absolute
     bottom: 1.5rem
@@ -142,3 +214,61 @@
     letter-spacing: 2px
     color: #333333
     text-transform: uppercase
+
+    &.reading-mode-active
+      font-size: 0.75rem
+      letter-spacing: 2.5px
+
+.reading-mode-toggle
+  display: flex
+  align-items: center
+  gap: 0.5rem
+
+  &__btn
+    background: transparent
+    border: none
+    color: $color-black
+    cursor: pointer
+    padding: 0.5rem
+    border-radius: 50%
+    @include transition(background-color, transform)
+    display: flex
+    align-items: center
+    justify-content: center
+
+    &:hover
+      background-color: rgba(0, 0, 0, 0.1)
+      transform: scale(1.1)
+
+    &.active
+      color: $color-black
+      background-color: rgba(0, 0, 0, 0.1)
+      i
+        opacity: 1
+
+    i
+      font-size: 1.25rem
+      opacity: 0.7
+
+  &__sepia
+    background: transparent
+    border: none
+    color: $color-black
+    cursor: pointer
+    padding: 0.5rem
+    border-radius: 50%
+    @include transition(background-color, transform)
+    display: flex
+    align-items: center
+    justify-content: center
+
+    &:hover
+      background-color: rgba(0, 0, 0, 0.1)
+      transform: scale(1.1)
+
+    &.active
+      color: #d97706
+      background-color: rgba(217, 119, 6, 0.1)
+
+    i
+      font-size: 1.25rem

@@ -6,7 +6,7 @@ import { Metadata } from 'next';
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
 export const metadata: Metadata = {
-  title: "Nischay Sharma - For Downtime & Inspiration",
+  title: "Nischay Sharma | Portfolio, Technical Writing & Inspiration",
   description: "Minimalist portfolio and magazine for Nischay Sharma. Explore technical stories, documentation, and curated collections.",
   alternates: {
     canonical: '/',

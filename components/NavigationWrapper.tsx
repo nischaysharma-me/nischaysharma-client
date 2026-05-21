@@ -1,17 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Header from './Header';
-import Menu from './Menu';
-import { useStore } from '@/store/useStore';
+import BillboardOverlay from './BillboardOverlay';
+import { useBillboardOverlayStore } from '@/store/useBillboardOverlayStore';
 
 export default function NavigationWrapper() {
-  const { isMenuOpen, toggleMenu } = useStore();
+  const fetchBillboards = useBillboardOverlayStore(state => state.fetchBillboards);
+
+  useEffect(() => {
+    // Pre-fetch billboard data in the background for zero-latency overlay
+    fetchBillboards();
+  }, [fetchBillboards]);
 
   return (
     <>
       <Header />
-      <Menu isOpen={isMenuOpen} onClose={() => toggleMenu()} />
+      <BillboardOverlay />
     </>
   );
 }
