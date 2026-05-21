@@ -25,7 +25,7 @@ const merriweather = Merriweather({
 export const metadata: Metadata = {
   metadataBase: new URL('https://nischaysharma.com'),
   title: {
-    default: "Nischay Sharma - For Downtime & Inspiration",
+    default: "Nischay Sharma | Portfolio, Technical Writing & Inspiration",
     template: "%s | Nischay Sharma"
   },
   description: "Minimalist portfolio and magazine for Nischay Sharma. Explore technical stories, documentation, and curated collections.",
@@ -37,23 +37,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://nischaysharma.com",
     siteName: "Nischay Sharma",
-    title: "Nischay Sharma - For Downtime & Inspiration",
-    description: "Minimalist portfolio and magazine for Nischay Sharma.",
+    title: "Nischay Sharma | Portfolio, Technical Writing & Inspiration",
+    description: "Minimalist portfolio and magazine for Nischay Sharma. Explore technical stories, documentation, and curated collections.",
     images: [
       {
-        url: "/architectural-concrete-monument.png",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Nischay Sharma Portfolio",
+        alt: "Nischay Sharma | Portfolio, Technical Writing & Inspiration",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nischay Sharma - For Downtime & Inspiration",
-    description: "Minimalist portfolio and magazine for Nischay Sharma.",
+    title: "Nischay Sharma | Portfolio, Technical Writing & Inspiration",
+    description: "Minimalist portfolio and magazine for Nischay Sharma. Explore technical stories, documentation, and curated collections.",
     creator: "@nishuns",
-    images: ["/architectural-concrete-monument.png"],
+    images: ["/og-image.png"],
   },
   icons: {
     icon: "/icon.svg",

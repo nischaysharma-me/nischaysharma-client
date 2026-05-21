@@ -7,13 +7,13 @@ import { Metadata } from 'next';
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
 export const metadata: Metadata = {
-  title: "The Digital Anthology | Nischay Sharma",
+  title: "The Digital Anthology: Essays & Writing | Nischay Sharma",
   description: "Browse the complete collection of technical insights, architectural studies, and digital narratives from Nischay Sharma.",
   alternates: {
     canonical: '/articles',
   },
   openGraph: {
-    title: "The Digital Anthology | Nischay Sharma",
+    title: "The Digital Anthology: Essays & Writing | Nischay Sharma",
     description: "Browse the complete collection of technical insights, architectural studies, and digital narratives from Nischay Sharma.",
     url: "https://nischaysharma.com/articles",
     type: "website",

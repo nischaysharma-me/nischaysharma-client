@@ -6,13 +6,13 @@ import { Metadata } from 'next';
 export const revalidate = 3600; // Cache for 1 hour
 
 export const metadata: Metadata = {
-  title: "About Nischay Sharma | Lead Developer & Architect",
+  title: "About Nischay Sharma | Lead Software Engineer & Architect",
   description: "Learn about Nischay Sharma, a lead developer specializing in scalable backend systems, cloud-native architectures, and AI orchestration.",
   alternates: {
     canonical: '/about',
   },
   openGraph: {
-    title: "About Nischay Sharma | Lead Developer & Architect",
+    title: "About Nischay Sharma | Lead Software Engineer & Architect",
     description: "Learn about Nischay Sharma, a lead developer specializing in scalable backend systems, cloud-native architectures, and AI orchestration.",
     url: "https://nischaysharma.com/about",
     type: "profile",
