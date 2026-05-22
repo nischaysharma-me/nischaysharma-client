@@ -9,6 +9,7 @@ export const revalidate = 60; // ISR: Revalidate every 60 seconds
 export const metadata: Metadata = {
   title: "The Digital Anthology: Essays & Writing | Nischay Sharma",
   description: "Browse the complete collection of technical insights, architectural studies, and digital narratives from Nischay Sharma.",
+  keywords: ["Nischay Sharma", "Nishchay Sharma", "Nischay", "Nishchay", "Edvanta", "Thoughtjumper", "Thought Jumper", "TaughtCode", "Software Engineering", "Minimalist Portfolio", "Technical Writing"],
   alternates: {
     canonical: '/articles',
   },
