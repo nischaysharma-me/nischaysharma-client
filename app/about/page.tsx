@@ -8,6 +8,7 @@ export const revalidate = 3600; // Cache for 1 hour
 export const metadata: Metadata = {
   title: "About Nischay Sharma | Lead Software Engineer & Architect",
   description: "Learn about Nischay Sharma, a lead developer specializing in scalable backend systems, cloud-native architectures, and AI orchestration.",
+  keywords: ["Nischay Sharma", "Nishchay Sharma", "Nischay", "Nishchay", "Edvanta", "Thoughtjumper", "Thought Jumper", "TaughtCode", "Software Engineering", "Minimalist Portfolio", "Technical Writing"],
   alternates: {
     canonical: '/about',
   },

@@ -8,6 +8,7 @@ export const revalidate = 60; // ISR: Revalidate every 60 seconds
 export const metadata: Metadata = {
   title: "Nischay Sharma | Portfolio, Technical Writing & Inspiration",
   description: "Minimalist portfolio and magazine for Nischay Sharma. Explore technical stories, documentation, and curated collections.",
+  keywords: ["Nischay Sharma", "Nishchay Sharma", "Nischay", "Nishchay", "Edvanta", "Thoughtjumper", "Thought Jumper", "TaughtCode", "Software Engineering", "Minimalist Portfolio", "Technical Writing"],
   alternates: {
     canonical: '/',
   },

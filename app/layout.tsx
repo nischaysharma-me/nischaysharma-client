@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | Nischay Sharma"
   },
   description: "Minimalist portfolio and magazine for Nischay Sharma. Explore technical stories, documentation, and curated collections.",
-  keywords: ["Nischay Sharma", "TaughtCode", "Software Engineering", "Minimalist Portfolio", "Technical Writing"],
+  keywords: ["Nischay Sharma", "Nishchay Sharma", "Nischay", "Nishchay", "Edvanta", "Thoughtjumper", "Thought Jumper", "TaughtCode", "Software Engineering", "Minimalist Portfolio", "Technical Writing"],
   authors: [{ name: "Nischay Sharma" }],
   creator: "Nischay Sharma",
   openGraph: {
@@ -88,16 +88,36 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Person",
     "name": "Nischay Sharma",
+    "alternateName": ["Nishchay Sharma", "Nishchay", "Nischay"],
     "url": "https://nischaysharma.com",
     "jobTitle": "Software Engineer & Creator",
     "sameAs": [
       "https://github.com/nishuns",
       "https://linkedin.com/in/nischaysharma"
     ],
-    "worksFor": {
-      "@type": "Organization",
-      "name": "TaughtCode"
-    }
+    "worksFor": [
+      {
+        "@type": "Organization",
+        "name": "TaughtCode"
+      },
+      {
+        "@type": "Organization",
+        "name": "Thoughtjumper"
+      }
+    ],
+    "alumniOf": [
+      {
+        "@type": "Organization",
+        "name": "Edvanta"
+      }
+    ],
+    "knowsAbout": [
+      "Software Engineering",
+      "AI Orchestration",
+      "System Architecture",
+      "Thoughtjumper",
+      "Edvanta"
+    ]
   };
 
   return (

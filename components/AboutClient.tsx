@@ -76,7 +76,22 @@ interface AboutClientProps {
 export default function AboutClient({ profile, showBanner = false }: AboutClientProps) {
   const github = profile?.analytics?.github;
   
-  const positions = profile?.experience || [];
+  const positions = profile?.experience?.length ? profile.experience : [
+    {
+      startDate: "2023",
+      endDate: "Present",
+      title: "Lead Engineer & Architect",
+      company: "Thoughtjumper",
+      description: "Architected core knowledge engines and full-stack orchestration layers, scaling critical platform infrastructure.",
+    },
+    {
+      startDate: "2021",
+      endDate: "2023",
+      title: "Software Architect",
+      company: "Edvanta",
+      description: "Engineered robust and scalable cloud-native backend systems, led enterprise database modeling, and optimized high-throughput APIs.",
+    }
+  ];
   const education = profile?.education || [];
   const skills = profile?.skills?.length ? profile.skills : ['TypeScript', 'Node.js', 'Next.js', 'React', 'Python', 'Go', 'Docker', 'Kubernetes', 'AWS', 'Firebase', 'PostgreSQL', 'MongoDB', 'GraphQL', 'REST APIs', 'System Design'];
   const expertise = profile?.expertise?.length ? profile.expertise : ['System Architecture', 'Cloud Infrastructure', 'API Design', 'Database Modeling', 'DevOps', 'Security'];
