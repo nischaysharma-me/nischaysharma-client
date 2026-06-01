@@ -13,6 +13,7 @@ import AdminLoading from '@/app/admin/loading';
 import { format } from 'date-fns';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import TiptapEditor from '@/components/editor/TiptapEditor';
 
 export default function ProfileClient() {
   const router = useRouter();
@@ -533,25 +534,19 @@ export default function ProfileClient() {
 
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
               <label className="label">Biography</label>
-              <textarea 
-                className="input"
-                style={{ minHeight: '120px', resize: 'vertical', padding: '1rem', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }}
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                placeholder="Tell us about yourself..."
-                maxLength={1000}
+              <TiptapEditor 
+                content={bio}
+                onChange={setBio}
+                isCompact={true}
               />
             </div>
 
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
               <label className="label">The Vision</label>
-              <textarea 
-                className="input"
-                style={{ minHeight: '120px', resize: 'vertical', padding: '1rem', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }}
-                value={vision}
-                onChange={(e) => setVision(e.target.value)}
-                placeholder="What is your long-term goal or vision?"
-                maxLength={2000}
+              <TiptapEditor 
+                content={vision}
+                onChange={setVision}
+                isCompact={true}
               />
             </div>
 
@@ -576,7 +571,12 @@ export default function ProfileClient() {
                    {newExperience.logo && <img src={newExperience.logo} style={{ height: '40px' }} alt="Logo" />}
                 </div>
                 <div style={{ gridColumn: 'span 2' }}>
-                  <textarea className="input" style={{ minHeight: '80px', padding: '0.75rem', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }} value={newExperience.description} onChange={e => setNewExperience({...newExperience, description: e.target.value})} placeholder="Description" />
+                  <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>Job Description</label>
+                  <TiptapEditor 
+                    content={newExperience.description} 
+                    onChange={html => setNewExperience({...newExperience, description: html})} 
+                    isCompact={true} 
+                  />
                 </div>
                 <Button type="button" variant="secondary" className="btn--full" onClick={addExperience} disabled={!newExperience.title || !newExperience.company}>Add Experience</Button>
               </div>
@@ -600,7 +600,12 @@ export default function ProfileClient() {
                         {editExperience.logo && <img src={editExperience.logo} style={{ height: '40px' }} alt="Logo" />}
                       </div>
                       <div style={{ gridColumn: 'span 2' }}>
-                        <textarea className="input" style={{ minHeight: '80px', padding: '0.75rem', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }} value={editExperience.description} onChange={e => setEditExperience({...editExperience, description: e.target.value})} placeholder="Description" />
+                        <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>Job Description</label>
+                        <TiptapEditor 
+                          content={editExperience.description} 
+                          onChange={html => setEditExperience({...editExperience, description: html})} 
+                          isCompact={true} 
+                        />
                       </div>
                       <div style={{ gridColumn: 'span 2', display: 'flex', gap: '1rem' }}>
                         <Button type="button" variant="primary" className="btn--full" onClick={saveEditExperience} disabled={!editExperience.title || !editExperience.company}><i className="ph ph-check" style={{ marginRight: '0.5rem' }} /> Save</Button>
@@ -663,7 +668,14 @@ export default function ProfileClient() {
               <input type="file" ref={projectInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('project', e.target.files[0])} />
               <div style={{ display: 'grid', gap: '1rem', padding: '1.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.5rem', marginBottom: '1rem' }}>
                 <Input value={newProject.title} onChange={e => setNewProject({...newProject, title: e.target.value})} placeholder="Title" />
-                <textarea className="input" style={{ minHeight: '80px', padding: '0.75rem', backgroundColor: 'var(--color-bg-primary)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }} value={newProject.description} onChange={e => setNewProject({...newProject, description: e.target.value})} placeholder="Description" />
+                <div className="form-group">
+                  <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>Project Description</label>
+                  <TiptapEditor 
+                    content={newProject.description} 
+                    onChange={html => setNewProject({...newProject, description: html})} 
+                    isCompact={true} 
+                  />
+                </div>
                 <Input value={newProject.link} onChange={e => setNewProject({...newProject, link: e.target.value})} placeholder="Link" />
                 <Button type="button" variant="ghost" onClick={() => projectInputRef.current?.click()} loading={isUploadingNested === 'project'}>
                   {newProject.image ? 'Image Uploaded' : 'Upload Project Image'}

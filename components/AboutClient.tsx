@@ -3,6 +3,9 @@
 import React, { useEffect, useRef } from 'react';
 import ActivityHeatmap, { ActivityDay } from '@/components/ui/ActivityHeatmap';
 
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 interface GitHubStats {
   totalRepos: number;
   totalStars: number;
@@ -72,6 +75,12 @@ interface AboutClientProps {
   profile: Profile | null;
   showBanner?: boolean;
 }
+
+const MarkdownContent = ({ content, className }: { content: string, className?: string }) => (
+  <div className={`markdown-content ${className || ''}`}>
+    <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+  </div>
+);
 
 export default function AboutClient({ profile, showBanner = false }: AboutClientProps) {
   const github = profile?.analytics?.github;
@@ -148,9 +157,11 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
             
             <div className="about-hero__grid">
               <div className="about-hero__bio-col">
-                <p className="about-hero__bio-text">
-                  {profile?.bio || 'I am a lead developer specializing in building scalable backend systems, architecting cloud-native applications, and creating intuitive developer experiences.'}
-                </p>
+                <div className="about-hero__bio-text">
+                  <MarkdownContent 
+                    content={profile?.bio || 'I am a lead developer specializing in building scalable backend systems, architecting cloud-native applications, and creating intuitive developer experiences.'} 
+                  />
+                </div>
                 
                 {github && (
                   <div className="about-github-stats">
@@ -207,9 +218,11 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
            <div className="about-vision__container">
               <div className="about-vision__content">
                 <h2 className="section-label">The Vision</h2>
-                <p className="vision-text">
-                   {profile?.vision || 'TaughtCode aims to become the standard for "Smart Backend" architectures—where infrastructure doesn\'t just store data, but actively participates in value creation.'}
-                </p>
+                <div className="vision-text">
+                   <MarkdownContent 
+                    content={profile?.vision || 'TaughtCode aims to become the standard for "Smart Backend" architectures—where infrastructure doesn\'t just store data, but actively participates in value creation.'} 
+                   />
+                </div>
               </div>
            </div>
         </section>
@@ -231,7 +244,9 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                        <div className="project-node__overlay">
                           <div className="project-node__content">
                              <h3 className="project-node__title">{project.title}</h3>
-                             <p className="project-node__desc">{project.description}</p>
+                             <div className="project-node__desc">
+                               <MarkdownContent content={project.description} />
+                             </div>
                              {project.link && (
                                <a href={project.link} target="_blank" className="project-node__link">
                                  EXPLORE <i className="ph ph-arrow-right" />
@@ -268,7 +283,9 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                         <span className="career-item__date">{pos.startDate} — {pos.endDate}</span>
                       </div>
                       <p className="career-item__company">{pos.company}</p>
-                      <p className="career-item__description">{pos.description}</p>
+                      <div className="career-item__description">
+                        <MarkdownContent content={pos.description} />
+                      </div>
                     </div>
                   </div>
                 ))}
