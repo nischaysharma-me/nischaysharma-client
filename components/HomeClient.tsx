@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import AboutClient from '@/components/AboutClient';
 import { useReadingModeStore } from '@/store/useReadingModeStore';
+import MarkdownView from '@/components/ui/MarkdownView';
 
 interface FeaturedItem {
   id: string;
@@ -100,9 +101,9 @@ const FeaturedSection = ({
             {item.title || item.data.title}
           </h3>
           
-          <p className="articles-parallax__description">
-            {item.data.description || (item.type === 'article' ? "An immersive technical study designed for the modern reader." : "A curated collection of technical depth.")}
-          </p>
+          <div className="articles-parallax__description">
+            <MarkdownView content={item.data.description || (item.type === 'article' ? "An immersive technical study designed for the modern reader." : "A curated collection of technical depth.")} />
+          </div>
         </div>
 
         <div className="articles-parallax__preview-col">

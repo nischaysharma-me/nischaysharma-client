@@ -76,10 +76,10 @@ interface AboutClientProps {
   showBanner?: boolean;
 }
 
+import MarkdownView from '@/components/ui/MarkdownView';
+
 const MarkdownContent = ({ content, className }: { content: string, className?: string }) => (
-  <div className={`markdown-content ${className || ''}`}>
-    <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
-  </div>
+  <MarkdownView content={content} className={className} />
 );
 
 export default function AboutClient({ profile, showBanner = false }: AboutClientProps) {
