@@ -410,7 +410,24 @@ export default function ProfileClient() {
   };
 
   const openEditExperience = (index: number) => {
-    setExpForm({ ...experience[index] });
+    const exp = experience[index];
+    if (!exp.roles) {
+      // Inline migration for safety
+      setExpForm({
+        company: exp.company || '',
+        logo: exp.logo || '',
+        location: exp.location || '',
+        roles: [{
+          title: exp.title || '',
+          startDate: exp.startDate || '',
+          endDate: exp.endDate || '',
+          description: exp.description || '',
+          employmentType: ''
+        }]
+      });
+    } else {
+      setExpForm({ ...exp });
+    }
     setEditingExperienceIndex(index);
     setShowExperienceModal(true);
   };
@@ -797,69 +814,106 @@ export default function ProfileClient() {
         )}
 
         {showExperienceModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-            <div className="card" style={{ width: '100%', maxWidth: '800px', background: 'var(--color-bg-secondary)', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem' }}>
-              <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>{editingExperienceIndex !== null ? 'Edit Experience' : 'Add Professional Experience'}</h3>
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="modal-overlay" 
+            style={{ 
+              position: 'fixed', 
+              inset: 0, 
+              zIndex: 9999, 
+              background: 'rgba(0, 0, 0, 0.4)', 
+              backdropFilter: 'blur(8px)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              padding: '1.5rem' 
+            }}
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="card" 
+              style={{ 
+                width: '100%', 
+                maxWidth: '850px', 
+                background: 'var(--color-bg-primary)', 
+                maxHeight: '90vh', 
+                overflow: 'hidden', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                borderRadius: '1.25rem',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                border: '1px solid var(--color-border)'
+              }}
+            >
+              <div style={{ padding: '1.5rem 2.5rem', borderBottom: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--color-bg-secondary)' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>{editingExperienceIndex !== null ? 'Edit Experience' : 'Add Professional Experience'}</h3>
                 <Button variant="ghost" onClick={() => setShowExperienceModal(false)} style={{ padding: '0.5rem' }}><i className="ph ph-x" style={{ fontSize: '1.25rem' }} /></Button>
               </div>
               
-              <div style={{ flex: 1, overflowY: 'auto', padding: '2rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2.5rem' }}>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '2.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
                   <div style={{ gridColumn: 'span 2' }}>
-                    <label className="label">Company Name</label>
+                    <label className="label" style={{ marginBottom: '0.75rem', display: 'block' }}>Company Name</label>
                     <Input value={expForm.company} onChange={e => setExpForm({ ...expForm, company: e.target.value })} placeholder="e.g. Google, TaughtCode" />
                   </div>
                   <div>
-                    <label className="label">Location (Optional)</label>
+                    <label className="label" style={{ marginBottom: '0.75rem', display: 'block' }}>Location (Optional)</label>
                     <Input value={expForm.location} onChange={e => setExpForm({ ...expForm, location: e.target.value })} placeholder="e.g. Remote, Mountain View, CA" />
                   </div>
                   <div>
-                    <label className="label">Company Logo</label>
+                    <label className="label" style={{ marginBottom: '0.75rem', display: 'block' }}>Company Logo</label>
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                       <Button variant="secondary" onClick={() => experienceInputRef.current?.click()} loading={isUploadingNested === 'experience'} style={{ flex: 1 }}>
                         {expForm.logo ? 'Change Logo' : 'Upload Logo'}
                       </Button>
-                      {expForm.logo && <div style={{ width: '40px', height: '40px', background: '#fff', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ddd' }}><img src={expForm.logo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></div>}
+                      {expForm.logo && (
+                        <div style={{ width: '42px', height: '42px', background: '#fff', borderRadius: '0.75rem', overflow: 'hidden', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}>
+                          <img src={expForm.logo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        </div>
+                      )}
                       <input type="file" ref={experienceInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('experience', e.target.files[0])} />
                     </div>
                   </div>
                 </div>
 
-                <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '2rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                    <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>Roles & Positions</h4>
-                    <Button variant="ghost" onClick={handleAddRole} style={{ fontSize: '0.8rem', color: 'var(--color-accent)' }}>
-                      <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} /> Add Role
+                <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '2.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>Roles & Positions</h4>
+                    <Button variant="ghost" onClick={handleAddRole} style={{ fontSize: '0.875rem', color: 'var(--color-accent)', fontWeight: 600 }}>
+                      <i className="ph ph-plus" style={{ marginRight: '0.5rem' }} /> Add Another Role
                     </Button>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                    {expForm.roles.map((role: any, idx: number) => (
-                      <div key={idx} style={{ padding: '1.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '1rem', position: 'relative' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                    {(expForm.roles || []).map((role: any, idx: number) => (
+                      <div key={idx} style={{ padding: '2rem', background: 'var(--color-bg-secondary)', borderRadius: '1rem', position: 'relative', border: '1px solid var(--color-border)' }}>
                         {expForm.roles.length > 1 && (
-                          <button onClick={() => handleRemoveRole(idx)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--color-error)', cursor: 'pointer' }}><i className="ph ph-trash" /></button>
+                          <button onClick={() => handleRemoveRole(idx)} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'none', border: 'none', color: 'var(--color-error)', cursor: 'pointer', opacity: 0.6, transition: 'opacity 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.opacity = '1'} onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}><i className="ph ph-trash" style={{ fontSize: '1.1rem' }} /></button>
                         )}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
                           <div style={{ gridColumn: 'span 2' }}>
-                            <label className="label" style={{ fontSize: '0.75rem' }}>Title</label>
+                            <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>Job Title</label>
                             <Input value={role.title} onChange={e => handleRoleChange(idx, 'title', e.target.value)} placeholder="e.g. Senior Software Engineer" />
                           </div>
                           <div>
-                            <label className="label" style={{ fontSize: '0.75rem' }}>Start Date</label>
+                            <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>Start Date</label>
                             <Input value={role.startDate} onChange={e => handleRoleChange(idx, 'startDate', e.target.value)} placeholder="e.g. Jan 2021" />
                           </div>
                           <div>
-                            <label className="label" style={{ fontSize: '0.75rem' }}>End Date</label>
+                            <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>End Date</label>
                             <Input value={role.endDate} onChange={e => handleRoleChange(idx, 'endDate', e.target.value)} placeholder="e.g. Present or Dec 2022" />
                           </div>
                           <div style={{ gridColumn: 'span 2' }}>
-                            <label className="label" style={{ fontSize: '0.75rem' }}>Employment Type</label>
+                            <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>Employment Type</label>
                             <Input value={role.employmentType} onChange={e => handleRoleChange(idx, 'employmentType', e.target.value)} placeholder="e.g. Full-time, Freelance" />
                           </div>
                         </div>
                         <div>
-                          <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>Description</label>
+                          <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.75rem', display: 'block' }}>Role Description</label>
                           <TiptapEditor 
                             content={role.description} 
                             onChange={html => handleRoleChange(idx, 'description', html)} 
@@ -872,11 +926,11 @@ export default function ProfileClient() {
                 </div>
               </div>
 
-              <div style={{ padding: '1.5rem 2rem', borderTop: '1px solid var(--color-border)', display: 'flex', gap: '1rem', background: 'var(--color-bg-tertiary)' }}>
+              <div style={{ padding: '1.5rem 2.5rem', borderTop: '1px solid var(--color-border)', display: 'flex', gap: '1.25rem', background: 'var(--color-bg-secondary)' }}>
                 <Button variant="secondary" onClick={() => setShowExperienceModal(false)} style={{ flex: 1 }}>Cancel</Button>
                 <Button variant="primary" onClick={saveExperience} style={{ flex: 2 }}>Save Experience</Button>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
