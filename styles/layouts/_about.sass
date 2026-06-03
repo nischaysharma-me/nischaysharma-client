@@ -320,11 +320,26 @@
   /* --- Projects --- */
   .about-projects
     padding: 6rem 0
+    position: relative
+    overflow: hidden
     
     @include desktop
       padding: 12rem 0
 
+    &__dynamic-bg
+      position: absolute
+      inset: 0
+      background-size: cover
+      background-position: center
+      filter: blur(80px) saturate(1.5)
+      z-index: 0
+      @include transition(all)
+      transition-duration: 0.8s
+      transform: scale(1.1)
+
     &__container
+      position: relative
+      z-index: 1
       max-width: 1400px
       margin: 0 auto
       padding: 0 $spacing-lg

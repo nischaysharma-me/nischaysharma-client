@@ -94,6 +94,7 @@ const MarkdownContent = ({ content, className }: { content: string, className?: 
 );
 
 export default function AboutClient({ profile, showBanner = false }: AboutClientProps) {
+  const [hoveredProject, setHoveredProject] = React.useState<number | null>(null);
   const github = profile?.analytics?.github;
   
   const rawPositions = profile?.experience || [];
@@ -277,11 +278,20 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
         {/* --- Featured Projects --- */}
         {projects.length > 0 && (
           <section className="about-projects">
+            <div className="about-projects__dynamic-bg" style={{ 
+              backgroundImage: hoveredProject !== null && projects[hoveredProject]?.image ? `url(${projects[hoveredProject].image})` : 'none',
+              opacity: hoveredProject !== null ? 0.15 : 0
+            }} />
             <div className="about-projects__container">
               <h2 className="section-title">Selected Works</h2>
               <div className="projects-wall">
                 {projects.map((project, i) => (
-                  <div key={i} className="project-node">
+                  <div 
+                    key={i} 
+                    className="project-node"
+                    onMouseEnter={() => setHoveredProject(i)}
+                    onMouseLeave={() => setHoveredProject(null)}
+                  >
                     <div className="project-node__image-wrapper">
                        {project.image ? (
                          <img src={project.image} alt={project.title} className="project-node__img" />
