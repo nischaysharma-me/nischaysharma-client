@@ -5,7 +5,8 @@ import { auth } from '@/lib/firebase';
 import { usersService } from '@/services/users.service';
 import { articlesService } from '@/services/articles.service';
 import { booksService } from '@/services/books.service';
-import { integrationsService, IntegrationsList } from '@/services/integrations.service';
+import { projectsService } from '@/services/projects.service';
+import { Project } from '@/lib/types/project';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { toast } from 'sonner';
@@ -51,10 +52,19 @@ export default function ProfileClient() {
   const [expertiseInput, setExpertiseInput] = useState('');
   const [socialLinks, setSocialLinks] = useState({ twitter: '', linkedin: '', github: '', website: '' });
   
-  const [projects, setProjects] = useState<{title: string, description: string, link?: string, image?: string}[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [editingProjectIndex, setEditingProjectIndex] = useState<number | null>(null);
-  const [projForm, setProjForm] = useState({ title: '', description: '', link: '', image: '' });
+  const [projForm, setProjForm] = useState<Partial<Project>>({ 
+    title: '', 
+    description: '', 
+    link: '', 
+    image: '',
+    tags: [],
+    skills: [],
+    relatedArticles: [],
+    resources: []
+  });
   
   const [experience, setExperience] = useState<any[]>([]);
   const [showExperienceModal, setShowExperienceModal] = useState(false);
@@ -84,6 +94,10 @@ export default function ProfileClient() {
   const [showGitHubReposModal, setShowGitHubReposModal] = useState(false);
   const [gitHubRepos, setGitHubRepos] = useState<any[]>([]);
   const [loadingRepos, setLoadingRepos] = useState(false);
+  
+  const [projectTagInput, setProjectTagInput] = useState('');
+  const [projectSkillInput, setProjectSkillInput] = useState('');
+  const [resourceForm, setResourceForm] = useState({ title: '', url: '' });
 
   useEffect(() => {
     fetchProfile();
@@ -139,8 +153,14 @@ export default function ProfileClient() {
         setSkills(userData.skills || []);
         setExpertise(userData.expertise || []);
         setSocialLinks(userData.socialLinks || { twitter: '', linkedin: '', github: '', website: '' });
-        setProjects(userData.projects || []);
+        // setProjects(userData.projects || []); // No longer from User doc
         setFeatured(userData.featured || []);
+        
+        // Fetch projects separately
+        const projRes = await projectsService.list(token);
+        if (projRes.success) {
+          setProjects(projRes.data);
+        }
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
@@ -251,9 +271,12 @@ export default function ProfileClient() {
           }));
 
         if (newProjectsFromGit.length > 0) {
-          const updatedProjects = [...projects, ...newProjectsFromGit];
-          setProjects(updatedProjects);
-          await usersService.updateMe({ projects: updatedProjects } as any, token);
+          // Sync each repo as a project to the new model
+          for (const repo of newProjectsFromGit) {
+             await projectsService.create(repo, token);
+          }
+          const projRes = await projectsService.list(token);
+          if (projRes.success) setProjects(projRes.data);
           toast.success(`Synced ${newProjectsFromGit.length} projects from GitHub!`);
         } else {
           toast.info('All your GitHub projects are already listed.');
@@ -292,7 +315,11 @@ export default function ProfileClient() {
       title: repo.title || '',
       description: repo.description || '',
       link: repo.link || '',
-      image: ''
+      image: '',
+      tags: [],
+      skills: [],
+      relatedArticles: [],
+      resources: []
     });
     setEditingProjectIndex(null);
     setShowGitHubReposModal(false);
@@ -333,7 +360,7 @@ export default function ProfileClient() {
         skills,
         expertise,
         socialLinks,
-        projects,
+        // projects, // No longer updated via updateMe
         experience,
         education,
         featured
@@ -431,7 +458,16 @@ export default function ProfileClient() {
   };
 
   const openAddProject = () => {
-    setProjForm({ title: '', description: '', link: '', image: '' });
+    setProjForm({ 
+      title: '', 
+      description: '', 
+      link: '', 
+      image: '',
+      tags: [],
+      skills: [],
+      relatedArticles: [],
+      resources: []
+    });
     setEditingProjectIndex(null);
     setShowProjectModal(true);
   };
@@ -442,22 +478,50 @@ export default function ProfileClient() {
     setShowProjectModal(true);
   };
 
-  const saveProject = () => {
+  const saveProject = async () => {
     if (!projForm.title || !projForm.description) {
       toast.error('Title and Description are required');
       return;
     }
-    const updated = [...projects];
-    if (editingProjectIndex !== null) updated[editingProjectIndex] = projForm;
-    else updated.push(projForm);
-    setProjects(updated);
-    setShowProjectModal(false);
-    toast.success('Project added to list. Click "Save Profile Changes" below to persist.');
+
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      let res;
+      if (editingProjectIndex !== null && projects[editingProjectIndex].id) {
+        res = await projectsService.update(projects[editingProjectIndex].id!, projForm, token);
+      } else {
+        res = await projectsService.create(projForm as any, token);
+      }
+
+      if (res.success) {
+        const updatedProjRes = await projectsService.list(token);
+        if (updatedProjRes.success) setProjects(updatedProjRes.data);
+        setShowProjectModal(false);
+        toast.success(editingProjectIndex !== null ? 'Project updated' : 'Project created');
+      }
+    } catch (err: any) {
+      toast.error('Failed to save project: ' + err.message);
+    }
   };
 
-  const removeProject = (index: number) => {
+  const removeProject = async (index: number) => {
     if (confirm('Are you sure you want to remove this project?')) {
-      setProjects(projects.filter((_, i) => i !== index));
+      try {
+        const token = await auth.currentUser?.getIdToken();
+        if (!token) return;
+        const projId = projects[index].id;
+        if (projId) {
+          const res = await projectsService.delete(projId, token);
+          if (res.success) {
+            setProjects(projects.filter((_, i) => i !== index));
+            toast.success('Project removed');
+          }
+        }
+      } catch (err: any) {
+        toast.error('Failed to remove project: ' + err.message);
+      }
     }
   };
 
@@ -1111,6 +1175,121 @@ export default function ProfileClient() {
                   <div>
                     <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>Project Link (Optional)</label>
                     <Input value={projForm.link} onChange={e => setProjForm({ ...projForm, link: e.target.value })} placeholder="https://..." style={{ padding: '1rem' }} />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
+                    <div>
+                      <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>Project Tags</label>
+                      <Input 
+                        value={projectTagInput} 
+                        onChange={e => setProjectTagInput(e.target.value)} 
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (projectTagInput.trim() && !projForm.tags?.includes(projectTagInput.trim())) {
+                              setProjForm({ ...projForm, tags: [...(projForm.tags || []), projectTagInput.trim()] });
+                              setProjectTagInput('');
+                            }
+                          }
+                        }}
+                        placeholder="Type tag and press Enter" 
+                        style={{ padding: '1rem' }} 
+                      />
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
+                        {projForm.tags?.map(tag => (
+                          <span key={tag} className="badge badge--draft" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: '#f0f0f0', color: '#444', padding: '0.4rem 0.8rem', borderRadius: '2rem', fontSize: '0.8rem' }}>
+                            {tag} <i className="ph ph-x" style={{ cursor: 'pointer' }} onClick={() => setProjForm({ ...projForm, tags: projForm.tags?.filter(t => t !== tag) })} />
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>Key Skills</label>
+                      <Input 
+                        value={projectSkillInput} 
+                        onChange={e => setProjectSkillInput(e.target.value)} 
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (projectSkillInput.trim() && !projForm.skills?.includes(projectSkillInput.trim())) {
+                              setProjForm({ ...projForm, skills: [...(projForm.skills || []), projectSkillInput.trim()] });
+                              setProjectSkillInput('');
+                            }
+                          }
+                        }}
+                        placeholder="Type skill and press Enter" 
+                        style={{ padding: '1rem' }} 
+                      />
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
+                        {projForm.skills?.map(skill => (
+                          <span key={skill} className="badge badge--published" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.4rem 0.8rem', borderRadius: '2rem', fontSize: '0.8rem' }}>
+                            {skill} <i className="ph ph-x" style={{ cursor: 'pointer' }} onClick={() => setProjForm({ ...projForm, skills: projForm.skills?.filter(s => s !== skill) })} />
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '1rem', display: 'block' }}>Related Articles (Pinned)</label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '200px', overflowY: 'auto', padding: '1rem', background: '#fbfbfb', borderRadius: '1rem', border: '1px solid #eee' }}>
+                      {availableItems.filter(i => i.type === 'article').map(art => {
+                        const isPinned = projForm.relatedArticles?.includes(art.id);
+                        return (
+                          <div 
+                            key={art.id} 
+                            onClick={() => {
+                              const current = projForm.relatedArticles || [];
+                              const updated = isPinned ? current.filter(id => id !== art.id) : [...current, art.id];
+                              setProjForm({ ...projForm, relatedArticles: updated });
+                            }}
+                            style={{ 
+                              padding: '0.75rem 1rem', 
+                              borderRadius: '0.75rem', 
+                              cursor: 'pointer',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              background: isPinned ? '#eef6ff' : 'transparent',
+                              border: `1px solid ${isPinned ? 'var(--color-accent)' : 'transparent'}`,
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            <span style={{ fontSize: '0.9rem', color: isPinned ? 'var(--color-accent)' : '#444', fontWeight: isPinned ? 700 : 400 }}>{art.title}</span>
+                            {isPinned && <i className="ph ph-push-pin-fill" style={{ color: 'var(--color-accent)' }} />}
+                          </div>
+                        );
+                      })}
+                      {availableItems.filter(i => i.type === 'article').length === 0 && <div style={{ textAlign: 'center', color: '#999', padding: '1rem' }}>No articles found to pin.</div>}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '1rem', display: 'block' }}>External Resources</label>
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                      <Input value={resourceForm.title} onChange={e => setResourceForm({ ...resourceForm, title: e.target.value })} placeholder="Resource Title (e.g. GitHub Repo)" style={{ flex: 1 }} />
+                      <Input value={resourceForm.url} onChange={e => setResourceForm({ ...resourceForm, url: e.target.value })} placeholder="https://..." style={{ flex: 2 }} />
+                      <Button 
+                        variant="secondary" 
+                        onClick={() => {
+                          if (resourceForm.title && resourceForm.url) {
+                            setProjForm({ ...projForm, resources: [...(projForm.resources || []), resourceForm] });
+                            setResourceForm({ title: '', url: '' });
+                          }
+                        }}
+                      >Add</Button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {projForm.resources?.map((res, idx) => (
+                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: '#f8f8f8', borderRadius: '0.75rem' }}>
+                          <div style={{ fontSize: '0.9rem' }}>
+                            <span style={{ fontWeight: 700, color: '#111' }}>{res.title}</span>
+                            <span style={{ color: '#888', marginLeft: '0.5rem' }}>({res.url})</span>
+                          </div>
+                          <i className="ph ph-trash" style={{ color: '#ef4444', cursor: 'pointer' }} onClick={() => setProjForm({ ...projForm, resources: projForm.resources?.filter((_, i) => i !== idx) })} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '1.25rem', display: 'block' }}>Project Preview Image</label>

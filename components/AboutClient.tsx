@@ -49,10 +49,14 @@ interface Education {
 }
 
 interface Project {
+  id?: string;
   title: string;
   description: string;
   link?: string;
   image?: string;
+  tags?: string[];
+  skills?: string[];
+  resources?: { title: string; url: string }[];
 }
 
 interface Profile {
@@ -304,6 +308,12 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                              <div className="project-node__desc">
                                <MarkdownContent content={project.description} />
                              </div>
+                             {(project.tags?.length || project.skills?.length) && (
+                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', margin: '0.8rem 0' }}>
+                                 {project.tags?.map(t => <span key={t} style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.1)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', border: '1px solid rgba(255,255,255,0.2)' }}>{t}</span>)}
+                                 {project.skills?.map(s => <span key={s} style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.2)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '0.3rem' }}>{s}</span>)}
+                               </div>
+                             )}
                              {project.link && (
                                <a href={project.link} target="_blank" className="project-node__link">
                                  EXPLORE <i className="ph ph-arrow-right" />
