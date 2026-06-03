@@ -341,9 +341,12 @@ export default function ProfileClient() {
 
       if (response.success) {
         setUser(response.data);
-        toast.success('Profile updated successfully!');
+        toast.success('Profile updated successfully and persisted to cloud!');
+      } else {
+        toast.error('Failed to update profile: ' + (response as any).error || 'Unknown error');
       }
     } catch (err: any) {
+      console.error('Error updating profile:', err);
       toast.error('Error updating profile: ' + err.message);
     } finally {
       setSaving(false);
@@ -449,7 +452,7 @@ export default function ProfileClient() {
     else updated.push(projForm);
     setProjects(updated);
     setShowProjectModal(false);
-    toast.success('Project saved locally');
+    toast.success('Project added to list. Click "Save Profile Changes" below to persist.');
   };
 
   const removeProject = (index: number) => {
@@ -525,7 +528,7 @@ export default function ProfileClient() {
     }
     setExperience(updated);
     setShowExperienceModal(false);
-    toast.success('Experience saved locally. Don\'t forget to save profile!');
+    toast.success('Experience updated. Remember to "Save Profile Changes" at the bottom to persist.');
   };
 
   const removeExperience = (index: number) => {
@@ -556,7 +559,7 @@ export default function ProfileClient() {
     else updated.push(eduForm);
     setEducation(updated);
     setShowEducationModal(false);
-    toast.success('Education saved locally');
+    toast.success('Education updated. Remember to "Save Profile Changes" at the bottom to persist.');
   };
 
   const removeEducation = (index: number) => {
