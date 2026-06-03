@@ -52,7 +52,9 @@ export default function ProfileClient() {
   const [socialLinks, setSocialLinks] = useState({ twitter: '', linkedin: '', github: '', website: '' });
   
   const [projects, setProjects] = useState<{title: string, description: string, link?: string, image?: string}[]>([]);
-  const [newProject, setNewProject] = useState({title: '', description: '', link: '', image: ''});
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [editingProjectIndex, setEditingProjectIndex] = useState<number | null>(null);
+  const [projForm, setProjForm] = useState({ title: '', description: '', link: '', image: '' });
   
   const [experience, setExperience] = useState<any[]>([]);
   const [showExperienceModal, setShowExperienceModal] = useState(false);
@@ -65,7 +67,9 @@ export default function ProfileClient() {
   });
   
   const [education, setEducation] = useState<any[]>([]);
-  const [newEducation, setNewEducation] = useState({ school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', logo: '' });
+  const [showEducationModal, setShowEducationModal] = useState(false);
+  const [editingEducationIndex, setEditingEducationIndex] = useState<number | null>(null);
+  const [eduForm, setEduForm] = useState({ school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', logo: '' });
   
   const [syncingProfile, setSyncingProfile] = useState(false);
   const [isUploadingNested, setIsUploadingNested] = useState<'project' | 'experience' | 'education' | null>(null);
@@ -350,11 +354,11 @@ export default function ProfileClient() {
       const res = await usersService.uploadAsset(file, folder, token);
       
       if (res.success) {
-        if (type === 'project') setNewProject({ ...newProject, image: res.url });
+        if (type === 'project') setProjForm(prev => ({ ...prev, image: res.url }));
         else if (type === 'experience') {
           setExpForm(prev => ({ ...prev, logo: res.url }));
         }
-        else if (type === 'education') setNewEducation({ ...newEducation, logo: res.url });
+        else if (type === 'education') setEduForm(prev => ({ ...prev, logo: res.url }));
         toast.success(`${type} image uploaded`);
       }
     } catch (err: any) {
@@ -387,15 +391,35 @@ export default function ProfileClient() {
     else setExpertise(expertise.filter(e => e !== tag));
   };
 
-  const addProject = () => {
-    if (newProject.title.trim() && newProject.description.trim()) {
-      setProjects([...projects, { ...newProject }]);
-      setNewProject({ title: '', description: '', link: '', image: '' });
+  const openAddProject = () => {
+    setProjForm({ title: '', description: '', link: '', image: '' });
+    setEditingProjectIndex(null);
+    setShowProjectModal(true);
+  };
+
+  const openEditProject = (index: number) => {
+    setProjForm({ ...projects[index] });
+    setEditingProjectIndex(index);
+    setShowProjectModal(true);
+  };
+
+  const saveProject = () => {
+    if (!projForm.title || !projForm.description) {
+      toast.error('Title and Description are required');
+      return;
     }
+    const updated = [...projects];
+    if (editingProjectIndex !== null) updated[editingProjectIndex] = projForm;
+    else updated.push(projForm);
+    setProjects(updated);
+    setShowProjectModal(false);
+    toast.success('Project saved locally');
   };
 
   const removeProject = (index: number) => {
-    setProjects(projects.filter((_, i) => i !== index));
+    if (confirm('Are you sure you want to remove this project?')) {
+      setProjects(projects.filter((_, i) => i !== index));
+    }
   };
 
   const openAddExperience = () => {
@@ -474,15 +498,35 @@ export default function ProfileClient() {
     }
   };
 
-  const addEducation = () => {
-    if (newEducation.school && newEducation.degree) {
-      setEducation([...education, { ...newEducation }]);
-      setNewEducation({ school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', logo: '' });
+  const openAddEducation = () => {
+    setEduForm({ school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', logo: '' });
+    setEditingEducationIndex(null);
+    setShowEducationModal(true);
+  };
+
+  const openEditEducation = (index: number) => {
+    setEduForm({ ...education[index] });
+    setEditingEducationIndex(index);
+    setShowEducationModal(true);
+  };
+
+  const saveEducation = () => {
+    if (!eduForm.school || !eduForm.degree) {
+      toast.error('School and Degree are required');
+      return;
     }
+    const updated = [...education];
+    if (editingEducationIndex !== null) updated[editingEducationIndex] = eduForm;
+    else updated.push(eduForm);
+    setEducation(updated);
+    setShowEducationModal(false);
+    toast.success('Education saved locally');
   };
 
   const removeEducation = (index: number) => {
-    setEducation(education.filter((_, i) => i !== index));
+    if (confirm('Are you sure you want to remove this academic background?')) {
+      setEducation(education.filter((_, i) => i !== index));
+    }
   };
 
   const toggleFeaturedItem = (item: {id: string, type: 'article' | 'book', title: string}) => {
@@ -658,63 +702,61 @@ export default function ProfileClient() {
 
             <div className="form-divider" style={{ borderTop: '1px solid var(--color-border)', margin: '2rem 0' }}></div>
 
-            <h3 className="label" style={{ marginBottom: '1.5rem', fontSize: '0.875rem' }}>Academic Background</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 className="label" style={{ margin: 0, fontSize: '0.875rem' }}>Academic Background</h3>
+              <Button type="button" variant="secondary" onClick={openAddEducation}>
+                <i className="ph ph-plus" style={{ marginRight: '0.5rem' }} />
+                Add Academic Background
+              </Button>
+            </div>
+
             <div className="form-group" style={{ marginBottom: '2rem' }}>
-              <input type="file" ref={educationInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('education', e.target.files[0])} />
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', padding: '1.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-                <div style={{ gridColumn: 'span 2' }}>
-                   <Input value={newEducation.school} onChange={e => setNewEducation({...newEducation, school: e.target.value})} placeholder="School Name" />
-                </div>
-                <Input value={newEducation.degree} onChange={e => setNewEducation({...newEducation, degree: e.target.value})} placeholder="Degree" />
-                <Input value={newEducation.fieldOfStudy} onChange={e => setNewEducation({...newEducation, fieldOfStudy: e.target.value})} placeholder="Field of Study" />
-                <div style={{ gridColumn: 'span 2', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                   <Button type="button" variant="ghost" onClick={() => educationInputRef.current?.click()} loading={isUploadingNested === 'education'}>
-                      {newEducation.logo ? 'Logo Uploaded' : 'Upload Logo'}
-                   </Button>
-                   {newEducation.logo && <img src={newEducation.logo} style={{ height: '40px' }} alt="Logo" />}
-                </div>
-                <Button type="button" variant="secondary" className="btn--full" onClick={addEducation} disabled={!newEducation.school}>Add Education</Button>
-              </div>
-              {education.map((edu, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem', marginBottom: '0.5rem', background: 'var(--color-bg-primary)' }}>
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                     {edu.logo && <img src={edu.logo} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}
-                     <div><h4 style={{ margin: 0, color: 'var(--color-text-primary)' }}>{edu.school}</h4><p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{edu.degree} in {edu.fieldOfStudy}</p></div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {education.map((edu, i) => (
+                  <div key={i} className="experience-item-card" style={{ display: 'flex', justifyContent: 'space-between', padding: '1.25rem', border: '1px solid var(--color-border)', borderRadius: '1rem', background: 'var(--color-bg-primary)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                    <div style={{ display: 'flex', gap: '1.25rem' }}>
+                       <div style={{ width: '48px', height: '48px', borderRadius: '0.75rem', background: 'var(--color-bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+                         {edu.logo ? <img src={edu.logo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <i className="ph ph-student" style={{ fontSize: '1.5rem', opacity: 0.5 }} />}
+                       </div>
+                       <div>
+                         <h4 style={{ margin: 0, color: 'var(--color-text-primary)', fontSize: '1rem', fontWeight: 700 }}>{edu.school}</h4>
+                         <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: '0.2rem' }}>
+                           {edu.degree} in {edu.fieldOfStudy}
+                           {(edu.startDate || edu.endDate) && ` • ${edu.startDate || ''} - ${edu.endDate || ''}`}
+                         </p>
+                       </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <Button type="button" variant="ghost" onClick={() => openEditEducation(i)} style={{ padding: '0.5rem' }}><i className="ph ph-pencil-simple" /></Button>
+                      <Button type="button" variant="ghost" onClick={() => removeEducation(i)} style={{ padding: '0.5rem', color: 'var(--color-error)' }}><i className="ph ph-trash" /></Button>
+                    </div>
                   </div>
-                  <button type="button" onClick={() => removeEducation(i)} style={{ background: 'none', border: 'none', color: 'var(--color-error)' }}><i className="ph ph-trash" /></button>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
             <div className="form-divider" style={{ borderTop: '1px solid var(--color-border)', margin: '2rem 0' }}></div>
             
-            <h3 className="label" style={{ marginBottom: '1.5rem', fontSize: '0.875rem' }}>Featured Projects</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 className="label" style={{ margin: 0, fontSize: '0.875rem' }}>Featured Projects</h3>
+              <Button type="button" variant="secondary" onClick={openAddProject}>
+                <i className="ph ph-plus" style={{ marginRight: '0.5rem' }} />
+                Add Featured Project
+              </Button>
+            </div>
+
             <div className="form-group" style={{ marginBottom: '2rem' }}>
-              <input type="file" ref={projectInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('project', e.target.files[0])} />
-              <div style={{ display: 'grid', gap: '1rem', padding: '1.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-                <Input value={newProject.title} onChange={e => setNewProject({...newProject, title: e.target.value})} placeholder="Title" />
-                <div className="form-group">
-                  <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>Project Description</label>
-                  <TiptapEditor 
-                    content={newProject.description} 
-                    onChange={html => setNewProject({...newProject, description: html})} 
-                    isCompact={true} 
-                  />
-                </div>
-                <Input value={newProject.link} onChange={e => setNewProject({...newProject, link: e.target.value})} placeholder="Link" />
-                <Button type="button" variant="ghost" onClick={() => projectInputRef.current?.click()} loading={isUploadingNested === 'project'}>
-                  {newProject.image ? 'Image Uploaded' : 'Upload Project Image'}
-                </Button>
-                {newProject.image && <img src={newProject.image} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '0.5rem' }} />}
-                <Button type="button" variant="secondary" onClick={addProject} disabled={!newProject.title}>Add Project</Button>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
                 {projects.map((proj, i) => (
-                  <div key={i} style={{ padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem', background: 'var(--color-bg-primary)' }}>
-                    {proj.image && <img src={proj.image} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '0.4rem', marginBottom: '0.5rem' }} />}
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <h4 style={{ margin: 0 }}>{proj.title}</h4>
-                      <button type="button" onClick={() => removeProject(i)} style={{ background: 'none', border: 'none', color: 'var(--color-error)' }}><i className="ph ph-trash" /></button>
+                  <div key={i} className="project-item-card" style={{ padding: '1.25rem', border: '1px solid var(--color-border)', borderRadius: '1rem', background: 'var(--color-bg-primary)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {proj.image && <img src={proj.image} style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '0.75rem' }} />}
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ margin: 0, color: 'var(--color-text-primary)', fontSize: '1rem', fontWeight: 700 }}>{proj.title}</h4>
+                      {proj.link && <p style={{ fontSize: '0.75rem', color: 'var(--color-accent)', marginTop: '0.25rem', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{proj.link}</p>}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', borderTop: '1px solid var(--color-border)', paddingTop: '0.75rem' }}>
+                      <Button type="button" variant="ghost" onClick={() => openEditProject(i)} style={{ padding: '0.5rem' }}><i className="ph ph-pencil-simple" /></Button>
+                      <Button type="button" variant="ghost" onClick={() => removeProject(i)} style={{ padding: '0.5rem', color: 'var(--color-error)' }}><i className="ph ph-trash" /></Button>
                     </div>
                   </div>
                 ))}
@@ -790,26 +832,41 @@ export default function ProfileClient() {
         )}
 
         {showFeaturedModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-             <div className="card card--padded" style={{ width: '500px', background: 'var(--color-bg-secondary)', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                   <h3 className="label" style={{ color: 'var(--color-text-primary)' }}>Featured Content</h3>
-                   <i className="ph ph-x" style={{ cursor: 'pointer', color: 'var(--color-text-secondary)' }} onClick={() => setShowFeaturedModal(false)} />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+             <motion.div 
+                initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98, y: 10 }}
+                className="card" 
+                style={{ width: '100%', maxWidth: '600px', background: '#ffffff', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #eeeeee' }}
+              >
+                <div style={{ padding: '1.75rem 2.5rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff' }}>
+                   <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#111', fontFamily: 'var(--font-merriweather), serif' }}>Featured Content</h3>
+                   <Button variant="ghost" onClick={() => setShowFeaturedModal(false)} style={{ padding: '0.5rem', borderRadius: '50%' }}><i className="ph ph-x" style={{ fontSize: '1.25rem' }} /></Button>
                 </div>
-                <Input placeholder="Search..." value={featuredSearch} onChange={e => setFeaturedSearch(e.target.value)} style={{ marginBottom: '1.5rem' }} />
-                <div style={{ flex: 1, overflowY: 'auto', marginBottom: '1.5rem' }}>
-                   {availableItems.filter(i => i.title.toLowerCase().includes(featuredSearch.toLowerCase())).map(item => {
-                      const isF = featured.some(f => f.id === item.id);
-                      return (
-                        <div key={item.id} onClick={() => toggleFeaturedItem(item)} style={{ padding: '0.75rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem', marginBottom: '0.5rem', cursor: 'pointer', background: isF ? 'var(--color-bg-tertiary)' : 'var(--color-bg-primary)' }}>
-                           <div style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{item.title}</div>
-                           <div style={{ fontSize: '0.65rem', color: 'var(--color-text-secondary)' }}>{item.type.toUpperCase()}</div>
-                        </div>
-                      );
-                   })}
+                <div style={{ padding: '2rem 2.5rem', flex: 1, overflowY: 'auto' }}>
+                  <Input placeholder="Search articles or books..." value={featuredSearch} onChange={e => setFeaturedSearch(e.target.value)} style={{ marginBottom: '1.5rem', padding: '0.85rem' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {availableItems.filter(i => i.title.toLowerCase().includes(featuredSearch.toLowerCase())).map(item => {
+                        const isF = featured.some(f => f.id === item.id);
+                        return (
+                          <div key={item.id} onClick={() => toggleFeaturedItem(item)} style={{ padding: '1rem', border: '1px solid ' + (isF ? 'var(--color-accent)' : '#f0f0f0'), borderRadius: '1rem', cursor: 'pointer', background: isF ? '#f0f7ff' : '#fcfcfc', transition: 'all 0.2s' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div>
+                                <div style={{ fontWeight: 700, color: isF ? 'var(--color-accent)' : '#111', fontSize: '1rem' }}>{item.title}</div>
+                                <div style={{ fontSize: '0.7rem', color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '0.25rem' }}>{item.type}</div>
+                              </div>
+                              {isF && <i className="ph ph-check-circle" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} />}
+                            </div>
+                          </div>
+                        );
+                    })}
+                  </div>
                 </div>
-                <Button className="btn--full" onClick={() => setShowFeaturedModal(false)}>Done</Button>
-             </div>
+                <div style={{ padding: '1.5rem 2.5rem', borderTop: '1px solid #f0f0f0', background: '#fcfcfc' }}>
+                  <Button className="btn--full" height="50px" onClick={() => setShowFeaturedModal(false)}>Save Selections</Button>
+                </div>
+             </motion.div>
           </motion.div>
         )}
 
@@ -928,6 +985,103 @@ export default function ProfileClient() {
               <div style={{ padding: '2rem 3rem', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '1.5rem', background: '#fcfcfc' }}>
                 <Button variant="secondary" onClick={() => setShowExperienceModal(false)} style={{ flex: 1, height: '54px', fontSize: '1rem' }}>Cancel</Button>
                 <Button variant="primary" onClick={saveExperience} style={{ flex: 2, height: '54px', fontSize: '1rem' }}>Save Experience</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+        {showEducationModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+            <motion.div initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 10 }} className="card" style={{ width: '100%', maxWidth: '750px', background: '#ffffff', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #eeeeee' }}>
+              <div style={{ padding: '1.75rem 3rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff' }}>
+                <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#111', fontFamily: 'var(--font-merriweather), serif' }}>{editingEducationIndex !== null ? 'Edit Academic Background' : 'Add Academic Background'}</h3>
+                <Button variant="ghost" onClick={() => setShowEducationModal(false)} style={{ padding: '0.5rem', borderRadius: '50%' }}><i className="ph ph-x" style={{ fontSize: '1.5rem' }} /></Button>
+              </div>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '3rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>School / University</label>
+                    <Input value={eduForm.school} onChange={e => setEduForm({ ...eduForm, school: e.target.value })} placeholder="e.g. Stanford University" style={{ padding: '1rem' }} />
+                  </div>
+                  <div>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>Degree</label>
+                    <Input value={eduForm.degree} onChange={e => setEduForm({ ...eduForm, degree: e.target.value })} placeholder="e.g. Bachelor of Science" style={{ padding: '1rem' }} />
+                  </div>
+                  <div>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>Field of Study</label>
+                    <Input value={eduForm.fieldOfStudy} onChange={e => setEduForm({ ...eduForm, fieldOfStudy: e.target.value })} placeholder="e.g. Computer Science" style={{ padding: '1rem' }} />
+                  </div>
+                  <div>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>Start Date</label>
+                    <Input value={eduForm.startDate} onChange={e => setEduForm({ ...eduForm, startDate: e.target.value })} placeholder="e.g. 2018" style={{ padding: '1rem' }} />
+                  </div>
+                  <div>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>End Date</label>
+                    <Input value={eduForm.endDate} onChange={e => setEduForm({ ...eduForm, endDate: e.target.value })} placeholder="e.g. 2022 or Present" style={{ padding: '1rem' }} />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>Institute Logo</label>
+                    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+                      <Button variant="secondary" onClick={() => educationInputRef.current?.click()} loading={isUploadingNested === 'education'} style={{ flex: 1, height: '48px' }}>
+                        {eduForm.logo ? 'Change Logo' : 'Upload Logo'}
+                      </Button>
+                      {eduForm.logo && (
+                        <div style={{ width: '48px', height: '48px', background: '#fff', borderRadius: '1rem', overflow: 'hidden', border: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px' }}>
+                          <img src={eduForm.logo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        </div>
+                      )}
+                      <input type="file" ref={educationInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('education', e.target.files[0])} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '2rem 3rem', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '1.5rem', background: '#fcfcfc' }}>
+                <Button variant="secondary" onClick={() => setShowEducationModal(false)} style={{ flex: 1, height: '54px' }}>Cancel</Button>
+                <Button variant="primary" onClick={saveEducation} style={{ flex: 2, height: '54px' }}>Save Academic Record</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {showProjectModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+            <motion.div initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 10 }} className="card" style={{ width: '100%', maxWidth: '850px', background: '#ffffff', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #eeeeee' }}>
+              <div style={{ padding: '1.75rem 3rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff' }}>
+                <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#111', fontFamily: 'var(--font-merriweather), serif' }}>{editingProjectIndex !== null ? 'Edit Featured Project' : 'Add Featured Project'}</h3>
+                <Button variant="ghost" onClick={() => setShowProjectModal(false)} style={{ padding: '0.5rem', borderRadius: '50%' }}><i className="ph ph-x" style={{ fontSize: '1.5rem' }} /></Button>
+              </div>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '3rem' }}>
+                <div style={{ display: 'grid', gap: '2.5rem' }}>
+                  <div>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>Project Title</label>
+                    <Input value={projForm.title} onChange={e => setProjForm({ ...projForm, title: e.target.value })} placeholder="e.g. AI Content Engine" style={{ padding: '1rem' }} />
+                  </div>
+                  <div>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '1rem', display: 'block' }}>Description</label>
+                    <TiptapEditor 
+                      content={projForm.description} 
+                      onChange={html => setProjForm({ ...projForm, description: html })} 
+                      isCompact={true} 
+                    />
+                  </div>
+                  <div>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>Project Link (Optional)</label>
+                    <Input value={projForm.link} onChange={e => setProjForm({ ...projForm, link: e.target.value })} placeholder="https://..." style={{ padding: '1rem' }} />
+                  </div>
+                  <div>
+                    <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '1.25rem', display: 'block' }}>Project Preview Image</label>
+                    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+                      <Button variant="secondary" onClick={() => projectInputRef.current?.click()} loading={isUploadingNested === 'project'} style={{ flex: 1, height: '48px' }}>
+                        {projForm.image ? 'Change Image' : 'Upload Image'}
+                      </Button>
+                      <input type="file" ref={projectInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('project', e.target.files[0])} />
+                    </div>
+                    {projForm.image && <img src={projForm.image} style={{ width: '100%', height: '220px', objectFit: 'cover', borderRadius: '1.5rem', marginTop: '2rem', border: '1px solid #eee' }} />}
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '2rem 3rem', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '1.5rem', background: '#fcfcfc' }}>
+                <Button variant="secondary" onClick={() => setShowProjectModal(false)} style={{ flex: 1, height: '54px' }}>Cancel</Button>
+                <Button variant="primary" onClick={saveProject} style={{ flex: 2, height: '54px' }}>Save Project</Button>
               </div>
             </motion.div>
           </motion.div>
