@@ -81,6 +81,9 @@ export default function ProfileClient() {
   const [configModal, setConfigModal] = useState<'github' | 'linkedin' | null>(null);
   const [tempConfig, setTempConfig] = useState({ clientId: '', clientSecret: '' });
   const [featuredSearch, setFeaturedSearch] = useState('');
+  const [showGitHubReposModal, setShowGitHubReposModal] = useState(false);
+  const [gitHubRepos, setGitHubRepos] = useState<any[]>([]);
+  const [loadingRepos, setLoadingRepos] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -261,6 +264,39 @@ export default function ProfileClient() {
     } finally {
       setSyncingRepos(false);
     }
+  };
+
+  const openGitHubImport = async () => {
+    if (!integrations.github?.connected) {
+      toast.error('Please connect your GitHub account first.');
+      return;
+    }
+    setShowGitHubReposModal(true);
+    try {
+      setLoadingRepos(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+      const res = await integrationsService.syncGitHubProjects(token);
+      if (res.success && Array.isArray(res.data)) {
+        setGitHubRepos(res.data);
+      }
+    } catch (err: any) {
+      toast.error('Failed to fetch repositories: ' + err.message);
+    } finally {
+      setLoadingRepos(false);
+    }
+  };
+
+  const importRepoAsProject = (repo: any) => {
+    setProjForm({
+      title: repo.title || '',
+      description: repo.description || '',
+      link: repo.link || '',
+      image: ''
+    });
+    setEditingProjectIndex(null);
+    setShowGitHubReposModal(false);
+    setShowProjectModal(true);
   };
 
   const handleSyncStats = async (provider: 'github' | 'linkedin') => {
@@ -739,10 +775,16 @@ export default function ProfileClient() {
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h3 className="label" style={{ margin: 0, fontSize: '0.875rem' }}>Featured Projects</h3>
-              <Button type="button" variant="secondary" onClick={openAddProject}>
-                <i className="ph ph-plus" style={{ marginRight: '0.5rem' }} />
-                Add Featured Project
-              </Button>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <Button type="button" variant="secondary" onClick={openGitHubImport} loading={loadingRepos}>
+                  <i className="ph ph-github-logo" style={{ marginRight: '0.5rem' }} />
+                  Import from GitHub
+                </Button>
+                <Button type="button" variant="secondary" onClick={openAddProject}>
+                  <i className="ph ph-plus" style={{ marginRight: '0.5rem' }} />
+                  Add Featured Project
+                </Button>
+              </div>
             </div>
 
             <div className="form-group" style={{ marginBottom: '2rem' }}>
@@ -1082,6 +1124,60 @@ export default function ProfileClient() {
               <div style={{ padding: '2rem 3rem', borderTop: '1px solid #f0f0f0', display: 'flex', gap: '1.5rem', background: '#fcfcfc' }}>
                 <Button variant="secondary" onClick={() => setShowProjectModal(false)} style={{ flex: 1, height: '54px' }}>Cancel</Button>
                 <Button variant="primary" onClick={saveProject} style={{ flex: 2, height: '54px' }}>Save Project</Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {showGitHubReposModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+            <motion.div initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 10 }} className="card" style={{ width: '100%', maxWidth: '700px', background: '#ffffff', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #eeeeee' }}>
+              <div style={{ padding: '1.75rem 3rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff' }}>
+                <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#111', fontFamily: 'var(--font-merriweather), serif' }}>Import Repository</h3>
+                <Button variant="ghost" onClick={() => setShowGitHubReposModal(false)} style={{ padding: '0.5rem', borderRadius: '50%' }}><i className="ph ph-x" style={{ fontSize: '1.5rem' }} /></Button>
+              </div>
+              
+              <div style={{ flex: 1, overflowY: 'auto', padding: '2rem' }}>
+                {loadingRepos ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem', gap: '1rem' }}>
+                    <i className="ph ph-spinner animate-spin" style={{ fontSize: '2.5rem', color: 'var(--color-accent)' }} />
+                    <p style={{ color: '#666', fontWeight: 600 }}>Fetching your repositories...</p>
+                  </div>
+                ) : gitHubRepos.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {gitHubRepos.map((repo, i) => (
+                      <div 
+                        key={i} 
+                        onClick={() => importRepoAsProject(repo)}
+                        style={{ 
+                          padding: '1.25rem', 
+                          border: '1px solid #eee', 
+                          borderRadius: '1rem', 
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          background: '#fff'
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.background = '#f9f9f9'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#eee'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                          <h4 style={{ margin: 0, color: '#111', fontSize: '1.1rem', fontWeight: 700 }}>{repo.title}</h4>
+                          <i className="ph ph-github-logo" style={{ fontSize: '1.25rem', color: '#555' }} />
+                        </div>
+                        {repo.description && <p style={{ margin: 0, fontSize: '0.9rem', color: '#666', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{repo.description}</p>}
+                        <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 600 }}>{repo.link}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '4rem' }}>
+                    <p style={{ color: '#666' }}>No repositories found or GitHub not connected properly.</p>
+                  </div>
+                )}
+              </div>
+              
+              <div style={{ padding: '1.5rem 3rem', borderTop: '1px solid #f0f0f0', background: '#fcfcfc', textAlign: 'center' }}>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#888' }}>Select a repository to import it as a featured project.</p>
               </div>
             </motion.div>
           </motion.div>
