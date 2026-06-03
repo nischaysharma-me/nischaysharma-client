@@ -55,9 +55,14 @@ export default function ProfileClient() {
   const [newProject, setNewProject] = useState({title: '', description: '', link: '', image: ''});
   
   const [experience, setExperience] = useState<any[]>([]);
-  const [newExperience, setNewExperience] = useState({ title: '', company: '', startDate: '', endDate: '', description: '', logo: '' });
+  const [showExperienceModal, setShowExperienceModal] = useState(false);
   const [editingExperienceIndex, setEditingExperienceIndex] = useState<number | null>(null);
-  const [editExperience, setEditExperience] = useState({ title: '', company: '', startDate: '', endDate: '', description: '', logo: '' });
+  const [expForm, setExpForm] = useState({
+    company: '',
+    logo: '',
+    location: '',
+    roles: [{ title: '', startDate: '', endDate: '', description: '', employmentType: '' }]
+  });
   
   const [education, setEducation] = useState<any[]>([]);
   const [newEducation, setNewEducation] = useState({ school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', logo: '' });
@@ -104,7 +109,24 @@ export default function ProfileClient() {
         setOccupation(userData.occupation || '');
         setBio(userData.bio || '');
         setVision(userData.vision || '');
-        setExperience(userData.experience || []);
+        const migratedExperience = (userData.experience || []).map((exp: any) => {
+          if (!exp.roles) {
+            return {
+              company: exp.company,
+              logo: exp.logo || '',
+              location: exp.location || '',
+              roles: [{
+                title: exp.title,
+                startDate: exp.startDate,
+                endDate: exp.endDate,
+                description: exp.description,
+                employmentType: ''
+              }]
+            };
+          }
+          return exp;
+        });
+        setExperience(migratedExperience);
         setEducation(userData.education || []);
         setWritingStyle(userData.writingStyle || 'casual');
         setSkills(userData.skills || []);
@@ -330,11 +352,7 @@ export default function ProfileClient() {
       if (res.success) {
         if (type === 'project') setNewProject({ ...newProject, image: res.url });
         else if (type === 'experience') {
-          if (editingExperienceIndex !== null) {
-            setEditExperience({ ...editExperience, logo: res.url });
-          } else {
-            setNewExperience({ ...newExperience, logo: res.url });
-          }
+          setExpForm(prev => ({ ...prev, logo: res.url }));
         }
         else if (type === 'education') setNewEducation({ ...newEducation, logo: res.url });
         toast.success(`${type} image uploaded`);
@@ -380,35 +398,63 @@ export default function ProfileClient() {
     setProjects(projects.filter((_, i) => i !== index));
   };
 
-  const addExperience = () => {
-    if (newExperience.title && newExperience.company) {
-      setExperience([...experience, { ...newExperience }]);
-      setNewExperience({ title: '', company: '', startDate: '', endDate: '', description: '', logo: '' });
+  const openAddExperience = () => {
+    setExpForm({
+      company: '',
+      logo: '',
+      location: '',
+      roles: [{ title: '', startDate: '', endDate: '', description: '', employmentType: '' }]
+    });
+    setEditingExperienceIndex(null);
+    setShowExperienceModal(true);
+  };
+
+  const openEditExperience = (index: number) => {
+    setExpForm({ ...experience[index] });
+    setEditingExperienceIndex(index);
+    setShowExperienceModal(true);
+  };
+
+  const handleAddRole = () => {
+    setExpForm({
+      ...expForm,
+      roles: [...expForm.roles, { title: '', startDate: '', endDate: '', description: '', employmentType: '' }]
+    });
+  };
+
+  const handleRemoveRole = (roleIndex: number) => {
+    if (expForm.roles.length <= 1) return;
+    const updatedRoles = expForm.roles.filter((_, i) => i !== roleIndex);
+    setExpForm({ ...expForm, roles: updatedRoles });
+  };
+
+  const handleRoleChange = (roleIndex: number, field: string, value: any) => {
+    const updatedRoles = [...expForm.roles];
+    updatedRoles[roleIndex] = { ...updatedRoles[roleIndex], [field]: value };
+    setExpForm({ ...expForm, roles: updatedRoles });
+  };
+
+  const saveExperience = () => {
+    if (!expForm.company || expForm.roles.some(r => !r.title)) {
+      toast.error('Company and all Role Titles are required');
+      return;
     }
+
+    const updated = [...experience];
+    if (editingExperienceIndex !== null) {
+      updated[editingExperienceIndex] = expForm;
+    } else {
+      updated.push(expForm);
+    }
+    setExperience(updated);
+    setShowExperienceModal(false);
+    toast.success('Experience saved locally. Don\'t forget to save profile!');
   };
 
   const removeExperience = (index: number) => {
-    setExperience(experience.filter((_, i) => i !== index));
-  };
-
-  const startEditExperience = (index: number) => {
-    setEditExperience({ ...experience[index] });
-    setEditingExperienceIndex(index);
-  };
-
-  const saveEditExperience = () => {
-    if (editingExperienceIndex === null) return;
-    if (!editExperience.title || !editExperience.company) return;
-    const updated = [...experience];
-    updated[editingExperienceIndex] = { ...editExperience };
-    setExperience(updated);
-    setEditingExperienceIndex(null);
-    setEditExperience({ title: '', company: '', startDate: '', endDate: '', description: '', logo: '' });
-  };
-
-  const cancelEditExperience = () => {
-    setEditingExperienceIndex(null);
-    setEditExperience({ title: '', company: '', startDate: '', endDate: '', description: '', logo: '' });
+    if (confirm('Are you sure you want to remove this professional experience?')) {
+      setExperience(experience.filter((_, i) => i !== index));
+    }
   };
 
   const addEducation = () => {
@@ -552,82 +598,44 @@ export default function ProfileClient() {
 
             <div className="form-divider" style={{ borderTop: '1px solid var(--color-border)', margin: '2rem 0' }}></div>
 
-            <h3 className="label" style={{ marginBottom: '1.5rem', fontSize: '0.875rem' }}>Professional Experience</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 className="label" style={{ margin: 0, fontSize: '0.875rem' }}>Professional Experience</h3>
+              <Button type="button" variant="secondary" onClick={openAddExperience}>
+                <i className="ph ph-plus" style={{ marginRight: '0.5rem' }} />
+                Add Professional Experience
+              </Button>
+            </div>
+
             <div className="form-group" style={{ marginBottom: '2rem' }}>
-              <input type="file" ref={experienceInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('experience', e.target.files[0])} />
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', padding: '1.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-                <div style={{ gridColumn: 'span 2' }}>
-                   <Input value={newExperience.title} onChange={e => setNewExperience({...newExperience, title: e.target.value})} placeholder="Job Title" />
-                </div>
-                <div style={{ gridColumn: 'span 2' }}>
-                   <Input value={newExperience.company} onChange={e => setNewExperience({...newExperience, company: e.target.value})} placeholder="Company Name" />
-                </div>
-                <Input value={newExperience.startDate} onChange={e => setNewExperience({...newExperience, startDate: e.target.value})} placeholder="Start Date" />
-                <Input value={newExperience.endDate} onChange={e => setNewExperience({...newExperience, endDate: e.target.value})} placeholder="End Date" />
-                <div style={{ gridColumn: 'span 2', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                   <Button type="button" variant="ghost" onClick={() => experienceInputRef.current?.click()} loading={isUploadingNested === 'experience'}>
-                      {newExperience.logo ? 'Logo Uploaded' : 'Upload Logo'}
-                   </Button>
-                   {newExperience.logo && <img src={newExperience.logo} style={{ height: '40px' }} alt="Logo" />}
-                </div>
-                <div style={{ gridColumn: 'span 2' }}>
-                  <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>Job Description</label>
-                  <TiptapEditor 
-                    content={newExperience.description} 
-                    onChange={html => setNewExperience({...newExperience, description: html})} 
-                    isCompact={true} 
-                  />
-                </div>
-                <Button type="button" variant="secondary" className="btn--full" onClick={addExperience} disabled={!newExperience.title || !newExperience.company}>Add Experience</Button>
-              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {experience.map((exp, i) => (
-                  editingExperienceIndex === i ? (
-                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', padding: '1.5rem', border: '1px solid var(--color-accent)', borderRadius: '0.5rem', background: 'var(--color-bg-tertiary)' }}>
-                      <input type="file" ref={editExperienceInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('experience', e.target.files[0])} />
-                      <div style={{ gridColumn: 'span 2' }}>
-                        <Input value={editExperience.title} onChange={e => setEditExperience({...editExperience, title: e.target.value})} placeholder="Job Title" />
-                      </div>
-                      <div style={{ gridColumn: 'span 2' }}>
-                        <Input value={editExperience.company} onChange={e => setEditExperience({...editExperience, company: e.target.value})} placeholder="Company Name" />
-                      </div>
-                      <Input value={editExperience.startDate} onChange={e => setEditExperience({...editExperience, startDate: e.target.value})} placeholder="Start Date" />
-                      <Input value={editExperience.endDate} onChange={e => setEditExperience({...editExperience, endDate: e.target.value})} placeholder="End Date" />
-                      <div style={{ gridColumn: 'span 2', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                        <Button type="button" variant="ghost" onClick={() => editExperienceInputRef.current?.click()} loading={isUploadingNested === 'experience'}>
-                          {editExperience.logo ? 'Logo Uploaded' : 'Upload Logo'}
-                        </Button>
-                        {editExperience.logo && <img src={editExperience.logo} style={{ height: '40px' }} alt="Logo" />}
-                      </div>
-                      <div style={{ gridColumn: 'span 2' }}>
-                        <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>Job Description</label>
-                        <TiptapEditor 
-                          content={editExperience.description} 
-                          onChange={html => setEditExperience({...editExperience, description: html})} 
-                          isCompact={true} 
-                        />
-                      </div>
-                      <div style={{ gridColumn: 'span 2', display: 'flex', gap: '1rem' }}>
-                        <Button type="button" variant="primary" className="btn--full" onClick={saveEditExperience} disabled={!editExperience.title || !editExperience.company}><i className="ph ph-check" style={{ marginRight: '0.5rem' }} /> Save</Button>
-                        <Button type="button" variant="ghost" className="btn--full" onClick={cancelEditExperience}><i className="ph ph-x" style={{ marginRight: '0.5rem' }} /> Cancel</Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', border: '1px solid var(--color-border)', borderRadius: '0.5rem', background: 'var(--color-bg-primary)' }}>
-                      <div style={{ display: 'flex', gap: '1rem' }}>
-                         {exp.logo && <img src={exp.logo} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}
+                {experience.map((exp, i) => {
+                  // Handle legacy data or new structure
+                  const isLegacy = !exp.roles;
+                  const companyName = isLegacy ? exp.company : exp.company;
+                  const logo = isLegacy ? exp.logo : exp.logo;
+                  const rolesCount = isLegacy ? 1 : exp.roles.length;
+
+                  return (
+                    <div key={i} className="experience-item-card" style={{ display: 'flex', justifyContent: 'space-between', padding: '1.25rem', border: '1px solid var(--color-border)', borderRadius: '1rem', background: 'var(--color-bg-primary)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                      <div style={{ display: 'flex', gap: '1.25rem' }}>
+                         <div style={{ width: '48px', height: '48px', borderRadius: '0.75rem', background: 'var(--color-bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+                           {logo ? <img src={logo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <i className="ph ph-buildings" style={{ fontSize: '1.5rem', opacity: 0.5 }} />}
+                         </div>
                          <div>
-                           <h4 style={{ margin: 0, color: 'var(--color-text-primary)' }}>{exp.title} @ {exp.company}</h4>
-                           <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>{exp.startDate} - {exp.endDate}</p>
+                           <h4 style={{ margin: 0, color: 'var(--color-text-primary)', fontSize: '1rem', fontWeight: 700 }}>{companyName}</h4>
+                           <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginTop: '0.2rem' }}>
+                             {isLegacy ? exp.title : `${rolesCount} role${rolesCount > 1 ? 's' : ''}`}
+                             {exp.location && ` • ${exp.location}`}
+                           </p>
                          </div>
                       </div>
                       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <button type="button" onClick={() => startEditExperience(i)} style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)' }}><i className="ph ph-pencil-simple" /></button>
-                        <button type="button" onClick={() => removeExperience(i)} style={{ background: 'none', border: 'none', color: 'var(--color-error)' }}><i className="ph ph-trash" /></button>
+                        <Button type="button" variant="ghost" onClick={() => openEditExperience(i)} style={{ padding: '0.5rem' }}><i className="ph ph-pencil-simple" /></Button>
+                        <Button type="button" variant="ghost" onClick={() => removeExperience(i)} style={{ padding: '0.5rem', color: 'var(--color-error)' }}><i className="ph ph-trash" /></Button>
                       </div>
                     </div>
-                  )
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -785,6 +793,90 @@ export default function ProfileClient() {
                 </div>
                 <Button className="btn--full" onClick={() => setShowFeaturedModal(false)}>Done</Button>
              </div>
+          </motion.div>
+        )}
+
+        {showExperienceModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="card" style={{ width: '100%', maxWidth: '800px', background: 'var(--color-bg-secondary)', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem' }}>
+              <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>{editingExperienceIndex !== null ? 'Edit Experience' : 'Add Professional Experience'}</h3>
+                <Button variant="ghost" onClick={() => setShowExperienceModal(false)} style={{ padding: '0.5rem' }}><i className="ph ph-x" style={{ fontSize: '1.25rem' }} /></Button>
+              </div>
+              
+              <div style={{ flex: 1, overflowY: 'auto', padding: '2rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2.5rem' }}>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label className="label">Company Name</label>
+                    <Input value={expForm.company} onChange={e => setExpForm({ ...expForm, company: e.target.value })} placeholder="e.g. Google, TaughtCode" />
+                  </div>
+                  <div>
+                    <label className="label">Location (Optional)</label>
+                    <Input value={expForm.location} onChange={e => setExpForm({ ...expForm, location: e.target.value })} placeholder="e.g. Remote, Mountain View, CA" />
+                  </div>
+                  <div>
+                    <label className="label">Company Logo</label>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      <Button variant="secondary" onClick={() => experienceInputRef.current?.click()} loading={isUploadingNested === 'experience'} style={{ flex: 1 }}>
+                        {expForm.logo ? 'Change Logo' : 'Upload Logo'}
+                      </Button>
+                      {expForm.logo && <div style={{ width: '40px', height: '40px', background: '#fff', borderRadius: '8px', overflow: 'hidden', border: '1px solid #ddd' }}><img src={expForm.logo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></div>}
+                      <input type="file" ref={experienceInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('experience', e.target.files[0])} />
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '2rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                    <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>Roles & Positions</h4>
+                    <Button variant="ghost" onClick={handleAddRole} style={{ fontSize: '0.8rem', color: 'var(--color-accent)' }}>
+                      <i className="ph ph-plus" style={{ marginRight: '0.4rem' }} /> Add Role
+                    </Button>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    {expForm.roles.map((role: any, idx: number) => (
+                      <div key={idx} style={{ padding: '1.5rem', background: 'var(--color-bg-tertiary)', borderRadius: '1rem', position: 'relative' }}>
+                        {expForm.roles.length > 1 && (
+                          <button onClick={() => handleRemoveRole(idx)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--color-error)', cursor: 'pointer' }}><i className="ph ph-trash" /></button>
+                        )}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                          <div style={{ gridColumn: 'span 2' }}>
+                            <label className="label" style={{ fontSize: '0.75rem' }}>Title</label>
+                            <Input value={role.title} onChange={e => handleRoleChange(idx, 'title', e.target.value)} placeholder="e.g. Senior Software Engineer" />
+                          </div>
+                          <div>
+                            <label className="label" style={{ fontSize: '0.75rem' }}>Start Date</label>
+                            <Input value={role.startDate} onChange={e => handleRoleChange(idx, 'startDate', e.target.value)} placeholder="e.g. Jan 2021" />
+                          </div>
+                          <div>
+                            <label className="label" style={{ fontSize: '0.75rem' }}>End Date</label>
+                            <Input value={role.endDate} onChange={e => handleRoleChange(idx, 'endDate', e.target.value)} placeholder="e.g. Present or Dec 2022" />
+                          </div>
+                          <div style={{ gridColumn: 'span 2' }}>
+                            <label className="label" style={{ fontSize: '0.75rem' }}>Employment Type</label>
+                            <Input value={role.employmentType} onChange={e => handleRoleChange(idx, 'employmentType', e.target.value)} placeholder="e.g. Full-time, Freelance" />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="label" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block' }}>Description</label>
+                          <TiptapEditor 
+                            content={role.description} 
+                            onChange={html => handleRoleChange(idx, 'description', html)} 
+                            isCompact={true} 
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: '1.5rem 2rem', borderTop: '1px solid var(--color-border)', display: 'flex', gap: '1rem', background: 'var(--color-bg-tertiary)' }}>
+                <Button variant="secondary" onClick={() => setShowExperienceModal(false)} style={{ flex: 1 }}>Cancel</Button>
+                <Button variant="primary" onClick={saveExperience} style={{ flex: 2 }}>Save Experience</Button>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

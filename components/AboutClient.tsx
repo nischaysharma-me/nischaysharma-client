@@ -19,13 +19,24 @@ interface Language {
   color?: string;
 }
 
-interface Position {
+interface Role {
+  title: string;
   startDate: string;
   endDate: string;
-  title: string;
-  company: string;
   description: string;
+  employmentType?: string;
+}
+
+interface Position {
+  company: string;
   logo?: string;
+  location?: string;
+  roles: Role[];
+  // Keep legacy fields for migration support
+  title?: string;
+  startDate?: string;
+  endDate?: string;
+  description?: string;
 }
 
 interface Education {
@@ -85,22 +96,58 @@ const MarkdownContent = ({ content, className }: { content: string, className?: 
 export default function AboutClient({ profile, showBanner = false }: AboutClientProps) {
   const github = profile?.analytics?.github;
   
-  const positions = profile?.experience?.length ? profile.experience : [
-    {
-      startDate: "2023",
-      endDate: "Present",
-      title: "Lead Engineer & Architect",
-      company: "Thoughtjumper",
-      description: "Architected core knowledge engines and full-stack orchestration layers, scaling critical platform infrastructure.",
-    },
-    {
-      startDate: "2021",
-      endDate: "2023",
-      title: "Software Architect",
-      company: "Edvanta",
-      description: "Engineered robust and scalable cloud-native backend systems, led enterprise database modeling, and optimized high-throughput APIs.",
+  const rawPositions = profile?.experience || [];
+  
+  // Migration helper: Convert flat structure to nested structure if needed
+  const positions: Position[] = React.useMemo(() => {
+    if (!rawPositions.length) {
+      return [
+        {
+          company: "Thoughtjumper",
+          roles: [{
+            startDate: "2023",
+            endDate: "Present",
+            title: "Lead Engineer & Architect",
+            description: "Architected core knowledge engines and full-stack orchestration layers, scaling critical platform infrastructure.",
+          }]
+        },
+        {
+          company: "Edvanta",
+          roles: [{
+            startDate: "2021",
+            endDate: "2023",
+            title: "Software Architect",
+            description: "Engineered robust and scalable cloud-native backend systems, led enterprise database modeling, and optimized high-throughput APIs.",
+          }]
+        }
+      ];
     }
-  ];
+
+    // Check if it's already nested or needs migration
+    if (rawPositions[0] && rawPositions[0].roles) {
+      return rawPositions;
+    }
+
+    // Migrate flat to nested (grouped by company)
+    const grouped: Record<string, Position> = {};
+    rawPositions.forEach(pos => {
+      const company = pos.company;
+      if (!grouped[company]) {
+        grouped[company] = {
+          company,
+          logo: pos.logo,
+          roles: []
+        };
+      }
+      grouped[company].roles.push({
+        title: pos.title!,
+        startDate: pos.startDate!,
+        endDate: pos.endDate!,
+        description: pos.description!,
+      });
+    });
+    return Object.values(grouped);
+  }, [rawPositions]);
   const education = profile?.education || [];
   const skills = profile?.skills?.length ? profile.skills : ['TypeScript', 'Node.js', 'Next.js', 'React', 'Python', 'Go', 'Docker', 'Kubernetes', 'AWS', 'Firebase', 'PostgreSQL', 'MongoDB', 'GraphQL', 'REST APIs', 'System Design'];
   const expertise = profile?.expertise?.length ? profile.expertise : ['System Architecture', 'Cloud Infrastructure', 'API Design', 'Database Modeling', 'DevOps', 'Security'];
@@ -278,13 +325,28 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                        )}
                     </div>
                     <div className="career-item__body">
-                      <div className="career-item__header">
-                        <h3 className="career-item__title">{pos.title}</h3>
-                        <span className="career-item__date">{pos.startDate} — {pos.endDate}</span>
-                      </div>
-                      <p className="career-item__company">{pos.company}</p>
-                      <div className="career-item__description">
-                        <MarkdownContent content={pos.description} />
+                      <h3 className="career-item__company">{pos.company}</h3>
+                      {pos.location && <p className="career-item__location">{pos.location}</p>}
+                      
+                      <div className="career-roles">
+                        {pos.roles.map((role, idx) => (
+                          <div key={idx} className="career-role">
+                            <div className="career-role__indicator">
+                               <div className="role-dot" />
+                               {idx < pos.roles.length - 1 && <div className="role-line" />}
+                            </div>
+                            <div className="career-role__content">
+                              <div className="career-item__header">
+                                <h4 className="career-role__title">{role.title}</h4>
+                                <span className="career-item__date">{role.startDate} — {role.endDate}</span>
+                              </div>
+                              {role.employmentType && <p className="career-role__type">{role.employmentType}</p>}
+                              <div className="career-item__description">
+                                <MarkdownContent content={role.description} />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
