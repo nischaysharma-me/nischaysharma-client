@@ -211,7 +211,7 @@ export default function ProfileClient() {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
       const res = await integrationsService.list(token);
-      if (res.success) setIntegrations(res.data);
+      if (res.success) setIntegrations(res.data || {});
     } catch (err) {
       console.error('Error fetching integrations:', err);
     }
@@ -319,7 +319,7 @@ export default function ProfileClient() {
              await projectsService.create(repo, token);
           }
           const projRes = await projectsService.list(token);
-          if (projRes.success) setProjects(projRes.data);
+          if (projRes.success) setProjects(projRes.data || []);
           toast.success(`Synced ${newProjectsFromGit.length} projects from GitHub!`);
         } else {
           toast.info('All your GitHub projects are already listed.');
