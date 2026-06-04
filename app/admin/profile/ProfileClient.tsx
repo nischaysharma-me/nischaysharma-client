@@ -622,18 +622,18 @@ export default function ProfileClient() {
   const handleAddRole = () => {
     setExpForm({
       ...expForm,
-      roles: [...expForm.roles, { title: '', startDate: '', endDate: '', description: '', employmentType: '' }]
+      roles: [...(expForm.roles || []), { title: '', startDate: '', endDate: '', description: '', employmentType: '' }]
     });
   };
 
   const handleRemoveRole = (roleIndex: number) => {
-    if (expForm.roles.length <= 1) return;
-    const updatedRoles = expForm.roles.filter((_, i) => i !== roleIndex);
+    if ((expForm.roles || []).length <= 1) return;
+    const updatedRoles = (expForm.roles || []).filter((_, i) => i !== roleIndex);
     setExpForm({ ...expForm, roles: updatedRoles });
   };
 
   const handleRoleChange = (roleIndex: number, field: string, value: any) => {
-    const updatedRoles = [...expForm.roles];
+    const updatedRoles = [...(expForm.roles || [])];
     updatedRoles[roleIndex] = { ...updatedRoles[roleIndex], [field]: value };
     setExpForm({ ...expForm, roles: updatedRoles });
   };
@@ -1195,7 +1195,7 @@ export default function ProfileClient() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
                     {(expForm.roles || []).map((role: any, idx: number) => (
                       <div key={idx} style={{ padding: '2.5rem', background: '#fbfbfb', borderRadius: '1.5rem', position: 'relative', border: '1px solid #f0f0f0' }}>
-                        {expForm.roles.length > 1 && (
+                        {(expForm.roles || []).length > 1 && (
                           <button onClick={() => handleRemoveRole(idx)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#fff', border: '1px solid #eee', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.borderColor = '#ef4444'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.borderColor = '#eee'; }}><i className="ph ph-trash" /></button>
                         )}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
