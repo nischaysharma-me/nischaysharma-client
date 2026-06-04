@@ -304,7 +304,13 @@ export default function ProfileClient() {
             title: repo.title,
             description: repo.description,
             link: repo.link,
-            image: ''
+            image: '',
+            tags: [],
+            skills: [],
+            relatedArticles: [],
+            resources: [],
+            isFeatured: true,
+            order: 0
           }));
 
         if (newProjectsFromGit.length > 0) {
