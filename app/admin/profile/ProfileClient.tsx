@@ -156,7 +156,7 @@ export default function ProfileClient() {
             roles: e.roles || [{ title: e.title, startDate: e.startDate, endDate: e.endDate, description: e.description }]
           });
         });
-        expRes.data.forEach((e: any) => {
+        expRes.data?.forEach((e: any) => {
           const key = e.company?.toLowerCase();
           if (key) expMap.set(key, e);
         });
@@ -171,7 +171,7 @@ export default function ProfileClient() {
           const key = `${e.school}-${e.degree}`.toLowerCase();
           if (key) eduMap.set(key, e);
         });
-        eduRes.data.forEach((e: any) => {
+        eduRes.data?.forEach((e: any) => {
           const key = `${e.school}-${e.degree}`.toLowerCase();
           if (key) eduMap.set(key, e);
         });
@@ -193,7 +193,7 @@ export default function ProfileClient() {
             resources: p.resources || []
           });
         });
-        projRes.data.forEach((p: any) => {
+        projRes.data?.forEach((p: any) => {
           const key = p.title?.toLowerCase();
           if (key) projMap.set(key, p);
         });
