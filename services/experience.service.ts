@@ -15,6 +15,11 @@ export interface Experience {
   logo?: string;
   roles: ExperienceRole[];
   order?: number;
+  // Legacy fields for migration
+  title?: string;
+  startDate?: string;
+  endDate?: string;
+  description?: string;
 }
 
 export const experienceService = {
