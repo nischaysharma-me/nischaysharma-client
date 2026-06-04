@@ -5,7 +5,10 @@ import { auth } from '@/lib/firebase';
 import { usersService } from '@/services/users.service';
 import { articlesService } from '@/services/articles.service';
 import { booksService } from '@/services/books.service';
+import { integrationsService, IntegrationsList } from '@/services/integrations.service';
 import { projectsService } from '@/services/projects.service';
+import { experienceService, Experience } from '@/services/experience.service';
+import { educationService, Education } from '@/services/education.service';
 import { Project } from '@/lib/types/project';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -66,20 +69,20 @@ export default function ProfileClient() {
     resources: []
   });
   
-  const [experience, setExperience] = useState<any[]>([]);
+  const [experience, setExperience] = useState<Experience[]>([]);
   const [showExperienceModal, setShowExperienceModal] = useState(false);
   const [editingExperienceIndex, setEditingExperienceIndex] = useState<number | null>(null);
-  const [expForm, setExpForm] = useState({
-    company: '',
-    logo: '',
-    location: '',
-    roles: [{ title: '', startDate: '', endDate: '', description: '', employmentType: '' }]
+  const [expForm, setExpForm] = useState<Partial<Experience>>({ 
+    company: '', 
+    logo: '', 
+    location: '', 
+    roles: [{ title: '', startDate: '', endDate: '', description: '', employmentType: '' }] 
   });
-  
-  const [education, setEducation] = useState<any[]>([]);
+
+  const [education, setEducation] = useState<Education[]>([]);
   const [showEducationModal, setShowEducationModal] = useState(false);
   const [editingEducationIndex, setEditingEducationIndex] = useState<number | null>(null);
-  const [eduForm, setEduForm] = useState({ school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', logo: '' });
+  const [eduForm, setEduForm] = useState<Partial<Education>>({ school: '', degree: '', fieldOfStudy: '', startDate: '', endDate: '', logo: '' });
   
   const [syncingProfile, setSyncingProfile] = useState(false);
   const [isUploadingNested, setIsUploadingNested] = useState<'project' | 'experience' | 'education' | null>(null);
@@ -121,7 +124,13 @@ export default function ProfileClient() {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
       
-      const response = await usersService.getMe(token);
+      const [response, expRes, eduRes, projRes] = await Promise.all([
+        usersService.getMe(token),
+        experienceService.list(token),
+        educationService.list(token),
+        projectsService.list(token)
+      ]);
+
       if (response.success) {
         const userData = response.data;
         setUser(userData);
@@ -130,37 +139,65 @@ export default function ProfileClient() {
         setOccupation(userData.occupation || '');
         setBio(userData.bio || '');
         setVision(userData.vision || '');
-        const migratedExperience = (userData.experience || []).map((exp: any) => {
-          if (!exp.roles) {
-            return {
-              company: exp.company,
-              logo: exp.logo || '',
-              location: exp.location || '',
-              roles: [{
-                title: exp.title,
-                startDate: exp.startDate,
-                endDate: exp.endDate,
-                description: exp.description,
-                employmentType: ''
-              }]
-            };
-          }
-          return exp;
-        });
-        setExperience(migratedExperience);
-        setEducation(userData.education || []);
-        setWritingStyle(userData.writingStyle || 'casual');
+        setFeatured(userData.featured || []);
         setSkills(userData.skills || []);
         setExpertise(userData.expertise || []);
         setSocialLinks(userData.socialLinks || { twitter: '', linkedin: '', github: '', website: '' });
-        // setProjects(userData.projects || []); // No longer from User doc
-        setFeatured(userData.featured || []);
-        
-        // Fetch projects separately
-        const projRes = await projectsService.list(token);
-        if (projRes.success) {
-          setProjects(projRes.data);
-        }
+      }
+
+      if (expRes?.success) {
+        // Merge legacy experience
+        const legacyExp = response.data?.experience || [];
+        const expMap = new Map();
+        legacyExp.forEach((e: any) => {
+          const key = e.company?.toLowerCase();
+          if (key) expMap.set(key, {
+            ...e,
+            roles: e.roles || [{ title: e.title, startDate: e.startDate, endDate: e.endDate, description: e.description }]
+          });
+        });
+        expRes.data.forEach((e: any) => {
+          const key = e.company?.toLowerCase();
+          if (key) expMap.set(key, e);
+        });
+        setExperience(Array.from(expMap.values()));
+      }
+
+      if (eduRes?.success) {
+        // Merge legacy education
+        const legacyEdu = response.data?.education || [];
+        const eduMap = new Map();
+        legacyEdu.forEach((e: any) => {
+          const key = `${e.school}-${e.degree}`.toLowerCase();
+          if (key) eduMap.set(key, e);
+        });
+        eduRes.data.forEach((e: any) => {
+          const key = `${e.school}-${e.degree}`.toLowerCase();
+          if (key) eduMap.set(key, e);
+        });
+        setEducation(Array.from(eduMap.values()));
+      }
+
+      if (projRes?.success) {
+        // Merge legacy projects
+        const legacyProj = response.data?.projects || [];
+        const projMap = new Map();
+        legacyProj.forEach((p: any) => {
+          const key = p.title?.toLowerCase();
+          if (key) projMap.set(key, {
+            ...p,
+            image: p.image || '',
+            tags: p.tags || [],
+            skills: p.skills || [],
+            relatedArticles: p.relatedArticles || [],
+            resources: p.resources || []
+          });
+        });
+        projRes.data.forEach((p: any) => {
+          const key = p.title?.toLowerCase();
+          if (key) projMap.set(key, p);
+        });
+        setProjects(Array.from(projMap.values()));
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
@@ -473,7 +510,19 @@ export default function ProfileClient() {
   };
 
   const openEditProject = (index: number) => {
-    setProjForm({ ...projects[index] });
+    const proj = projects[index];
+    setProjForm({ 
+      title: proj.title || '', 
+      description: proj.description || '', 
+      link: proj.link || '', 
+      image: proj.image || '',
+      tags: proj.tags || [],
+      skills: proj.skills || [],
+      relatedArticles: proj.relatedArticles || [],
+      resources: proj.resources || [],
+      isFeatured: proj.isFeatured ?? true,
+      order: proj.order || 0
+    } as any);
     setEditingProjectIndex(index);
     setShowProjectModal(true);
   };
@@ -496,8 +545,7 @@ export default function ProfileClient() {
       }
 
       if (res.success) {
-        const updatedProjRes = await projectsService.list(token);
-        if (updatedProjRes.success) setProjects(updatedProjRes.data);
+        await fetchProfile();
         setShowProjectModal(false);
         toast.success(editingProjectIndex !== null ? 'Project updated' : 'Project created');
       }
@@ -515,9 +563,12 @@ export default function ProfileClient() {
         if (projId) {
           const res = await projectsService.delete(projId, token);
           if (res.success) {
-            setProjects(projects.filter((_, i) => i !== index));
+            await fetchProfile();
             toast.success('Project removed');
           }
+        } else {
+          await fetchProfile();
+          toast.success('Project removed');
         }
       } catch (err: any) {
         toast.error('Failed to remove project: ' + err.message);
@@ -538,23 +589,26 @@ export default function ProfileClient() {
 
   const openEditExperience = (index: number) => {
     const exp = experience[index];
-    if (!exp.roles) {
-      // Inline migration for safety
-      setExpForm({
-        company: exp.company || '',
-        logo: exp.logo || '',
-        location: exp.location || '',
-        roles: [{
-          title: exp.title || '',
-          startDate: exp.startDate || '',
-          endDate: exp.endDate || '',
-          description: exp.description || '',
-          employmentType: ''
-        }]
-      });
-    } else {
-      setExpForm({ ...exp });
-    }
+    setExpForm({
+      company: exp.company || '',
+      location: exp.location || '',
+      logo: exp.logo || '',
+      roles: (exp.roles || []).length > 0 ? exp.roles.map((r: any) => ({
+        title: r.title || '',
+        type: r.type || 'full-time',
+        startDate: r.startDate || '',
+        endDate: r.endDate || '',
+        current: r.current || false,
+        description: r.description || ''
+      })) : [{
+        title: exp.title || '', // Fallback for very old records
+        type: 'full-time',
+        startDate: exp.startDate || '',
+        endDate: exp.endDate || '',
+        current: false,
+        description: exp.description || ''
+      }]
+    });
     setEditingExperienceIndex(index);
     setShowExperienceModal(true);
   };
@@ -578,26 +632,52 @@ export default function ProfileClient() {
     setExpForm({ ...expForm, roles: updatedRoles });
   };
 
-  const saveExperience = () => {
-    if (!expForm.company || expForm.roles.some(r => !r.title)) {
+  const saveExperience = async () => {
+    if (!expForm.company || expForm.roles?.some(r => !r.title)) {
       toast.error('Company and all Role Titles are required');
       return;
     }
 
-    const updated = [...experience];
-    if (editingExperienceIndex !== null) {
-      updated[editingExperienceIndex] = expForm;
-    } else {
-      updated.push(expForm);
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      let res;
+      if (editingExperienceIndex !== null && experience[editingExperienceIndex].id) {
+        res = await experienceService.update(experience[editingExperienceIndex].id!, expForm, token);
+      } else {
+        res = await experienceService.create(expForm, token);
+      }
+
+      if (res.success) {
+        await fetchProfile();
+        setShowExperienceModal(false);
+        toast.success(editingExperienceIndex !== null ? 'Experience updated' : 'Experience added');
+      }
+    } catch (err: any) {
+      toast.error('Failed to save experience: ' + err.message);
     }
-    setExperience(updated);
-    setShowExperienceModal(false);
-    toast.success('Experience updated. Remember to "Save Profile Changes" at the bottom to persist.');
   };
 
-  const removeExperience = (index: number) => {
+  const removeExperience = async (index: number) => {
     if (confirm('Are you sure you want to remove this professional experience?')) {
-      setExperience(experience.filter((_, i) => i !== index));
+      try {
+        const token = await auth.currentUser?.getIdToken();
+        if (!token) return;
+        const expId = experience[index].id;
+        if (expId) {
+          const res = await experienceService.delete(expId, token);
+          if (res.success) {
+            await fetchProfile();
+            toast.success('Experience removed');
+          }
+        } else {
+          await fetchProfile();
+          toast.success('Experience removed');
+        }
+      } catch (err: any) {
+        toast.error('Failed to remove experience: ' + err.message);
+      }
     }
   };
 
@@ -608,27 +688,67 @@ export default function ProfileClient() {
   };
 
   const openEditEducation = (index: number) => {
-    setEduForm({ ...education[index] });
+    const edu = education[index];
+    setEduForm({
+      school: edu.school || '',
+      degree: edu.degree || '',
+      fieldOfStudy: edu.fieldOfStudy || '',
+      startDate: edu.startDate || '',
+      endDate: edu.endDate || '',
+      current: edu.current || false,
+      description: edu.description || '',
+      logo: edu.logo || ''
+    });
     setEditingEducationIndex(index);
     setShowEducationModal(true);
   };
 
-  const saveEducation = () => {
+  const saveEducation = async () => {
     if (!eduForm.school || !eduForm.degree) {
       toast.error('School and Degree are required');
       return;
     }
-    const updated = [...education];
-    if (editingEducationIndex !== null) updated[editingEducationIndex] = eduForm;
-    else updated.push(eduForm);
-    setEducation(updated);
-    setShowEducationModal(false);
-    toast.success('Education updated. Remember to "Save Profile Changes" at the bottom to persist.');
+
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      let res;
+      if (editingEducationIndex !== null && education[editingEducationIndex].id) {
+        res = await educationService.update(education[editingEducationIndex].id!, eduForm, token);
+      } else {
+        res = await educationService.create(eduForm, token);
+      }
+
+      if (res.success) {
+        await fetchProfile();
+        setShowEducationModal(false);
+        toast.success(editingEducationIndex !== null ? 'Academic record updated' : 'Academic record added');
+      }
+    } catch (err: any) {
+      toast.error('Failed to save academic record: ' + err.message);
+    }
   };
 
-  const removeEducation = (index: number) => {
+  const removeEducation = async (index: number) => {
     if (confirm('Are you sure you want to remove this academic background?')) {
-      setEducation(education.filter((_, i) => i !== index));
+      try {
+        const token = await auth.currentUser?.getIdToken();
+        if (!token) return;
+        const eduId = education[index].id;
+        if (eduId) {
+          const res = await educationService.delete(eduId, token);
+          if (res.success) {
+            await fetchProfile();
+            toast.success('Academic record removed');
+          }
+        } else {
+          await fetchProfile();
+          toast.success('Academic record removed');
+        }
+      } catch (err: any) {
+        toast.error('Failed to remove academic record: ' + err.message);
+      }
     }
   };
 
@@ -915,9 +1035,22 @@ export default function ProfileClient() {
                  {['github', 'linkedin'].map((p: any) => (
                    <div key={p} style={{ padding: '1rem', background: 'var(--color-bg-tertiary)', borderRadius: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ textTransform: 'capitalize', fontWeight: 700, color: 'var(--color-text-primary)' }}>{p}</span>
-                      <Button variant="ghost" style={{ fontSize: '0.7rem' }} onClick={() => (integrations as any)[p]?.connected ? handleDisconnect(p) : handleConnect(p)}>
-                         {(integrations as any)[p]?.connected ? 'Disconnect' : 'Connect'}
-                      </Button>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        {(integrations as any)[p]?.connected && (
+                          <Button 
+                            variant="ghost" 
+                            style={{ fontSize: '0.7rem' }} 
+                            onClick={() => handleSyncStats(p)}
+                            loading={syncingStats === p}
+                          >
+                            <i className="ph ph-arrows-clockwise" style={{ marginRight: '0.3rem' }} />
+                            Sync
+                          </Button>
+                        )}
+                        <Button variant="ghost" style={{ fontSize: '0.7rem' }} onClick={() => (integrations as any)[p]?.connected ? handleDisconnect(p) : handleConnect(p)}>
+                           {(integrations as any)[p]?.connected ? 'Disconnect' : 'Connect'}
+                        </Button>
+                      </div>
                    </div>
                  ))}
               </div>

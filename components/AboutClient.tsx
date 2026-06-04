@@ -283,8 +283,10 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
         {projects.length > 0 && (
           <section className="about-projects">
             <div className="about-projects__dynamic-bg" style={{ 
-              backgroundImage: hoveredProject !== null && projects[hoveredProject]?.image ? `url(${projects[hoveredProject].image})` : 'none',
-              opacity: hoveredProject !== null ? 0.15 : 0
+              backgroundImage: (hoveredProject !== null && projects[hoveredProject]?.image) 
+                ? `url(${projects[hoveredProject].image})` 
+                : (projects[0]?.image ? `url(${projects[0].image})` : 'none'),
+              opacity: (hoveredProject !== null || projects[0]?.image) ? 0.35 : 0
             }} />
             <div className="about-projects__container">
               <h2 className="section-title">Selected Works</h2>

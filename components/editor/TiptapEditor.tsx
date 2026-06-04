@@ -97,7 +97,7 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
     content: content,
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      const markdown = (editor as any).getMarkdown?.() || '';
+      const markdown = editor.storage.markdown?.getMarkdown?.() || '';
       setRawHtml(markdown);
       onChange(markdown);
     },
@@ -179,8 +179,8 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
   };
 
   useEffect(() => {
-    if (editor && (editor as any).getMarkdown) {
-      const currentMarkdown = (editor as any).getMarkdown();
+    if (editor && editor.storage?.markdown?.getMarkdown) {
+      const currentMarkdown = editor.storage.markdown.getMarkdown();
       if (content !== currentMarkdown) {
         editor.commands.setContent(content, { emitUpdate: false });
       }

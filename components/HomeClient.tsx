@@ -7,7 +7,7 @@ import MarkdownView from '@/components/ui/MarkdownView';
 
 interface FeaturedItem {
   id: string;
-  type: 'article' | 'book';
+  type: 'article' | 'book' | 'project';
   title: string;
   data: any;
 }
@@ -51,6 +51,8 @@ const FeaturedSection = ({
       return match ? match[1] : '/architectural-concrete-monument.png';
     } else if (type === 'book') {
       return data.coverImage || '/architectural-concrete-monument.png';
+    } else if (type === 'project') {
+      return data.image || '/architectural-concrete-monument.png';
     }
     return '/architectural-concrete-monument.png';
   };
@@ -63,6 +65,8 @@ const FeaturedSection = ({
         : 'Dive into this curated story by Nischay Sharma...';
     } else if (type === 'book') {
       return data.description || 'Explore this comprehensive collection of knowledge...';
+    } else if (type === 'project') {
+      return data.description ? data.description.substring(0, 300) + '...' : 'Explore this innovative technical project...';
     }
     return '';
   };
@@ -71,11 +75,15 @@ const FeaturedSection = ({
     const { data, type } = item;
     if (type === 'article') return `/articles/${data.slug}`;
     if (type === 'book') return `/books/${data.id}`;
+    if (type === 'project') return data.link || '#';
     return '#';
   };
 
   const getLinkLabel = (item: FeaturedItem) => {
-    return item.type === 'article' ? 'Open Journal' : 'Read Book';
+    if (item.type === 'article') return 'Open Journal';
+    if (item.type === 'book') return 'Read Book';
+    if (item.type === 'project') return 'View Project';
+    return 'Explore';
   };
 
   return (
@@ -94,7 +102,7 @@ const FeaturedSection = ({
       <div className={`articles-parallax__content ${readingModeEnabled ? 'reading-mode-active' : ''}`}>
         <div className="articles-parallax__main-info">
           <span className="articles-parallax__eyebrow">
-            {item.type === 'article' ? 'Curated Edition' : 'Digital Volume'} / Vol. 0{index + 1}
+            {item.type === 'article' ? 'Curated Edition' : item.type === 'book' ? 'Digital Volume' : 'Technical Study'} / Vol. 0{index + 1}
           </span>
           
           <h3 className="articles-parallax__title">
