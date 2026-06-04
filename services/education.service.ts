@@ -10,6 +10,7 @@ export interface Education {
   logo?: string;
   description?: string;
   order?: number;
+  current?: boolean;
 }
 
 export const educationService = {
