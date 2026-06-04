@@ -79,16 +79,14 @@ export default function CreateArticlePage() {
         </div>
 
         <div className="organization__form-group" style={{ marginTop: '2rem' }}>
-          <label className="label">Short Description</label>
-          <textarea 
-            className="input" 
-            placeholder="What is this article about?"
-            style={{ height: '80px', resize: 'none', padding: '0.75rem' }}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+          <label className="label">Description</label>
+          <TiptapEditor 
+            content={description} 
+            onChange={setDescription} 
+            isCompact={true}
           />
         </div>
-        
+
         <div className="organization__form-group" style={{ marginTop: '2rem' }}>
           <label className="label">Content Editor</label>
           <TiptapEditor 

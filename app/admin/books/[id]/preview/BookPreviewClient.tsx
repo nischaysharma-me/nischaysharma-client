@@ -6,6 +6,7 @@ import { auth } from '@/lib/firebase';
 import { Book, Page, Chapter, booksService } from '@/services/books.service';
 import AdminLoading from '@/app/admin/loading';
 import { toast } from 'sonner';
+import MarkdownView from '@/components/ui/MarkdownView';
 
 interface BookPreviewClientProps {
   bookId: string;
@@ -132,7 +133,7 @@ export default function BookPreviewClient({ bookId }: BookPreviewClientProps) {
               <div className="prose">
                 {book.pages.map((page) => (
                   <div key={page.id} style={{ marginBottom: '3rem' }}>
-                    <div className="tiptap-content" dangerouslySetInnerHTML={{ __html: page.content }} />
+                    <MarkdownView content={page.content} className="tiptap-content" />
                   </div>
                 ))}
               </div>
@@ -154,7 +155,7 @@ export default function BookPreviewClient({ bookId }: BookPreviewClientProps) {
                 {chapter.pages && chapter.pages.length > 0 ? (
                   chapter.pages.map((page) => (
                     <div key={page.id} style={{ marginBottom: '3rem' }}>
-                      <div className="tiptap-content" dangerouslySetInnerHTML={{ __html: page.content }} />
+                      <MarkdownView content={page.content} className="tiptap-content" />
                     </div>
                   ))
                 ) : (

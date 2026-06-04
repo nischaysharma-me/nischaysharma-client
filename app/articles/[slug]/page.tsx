@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { articlesService } from '@/services/articles.service';
 import { Article } from '@/lib/types/article';
 import { Metadata } from 'next';
+import MarkdownView from '@/components/ui/MarkdownView';
 
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
@@ -138,12 +139,12 @@ export default async function PublicArticleView({ params }: PageProps) {
 
         <main className="article-view__main">
           {article.description && (
-            <p className="article-view__description">{article.description}</p>
+            <MarkdownView content={article.description} className="article-view__description" />
           )}
           
-          <div 
+          <MarkdownView 
+            content={article.content} 
             className="article-view__content" 
-            dangerouslySetInnerHTML={{ __html: article.content }} 
           />
 
           <footer className="article-view__footer">

@@ -97,9 +97,9 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
     content: content,
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      setRawHtml(html);
-      onChange(html);
+      const markdown = (editor.storage as any).markdown?.getMarkdown?.() || '';
+      setRawHtml(markdown);
+      onChange(markdown);
     },
     editorProps: {
       attributes: {
@@ -131,9 +131,10 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
           );
 
           if (isMarkdown && editor) {
-            // Convert markdown to HTML and insert it
-            const html = marked.parse(text) as string;
-            editor.commands.insertContent(html);
+            // If it's markdown, we can just let Tiptap handle it or insert as markdown
+            // Since we have the Markdown extension, it should handle it.
+            // But sometimes explicit insertion is better.
+            editor.commands.insertContent(text);
             return true;
           }
         }
@@ -178,8 +179,11 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
   };
 
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content, { emitUpdate: false });
+    if (editor && (editor.storage as any)?.markdown?.getMarkdown) {
+      const currentMarkdown = (editor.storage as any).markdown.getMarkdown();
+      if (content !== currentMarkdown) {
+        editor.commands.setContent(content, { emitUpdate: false });
+      }
     }
   }, [content, editor]);
 

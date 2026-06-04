@@ -63,6 +63,12 @@
         height: 100%
         object-fit: cover
 
+      &-overlay
+        position: absolute
+        inset: 0
+        background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.6) 100%)
+        z-index: 2
+
     &__header
       margin-bottom: 4rem
       position: relative
@@ -320,11 +326,26 @@
   /* --- Projects --- */
   .about-projects
     padding: 6rem 0
+    position: relative
+    overflow: hidden
     
     @include desktop
       padding: 12rem 0
 
+    &__dynamic-bg
+      position: absolute
+      inset: 0
+      background-size: cover
+      background-position: center
+      filter: blur(40px) saturate(2)
+      z-index: 0
+      @include transition(all)
+      transition-duration: 0.8s
+      transform: scale(1.1)
+
     &__container
+      position: relative
+      z-index: 1
       max-width: 1400px
       margin: 0 auto
       padding: 0 $spacing-lg
@@ -344,14 +365,15 @@
     .project-node
       position: relative
       aspect-ratio: 16/10
-      background-color: $color-bg-tertiary
+      background-color: #000
       overflow: hidden
-      border-radius: $radius-md
+      border-radius: $radius-lg
       @include transition(all)
+      cursor: pointer
 
       &:hover
-        transform: translateY(-8px)
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1)
+        transform: translateY(-12px) scale(1.02)
+        box-shadow: 0 30px 60px rgba(0,0,0,0.2)
 
       &__image-wrapper
         width: 100%
@@ -363,63 +385,74 @@
         height: 100%
         object-fit: cover
         opacity: 0.8
-        filter: grayscale(100%)
         @include transition(all)
+        transition-duration: 1.2s
 
       &:hover &__img
-        transform: scale(1.05)
-        opacity: 0.4
-        filter: grayscale(0%)
+        transform: scale(1.1)
+        opacity: 0.3
 
       &__overlay
         position: absolute
         inset: 0
-        padding: $spacing-xl
+        padding: 3rem
         display: flex
         flex-direction: column
         justify-content: flex-end
-        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)
+        background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 40%, transparent 80%)
         color: $color-white
+        @include transition(all)
 
-        @include desktop
-          padding: 3rem
+      &__content
+        transform: translateY(20px)
+        @include transition(all)
+        transition-duration: 0.5s
+
+      &:hover &__content
+        transform: translateY(0)
 
       &__title
-        font-size: 1.75rem
-        font-weight: 800
-        margin-bottom: $spacing-sm
-        letter-spacing: -0.02em
+        font-size: 2.25rem
+        font-weight: 900
+        margin-bottom: $spacing-md
+        letter-spacing: -0.03em
+        line-height: 1.1
 
       &__desc
-        font-size: 1rem
-        color: rgba(255, 255, 255, 0.8)
-        line-height: 1.5
-        max-width: 400px
-        margin-bottom: $spacing-md
+        font-size: 1.1rem
+        color: rgba(255, 255, 255, 0.7)
+        line-height: 1.6
+        max-width: 480px
+        margin-bottom: 2rem
         opacity: 0
-        transform: translateY(20px)
         @include transition(all)
         transition-delay: 100ms
 
       &:hover &__desc
         opacity: 1
-        transform: translateY(0)
 
       &__link
         text-decoration: none
         color: $color-white
         font-weight: 800
-        font-size: 0.75rem
-        letter-spacing: 0.2em
+        font-size: 0.8rem
+        letter-spacing: 0.25em
         display: flex
         align-items: center
-        gap: $spacing-xs
+        gap: $spacing-sm
         text-transform: uppercase
-        @include transition(all)
         width: fit-content
+        padding: 0.75rem 1.5rem
+        background: rgba(255, 255, 255, 0.1)
+        backdrop-filter: blur(10px)
+        border-radius: $radius-pill
+        border: 1px solid rgba(255, 255, 255, 0.2)
+        @include transition(all)
 
         &:hover
-          letter-spacing: 0.25em
+          background: $color-white
+          color: $color-black
+          transform: translateX(10px)
 
   /* --- Career Timeline --- */
   .about-career
@@ -552,8 +585,13 @@
         letter-spacing: 0.05em
 
       &__company
-        font-size: 1.1rem
-        font-weight: 600
+        font-size: 1.25rem
+        font-weight: 700
+        color: $color-text-primary
+        margin-bottom: 0.25rem
+
+      &__location
+        font-size: 0.9rem
         color: $color-text-secondary
         margin-bottom: $spacing-md
 
@@ -561,6 +599,53 @@
         font-size: 1rem
         line-height: 1.6
         color: $color-text-secondary
+
+    .career-roles
+      display: flex
+      flex-direction: column
+      gap: 2.5rem
+      margin-top: 1.5rem
+
+    .career-role
+      display: flex
+      gap: 1.5rem
+      position: relative
+
+      &__indicator
+        display: flex
+        flex-direction: column
+        align-items: center
+        width: 12px
+        margin-top: 8px
+
+        .role-dot
+          width: 10px
+          height: 10px
+          border-radius: 50%
+          background-color: $color-text-secondary
+          border: 2px solid $color-bg-primary
+          z-index: 1
+
+        .role-line
+          width: 1px
+          flex: 1
+          background-color: $color-border
+          margin-top: 4px
+          margin-bottom: -2.5rem
+
+      &__content
+        flex: 1
+
+      &__type
+        font-size: 0.85rem
+        color: $color-text-secondary
+        margin-bottom: $spacing-md
+        font-weight: 500
+
+      .career-role__title
+        font-size: 1.125rem
+        font-weight: 700
+        color: $color-text-primary
 
   /* --- Academic Path --- */
   .about-academic

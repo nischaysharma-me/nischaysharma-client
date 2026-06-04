@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { useDialogStore } from '@/store/useDialogStore';
 import { integrationsService, IntegrationsList } from '@/services/integrations.service';
 import { motion, AnimatePresence } from 'framer-motion';
+import MarkdownView from '@/components/ui/MarkdownView';
 
 export default function ArticleEditPage() {
   const { id } = useParams() as { id: string };
@@ -247,7 +248,7 @@ export default function ArticleEditPage() {
                     />
                  </div>
                )}
-               <div className="tiptap-content" dangerouslySetInnerHTML={{ __html: content }} />
+               <MarkdownView content={content} className="tiptap-content" />
             </div>
           ) : (
             <div className="card card--padded">
@@ -396,11 +397,10 @@ export default function ArticleEditPage() {
 
                   <div className="organization__form-group" style={{ marginTop: '2rem' }}>
                     <label className="label">Description</label>
-                    <textarea 
-                      className="input" 
-                      style={{ height: '100px', resize: 'none', padding: '0.75rem' }}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
+                    <TiptapEditor 
+                      content={description} 
+                      onChange={setDescription} 
+                      isCompact={true}
                     />
                   </div>
 

@@ -3,10 +3,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import AboutClient from '@/components/AboutClient';
 import { useReadingModeStore } from '@/store/useReadingModeStore';
+import MarkdownView from '@/components/ui/MarkdownView';
 
 interface FeaturedItem {
   id: string;
-  type: 'article' | 'book';
+  type: 'article' | 'book' | 'project';
   title: string;
   data: any;
 }
@@ -43,15 +44,19 @@ const FeaturedSection = ({
 
   const getCoverImage = (item: FeaturedItem) => {
     const { data, type } = item;
+    const defaultImg = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop';
+
     if (type === 'article') {
       if (data.backgroundImage) return data.backgroundImage;
-      if (!data.content) return '/architectural-concrete-monument.png';
+      if (!data.content) return defaultImg;
       const match = data.content.match(/<img[^>]+src="([^">]+)"/);
-      return match ? match[1] : '/architectural-concrete-monument.png';
+      return match ? match[1] : defaultImg;
     } else if (type === 'book') {
-      return data.coverImage || '/architectural-concrete-monument.png';
+      return data.coverImage || defaultImg;
+    } else if (type === 'project') {
+      return data.image || defaultImg;
     }
-    return '/architectural-concrete-monument.png';
+    return defaultImg;
   };
 
   const getPreviewText = (item: FeaturedItem) => {
@@ -62,6 +67,8 @@ const FeaturedSection = ({
         : 'Dive into this curated story by Nischay Sharma...';
     } else if (type === 'book') {
       return data.description || 'Explore this comprehensive collection of knowledge...';
+    } else if (type === 'project') {
+      return data.description ? data.description.substring(0, 300) + '...' : 'Explore this innovative technical project...';
     }
     return '';
   };
@@ -70,11 +77,15 @@ const FeaturedSection = ({
     const { data, type } = item;
     if (type === 'article') return `/articles/${data.slug}`;
     if (type === 'book') return `/books/${data.id}`;
+    if (type === 'project') return data.link || '#';
     return '#';
   };
 
   const getLinkLabel = (item: FeaturedItem) => {
-    return item.type === 'article' ? 'Open Journal' : 'Read Book';
+    if (item.type === 'article') return 'Open Journal';
+    if (item.type === 'book') return 'Read Book';
+    if (item.type === 'project') return 'View Project';
+    return 'Explore';
   };
 
   return (
@@ -93,16 +104,16 @@ const FeaturedSection = ({
       <div className={`articles-parallax__content ${readingModeEnabled ? 'reading-mode-active' : ''}`}>
         <div className="articles-parallax__main-info">
           <span className="articles-parallax__eyebrow">
-            {item.type === 'article' ? 'Curated Edition' : 'Digital Volume'} / Vol. 0{index + 1}
+            {item.type === 'article' ? 'Curated Edition' : item.type === 'book' ? 'Digital Volume' : 'Technical Study'} / Vol. 0{index + 1}
           </span>
           
           <h3 className="articles-parallax__title">
             {item.title || item.data.title}
           </h3>
           
-          <p className="articles-parallax__description">
-            {item.data.description || (item.type === 'article' ? "An immersive technical study designed for the modern reader." : "A curated collection of technical depth.")}
-          </p>
+          <div className="articles-parallax__description">
+            <MarkdownView content={item.data.description || (item.type === 'article' ? "An immersive technical study designed for the modern reader." : "A curated collection of technical depth.")} />
+          </div>
         </div>
 
         <div className="articles-parallax__preview-col">

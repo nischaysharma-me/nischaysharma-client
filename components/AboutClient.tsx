@@ -3,6 +3,9 @@
 import React, { useEffect, useRef } from 'react';
 import ActivityHeatmap, { ActivityDay } from '@/components/ui/ActivityHeatmap';
 
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 interface GitHubStats {
   totalRepos: number;
   totalStars: number;
@@ -16,13 +19,24 @@ interface Language {
   color?: string;
 }
 
-interface Position {
+interface Role {
+  title: string;
   startDate: string;
   endDate: string;
-  title: string;
-  company: string;
   description: string;
+  employmentType?: string;
+}
+
+interface Position {
+  company: string;
   logo?: string;
+  location?: string;
+  roles: Role[];
+  // Keep legacy fields for migration support
+  title?: string;
+  startDate?: string;
+  endDate?: string;
+  description?: string;
 }
 
 interface Education {
@@ -35,10 +49,14 @@ interface Education {
 }
 
 interface Project {
+  id?: string;
   title: string;
   description: string;
   link?: string;
   image?: string;
+  tags?: string[];
+  skills?: string[];
+  resources?: { title: string; url: string }[];
 }
 
 interface Profile {
@@ -73,25 +91,68 @@ interface AboutClientProps {
   showBanner?: boolean;
 }
 
+import MarkdownView from '@/components/ui/MarkdownView';
+
+const MarkdownContent = ({ content, className }: { content: string, className?: string }) => (
+  <MarkdownView content={content} className={className} />
+);
+
 export default function AboutClient({ profile, showBanner = false }: AboutClientProps) {
+  const [hoveredProject, setHoveredProject] = React.useState<number | null>(null);
   const github = profile?.analytics?.github;
   
-  const positions = profile?.experience?.length ? profile.experience : [
-    {
-      startDate: "2023",
-      endDate: "Present",
-      title: "Lead Engineer & Architect",
-      company: "Thoughtjumper",
-      description: "Architected core knowledge engines and full-stack orchestration layers, scaling critical platform infrastructure.",
-    },
-    {
-      startDate: "2021",
-      endDate: "2023",
-      title: "Software Architect",
-      company: "Edvanta",
-      description: "Engineered robust and scalable cloud-native backend systems, led enterprise database modeling, and optimized high-throughput APIs.",
+  const rawPositions = profile?.experience || [];
+  
+  // Migration helper: Convert flat structure to nested structure if needed
+  const positions: Position[] = React.useMemo(() => {
+    if (!rawPositions.length) {
+      return [
+        {
+          company: "Thoughtjumper",
+          roles: [{
+            startDate: "2023",
+            endDate: "Present",
+            title: "Lead Engineer & Architect",
+            description: "Architected core knowledge engines and full-stack orchestration layers, scaling critical platform infrastructure.",
+          }]
+        },
+        {
+          company: "Edvanta",
+          roles: [{
+            startDate: "2021",
+            endDate: "2023",
+            title: "Software Architect",
+            description: "Engineered robust and scalable cloud-native backend systems, led enterprise database modeling, and optimized high-throughput APIs.",
+          }]
+        }
+      ];
     }
-  ];
+
+    // Check if it's already nested or needs migration
+    if (rawPositions[0] && rawPositions[0].roles) {
+      return rawPositions;
+    }
+
+    // Migrate flat to nested (grouped by company)
+    const grouped: Record<string, Position> = {};
+    rawPositions.forEach(pos => {
+      const company = pos.company;
+      if (!grouped[company]) {
+        grouped[company] = {
+          company,
+          logo: pos.logo,
+          roles: []
+        };
+      }
+      grouped[company].roles.push({
+        title: pos.title!,
+        startDate: pos.startDate!,
+        endDate: pos.endDate!,
+        description: pos.description!,
+      });
+    });
+    return Object.values(grouped);
+  }, [rawPositions]);
   const education = profile?.education || [];
   const skills = profile?.skills?.length ? profile.skills : ['TypeScript', 'Node.js', 'Next.js', 'React', 'Python', 'Go', 'Docker', 'Kubernetes', 'AWS', 'Firebase', 'PostgreSQL', 'MongoDB', 'GraphQL', 'REST APIs', 'System Design'];
   const expertise = profile?.expertise?.length ? profile.expertise : ['System Architecture', 'Cloud Infrastructure', 'API Design', 'Database Modeling', 'DevOps', 'Security'];
@@ -117,15 +178,20 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
     <div className="about-wrapper">
       <main className="about-view">
         {/* --- Hero Section --- */}
-        <section className={`about-hero ${showBanner && profile?.coverURL ? 'about-hero--with-banner' : ''}`}>
+        <section className={`about-hero ${showBanner ? 'about-hero--with-banner' : ''}`}>
           <div className="about-hero__container">
-            {showBanner && profile?.coverURL && (
+            {showBanner && (
               <div className="about-hero__banner">
-                <img src={profile.coverURL} alt="Cover" className="about-hero__banner-img" />
+                <img 
+                  src={profile?.coverURL || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2070&auto=format&fit=crop'} 
+                  alt="Cover" 
+                  className="about-hero__banner-img" 
+                />
+                <div className="about-hero__banner-overlay" />
               </div>
             )}
             
-            <div className={`about-hero__header ${showBanner && profile?.coverURL ? 'about-hero__header--overlapped' : ''}`}>
+            <div className={`about-hero__header ${showBanner ? 'about-hero__header--overlapped' : ''}`}>
               <div className="about-hero__identity">
                 <div className="about-hero__avatar">
                   {profile?.photoURL ? (
@@ -148,9 +214,11 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
             
             <div className="about-hero__grid">
               <div className="about-hero__bio-col">
-                <p className="about-hero__bio-text">
-                  {profile?.bio || 'I am a lead developer specializing in building scalable backend systems, architecting cloud-native applications, and creating intuitive developer experiences.'}
-                </p>
+                <div className="about-hero__bio-text">
+                  <MarkdownContent 
+                    content={profile?.bio || 'I am a lead developer specializing in building scalable backend systems, architecting cloud-native applications, and creating intuitive developer experiences.'} 
+                  />
+                </div>
                 
                 {github && (
                   <div className="about-github-stats">
@@ -207,9 +275,11 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
            <div className="about-vision__container">
               <div className="about-vision__content">
                 <h2 className="section-label">The Vision</h2>
-                <p className="vision-text">
-                   {profile?.vision || 'TaughtCode aims to become the standard for "Smart Backend" architectures—where infrastructure doesn\'t just store data, but actively participates in value creation.'}
-                </p>
+                <div className="vision-text">
+                   <MarkdownContent 
+                    content={profile?.vision || 'TaughtCode aims to become the standard for "Smart Backend" architectures—where infrastructure doesn\'t just store data, but actively participates in value creation.'} 
+                   />
+                </div>
               </div>
            </div>
         </section>
@@ -217,11 +287,22 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
         {/* --- Featured Projects --- */}
         {projects.length > 0 && (
           <section className="about-projects">
+            <div className="about-projects__dynamic-bg" style={{ 
+              backgroundImage: (hoveredProject !== null && projects[hoveredProject]?.image) 
+                ? `url(${projects[hoveredProject].image})` 
+                : (projects[0]?.image ? `url(${projects[0].image})` : 'none'),
+              opacity: (hoveredProject !== null || projects[0]?.image) ? 0.15 : 0
+            }} />
             <div className="about-projects__container">
               <h2 className="section-title">Selected Works</h2>
               <div className="projects-wall">
                 {projects.map((project, i) => (
-                  <div key={i} className="project-node">
+                  <div 
+                    key={i} 
+                    className="project-node"
+                    onMouseEnter={() => setHoveredProject(i)}
+                    onMouseLeave={() => setHoveredProject(null)}
+                  >
                     <div className="project-node__image-wrapper">
                        {project.image ? (
                          <img src={project.image} alt={project.title} className="project-node__img" />
@@ -231,7 +312,15 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                        <div className="project-node__overlay">
                           <div className="project-node__content">
                              <h3 className="project-node__title">{project.title}</h3>
-                             <p className="project-node__desc">{project.description}</p>
+                             <div className="project-node__desc">
+                               <MarkdownContent content={project.description} />
+                             </div>
+                             {(project.tags?.length || project.skills?.length) && (
+                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', margin: '0.8rem 0' }}>
+                                 {project.tags?.map(t => <span key={t} style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.1)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', border: '1px solid rgba(255,255,255,0.2)' }}>{t}</span>)}
+                                 {project.skills?.map(s => <span key={s} style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.2)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '0.3rem' }}>{s}</span>)}
+                               </div>
+                             )}
                              {project.link && (
                                <a href={project.link} target="_blank" className="project-node__link">
                                  EXPLORE <i className="ph ph-arrow-right" />
@@ -263,12 +352,29 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                        )}
                     </div>
                     <div className="career-item__body">
-                      <div className="career-item__header">
-                        <h3 className="career-item__title">{pos.title}</h3>
-                        <span className="career-item__date">{pos.startDate} — {pos.endDate}</span>
+                      <h3 className="career-item__company">{pos.company}</h3>
+                      {pos.location && <p className="career-item__location">{pos.location}</p>}
+                      
+                      <div className="career-roles">
+                        {pos.roles.map((role, idx) => (
+                          <div key={idx} className="career-role">
+                            <div className="career-role__indicator">
+                               <div className="role-dot" />
+                               {idx < pos.roles.length - 1 && <div className="role-line" />}
+                            </div>
+                            <div className="career-role__content">
+                              <div className="career-item__header">
+                                <h4 className="career-role__title">{role.title}</h4>
+                                <span className="career-item__date">{role.startDate} — {role.endDate}</span>
+                              </div>
+                              {role.employmentType && <p className="career-role__type">{role.employmentType}</p>}
+                              <div className="career-item__description">
+                                <MarkdownContent content={role.description} />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <p className="career-item__company">{pos.company}</p>
-                      <p className="career-item__description">{pos.description}</p>
                     </div>
                   </div>
                 ))}

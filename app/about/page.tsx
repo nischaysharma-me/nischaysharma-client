@@ -3,7 +3,7 @@ import AboutClient from '@/components/AboutClient';
 import { usersService } from '@/services/users.service';
 import { Metadata } from 'next';
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 60; // Cache for 1 minute
 
 export const metadata: Metadata = {
   title: "About Nischay Sharma | Lead Software Engineer & Architect",
