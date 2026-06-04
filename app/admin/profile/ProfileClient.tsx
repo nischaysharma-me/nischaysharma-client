@@ -1112,7 +1112,7 @@ export default function ProfileClient() {
                   </div>
                 </div>
                 <div style={{ padding: '1.5rem 2.5rem', borderTop: '1px solid #f0f0f0', background: '#fcfcfc' }}>
-                  <Button className="btn--full" height="50px" onClick={() => setShowFeaturedModal(false)}>Save Selections</Button>
+                  <Button className="btn--full" onClick={() => setShowFeaturedModal(false)}>Save Selections</Button>
                 </div>
              </motion.div>
           </motion.div>
