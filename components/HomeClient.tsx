@@ -44,17 +44,19 @@ const FeaturedSection = ({
 
   const getCoverImage = (item: FeaturedItem) => {
     const { data, type } = item;
+    const defaultImg = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop';
+
     if (type === 'article') {
       if (data.backgroundImage) return data.backgroundImage;
-      if (!data.content) return '/architectural-concrete-monument.png';
+      if (!data.content) return defaultImg;
       const match = data.content.match(/<img[^>]+src="([^">]+)"/);
-      return match ? match[1] : '/architectural-concrete-monument.png';
+      return match ? match[1] : defaultImg;
     } else if (type === 'book') {
-      return data.coverImage || '/architectural-concrete-monument.png';
+      return data.coverImage || defaultImg;
     } else if (type === 'project') {
-      return data.image || '/architectural-concrete-monument.png';
+      return data.image || defaultImg;
     }
-    return '/architectural-concrete-monument.png';
+    return defaultImg;
   };
 
   const getPreviewText = (item: FeaturedItem) => {

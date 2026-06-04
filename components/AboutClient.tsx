@@ -178,15 +178,20 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
     <div className="about-wrapper">
       <main className="about-view">
         {/* --- Hero Section --- */}
-        <section className={`about-hero ${showBanner && profile?.coverURL ? 'about-hero--with-banner' : ''}`}>
+        <section className={`about-hero ${showBanner ? 'about-hero--with-banner' : ''}`}>
           <div className="about-hero__container">
-            {showBanner && profile?.coverURL && (
+            {showBanner && (
               <div className="about-hero__banner">
-                <img src={profile.coverURL} alt="Cover" className="about-hero__banner-img" />
+                <img 
+                  src={profile?.coverURL || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2070&auto=format&fit=crop'} 
+                  alt="Cover" 
+                  className="about-hero__banner-img" 
+                />
+                <div className="about-hero__banner-overlay" />
               </div>
             )}
             
-            <div className={`about-hero__header ${showBanner && profile?.coverURL ? 'about-hero__header--overlapped' : ''}`}>
+            <div className={`about-hero__header ${showBanner ? 'about-hero__header--overlapped' : ''}`}>
               <div className="about-hero__identity">
                 <div className="about-hero__avatar">
                   {profile?.photoURL ? (
@@ -286,7 +291,7 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
               backgroundImage: (hoveredProject !== null && projects[hoveredProject]?.image) 
                 ? `url(${projects[hoveredProject].image})` 
                 : (projects[0]?.image ? `url(${projects[0].image})` : 'none'),
-              opacity: (hoveredProject !== null || projects[0]?.image) ? 0.35 : 0
+              opacity: (hoveredProject !== null || projects[0]?.image) ? 0.15 : 0
             }} />
             <div className="about-projects__container">
               <h2 className="section-title">Selected Works</h2>
