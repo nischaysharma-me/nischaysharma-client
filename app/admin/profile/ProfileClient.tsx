@@ -871,7 +871,7 @@ export default function ProfileClient() {
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
               <label className="label">Biography</label>
               <TiptapEditor 
-                content={bio}
+                content={bio || ''}
                 onChange={setBio}
                 isCompact={true}
               />
@@ -880,7 +880,7 @@ export default function ProfileClient() {
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
               <label className="label">The Vision</label>
               <TiptapEditor 
-                content={vision}
+                content={vision || ''}
                 onChange={setVision}
                 isCompact={true}
               />
@@ -1219,7 +1219,7 @@ export default function ProfileClient() {
                         <div>
                           <label className="label" style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '1rem', display: 'block', color: '#555' }}>Role Description</label>
                           <TiptapEditor 
-                            content={role.description} 
+                            content={role.description || ''} 
                             onChange={html => handleRoleChange(idx, 'description', html)} 
                             isCompact={true} 
                           />
@@ -1306,7 +1306,7 @@ export default function ProfileClient() {
                   <div>
                     <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '1rem', display: 'block' }}>Description</label>
                     <TiptapEditor 
-                      content={projForm.description} 
+                      content={projForm.description || ''} 
                       onChange={html => setProjForm({ ...projForm, description: html })} 
                       isCompact={true} 
                     />
