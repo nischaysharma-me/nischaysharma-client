@@ -519,9 +519,39 @@
         flex-direction: row
         gap: 3rem
 
+      &::before
+        content: ''
+        position: absolute
+        inset: -1.5rem
+        background-color: $color-text-primary
+        border-radius: $radius-lg
+        opacity: 0
+        transform: scale(0.98)
+        @include transition(all)
+        pointer-events: none
+        z-index: 0
+
       &.visible
         opacity: 1
         transform: translateY(0)
+
+      &.is-hovered
+        &::before
+          opacity: 0.05
+          transform: scale(1)
+        
+        .career-item__logo
+          border-color: $color-text-primary
+          transform: scale(1.05)
+          box-shadow: 0 10px 30px -10px rgba(0,0,0,0.2)
+          &::after
+            opacity: 1
+
+        .career-roles
+          .role-dot
+            background-color: $color-text-primary
+            box-shadow: 0 0 10px $color-text-primary
+            transform: scale(1.2)
 
       &__logo
         width: 64px
@@ -555,6 +585,7 @@
           border: 1px solid $color-text-primary
           border-radius: $radius-md
           opacity: 0
+          @include transition(all)
           animation: pulse-logo 2s infinite
           pointer-events: none
 
@@ -625,6 +656,7 @@
           background-color: $color-text-secondary
           border: 2px solid $color-bg-primary
           z-index: 1
+          @include transition(all)
 
         .role-line
           width: 1px
@@ -632,6 +664,7 @@
           background-color: $color-border
           margin-top: 4px
           margin-bottom: -2.5rem
+          @include transition(all)
 
       &__content
         flex: 1
@@ -678,11 +711,28 @@
       background-color: $color-bg-secondary
       border: 1px solid $color-border
       border-radius: $radius-md
+      position: relative
       @include transition(all)
 
-      &:hover
+      &::before
+        content: ''
+        position: absolute
+        inset: 0
+        background-color: $color-text-primary
+        opacity: 0
+        @include transition(all)
+        pointer-events: none
+        z-index: 0
+        border-radius: $radius-md
+
+      &.is-hovered
         border-color: $color-text-primary
-        transform: translateY(-5px)
+        transform: translateY(-8px)
+        box-shadow: 0 20px 40px -15px rgba(0,0,0,0.1)
+        
+        &::before
+          opacity: 0.03
+          transform: scale(1.02)
 
       &__logo
         width: 48px

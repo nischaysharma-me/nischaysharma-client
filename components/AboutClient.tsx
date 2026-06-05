@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ActivityHeatmap, { ActivityDay } from '@/components/ui/ActivityHeatmap';
 
 import ReactMarkdown from 'react-markdown';
@@ -98,7 +98,10 @@ const MarkdownContent = ({ content, className }: { content: string, className?: 
 );
 
 export default function AboutClient({ profile, showBanner = false }: AboutClientProps) {
-  const [hoveredProject, setHoveredProject] = React.useState<number | null>(null);
+  const [hoveredProject, setHoveredProject] = useState<number | null>(null);
+  const [hoveredPosition, setHoveredPosition] = useState<number | null>(null);
+  const [hoveredEducation, setHoveredEducation] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
   const github = profile?.analytics?.github;
   
   const rawPositions = profile?.experience || [];
@@ -343,7 +346,12 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
               <h2 className="section-title">Professional Path</h2>
               <div className="career-timeline">
                 {positions.map((pos, i) => (
-                  <div key={i} className="career-item">
+                  <div 
+                    key={i} 
+                    className={`career-item ${hoveredPosition === i ? 'is-hovered' : ''}`}
+                    onMouseEnter={() => setHoveredPosition(i)}
+                    onMouseLeave={() => setHoveredPosition(null)}
+                  >
                     <div className="career-item__logo">
                        {pos.logo ? (
                          <img src={pos.logo} alt={pos.company} />
@@ -390,7 +398,12 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
               <h2 className="section-title">Academic Genesis</h2>
               <div className="academic-grid">
                 {education.map((edu, i) => (
-                  <div key={i} className="academic-card">
+                  <div 
+                    key={i} 
+                    className={`academic-card ${hoveredEducation === i ? 'is-hovered' : ''}`}
+                    onMouseEnter={() => setHoveredEducation(i)}
+                    onMouseLeave={() => setHoveredEducation(null)}
+                  >
                     <div className="academic-card__logo">
                        {edu.logo ? <img src={edu.logo} alt={edu.school} /> : <div className="logo-placeholder">{edu.school[0]}</div>}
                     </div>
