@@ -18,9 +18,11 @@ import { format } from 'date-fns';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import TiptapEditor from '@/components/editor/TiptapEditor';
+import { useDialogStore } from '@/store/useDialogStore';
 
 export default function ProfileClient() {
   const router = useRouter();
+  const { openDialog } = useDialogStore();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -87,9 +89,9 @@ export default function ProfileClient() {
   const [syncingProfile, setSyncingProfile] = useState(false);
   const [isUploadingNested, setIsUploadingNested] = useState<'project' | 'experience' | 'education' | null>(null);
 
-  const [featured, setFeatured] = useState<{id: string, type: 'article' | 'book', title: string}[]>([]);
+  const [featured, setFeatured] = useState<{id: string, type: 'article' | 'book' | 'project', title: string}[]>([]);
   const [showFeaturedModal, setShowFeaturedModal] = useState(false);
-  const [availableItems, setAvailableItems] = useState<{id: string, type: 'article' | 'book', title: string}[]>([]);
+  const [availableItems, setAvailableItems] = useState<{id: string, type: 'article' | 'book' | 'project', title: string}[]>([]);
   const [loadingItems, setLoadingItems] = useState(false);
   const [configModal, setConfigModal] = useState<'github' | 'linkedin' | null>(null);
   const [tempConfig, setTempConfig] = useState({ clientId: '', clientSecret: '' });
@@ -275,18 +277,25 @@ export default function ProfileClient() {
   };
 
   const handleDisconnect = async (provider: 'github' | 'linkedin') => {
-    if (!confirm(`Are you sure you want to disconnect ${provider}?`)) return;
-    try {
-      const token = await auth.currentUser?.getIdToken();
-      if (!token) return;
-      const res = await integrationsService.remove(provider, token);
-      if (res.success) {
-        toast.success(`Disconnected from ${provider}`);
-        fetchIntegrations();
+    openDialog({
+      title: 'Disconnect Integration',
+      message: `Are you sure you want to disconnect ${provider}? This will stop any real-time synchronization with this account.`,
+      confirmLabel: 'Disconnect',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) return;
+          const res = await integrationsService.remove(provider, token);
+          if (res.success) {
+            toast.success(`Disconnected from ${provider}`);
+            fetchIntegrations();
+          }
+        } catch (err: any) {
+          toast.error(`Failed to disconnect ${provider}: ` + err.message);
+        }
       }
-    } catch (err: any) {
-      toast.error(`Failed to disconnect ${provider}: ` + err.message);
-    }
+    });
   };
 
   const handleSyncGitHubRepos = async () => {
@@ -534,20 +543,40 @@ export default function ProfileClient() {
   };
 
   const saveProject = async () => {
-    if (!projForm.title || !projForm.description) {
-      toast.error('Title and Description are required');
+    const title = projForm.title?.trim();
+    const description = projForm.description?.trim();
+
+    if (!title) {
+      toast.error('Project title is required');
       return;
     }
 
     try {
+      setSaving(true);
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
 
+      const payload = {
+        ...projForm,
+        title,
+        description
+      };
+
       let res;
       if (editingProjectIndex !== null && projects[editingProjectIndex].id) {
-        res = await projectsService.update(projects[editingProjectIndex].id!, projForm, token);
+        res = await projectsService.update(projects[editingProjectIndex].id!, payload, token);
       } else {
-        res = await projectsService.create(projForm as any, token);
+        res = await projectsService.create(payload as any, token);
+        
+        // If we are "editing" a legacy project (no ID), remove it from legacy after creating in collection
+        if (editingProjectIndex !== null && !projects[editingProjectIndex].id) {
+          const legacyProj = user?.projects || [];
+          const targetTitle = projects[editingProjectIndex].title?.toLowerCase().trim();
+          const filteredLegacy = legacyProj.filter((p: any) => p.title?.toLowerCase().trim() !== targetTitle);
+          if (filteredLegacy.length !== legacyProj.length) {
+            await usersService.updateMe({ projects: filteredLegacy } as any, token);
+          }
+        }
       }
 
       if (res.success) {
@@ -557,29 +586,51 @@ export default function ProfileClient() {
       }
     } catch (err: any) {
       toast.error('Failed to save project: ' + err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
   const removeProject = async (index: number) => {
-    if (confirm('Are you sure you want to remove this project?')) {
-      try {
-        const token = await auth.currentUser?.getIdToken();
-        if (!token) return;
-        const projId = projects[index].id;
-        if (projId) {
-          const res = await projectsService.delete(projId, token);
-          if (res.success) {
-            await fetchProfile();
-            toast.success('Project removed');
+    openDialog({
+      title: 'Remove Project',
+      message: 'Are you sure you want to remove this project? This action cannot be undone.',
+      confirmLabel: 'Remove',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) return;
+          
+          const proj = projects[index];
+          const projId = proj.id;
+          
+          if (projId) {
+            await projectsService.delete(projId, token);
           }
-        } else {
+          
+          // Always attempt to remove from legacy projects array in user document
+          const legacyProj = user?.projects || [];
+          const targetTitle = proj.title?.toLowerCase().trim();
+          const filteredLegacy = legacyProj.filter((p: any) => p.title?.toLowerCase().trim() !== targetTitle);
+          
+          const currentFeatured = user?.featured || [];
+          const filteredFeatured = currentFeatured.filter((f: any) => f.id !== projId);
+
+          if (filteredLegacy.length !== legacyProj.length || filteredFeatured.length !== currentFeatured.length) {
+            await usersService.updateMe({ 
+              projects: filteredLegacy,
+              featured: filteredFeatured
+            } as any, token);
+          }
+
           await fetchProfile();
           toast.success('Project removed');
+        } catch (err: any) {
+          toast.error('Failed to remove project: ' + err.message);
         }
-      } catch (err: any) {
-        toast.error('Failed to remove project: ' + err.message);
       }
-    }
+    });
   };
 
   const openAddExperience = () => {
@@ -666,25 +717,32 @@ export default function ProfileClient() {
   };
 
   const removeExperience = async (index: number) => {
-    if (confirm('Are you sure you want to remove this professional experience?')) {
-      try {
-        const token = await auth.currentUser?.getIdToken();
-        if (!token) return;
-        const expId = experience[index].id;
-        if (expId) {
-          const res = await experienceService.delete(expId, token);
-          if (res.success) {
+    openDialog({
+      title: 'Remove Experience',
+      message: 'Are you sure you want to remove this professional experience? This will permanently delete this record.',
+      confirmLabel: 'Remove',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) return;
+          const expId = experience[index].id;
+          if (expId) {
+            const res = await experienceService.delete(expId, token);
+            if (res.success) {
+              await fetchProfile();
+              toast.success('Professional experience removed');
+            }
+          } else {
+            // Legacy/local removal
             await fetchProfile();
-            toast.success('Experience removed');
+            toast.success('Professional experience removed');
           }
-        } else {
-          await fetchProfile();
-          toast.success('Experience removed');
+        } catch (err: any) {
+          toast.error('Failed to remove professional experience: ' + err.message);
         }
-      } catch (err: any) {
-        toast.error('Failed to remove experience: ' + err.message);
       }
-    }
+    });
   };
 
   const openAddEducation = () => {
@@ -737,28 +795,34 @@ export default function ProfileClient() {
   };
 
   const removeEducation = async (index: number) => {
-    if (confirm('Are you sure you want to remove this academic background?')) {
-      try {
-        const token = await auth.currentUser?.getIdToken();
-        if (!token) return;
-        const eduId = education[index].id;
-        if (eduId) {
-          const res = await educationService.delete(eduId, token);
-          if (res.success) {
+    openDialog({
+      title: 'Remove Education',
+      message: 'Are you sure you want to remove this academic background? This action is permanent.',
+      confirmLabel: 'Remove',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          const token = await auth.currentUser?.getIdToken();
+          if (!token) return;
+          const eduId = education[index].id;
+          if (eduId) {
+            const res = await educationService.delete(eduId, token);
+            if (res.success) {
+              await fetchProfile();
+              toast.success('Academic record removed');
+            }
+          } else {
             await fetchProfile();
             toast.success('Academic record removed');
           }
-        } else {
-          await fetchProfile();
-          toast.success('Academic record removed');
+        } catch (err: any) {
+          toast.error('Failed to remove academic record: ' + err.message);
         }
-      } catch (err: any) {
-        toast.error('Failed to remove academic record: ' + err.message);
       }
-    }
+    });
   };
 
-  const toggleFeaturedItem = (item: {id: string, type: 'article' | 'book', title: string}) => {
+  const toggleFeaturedItem = (item: {id: string, type: 'article' | 'book' | 'project', title: string}) => {
     const isFeatured = featured.some(f => f.id === item.id);
     if (isFeatured) setFeatured(featured.filter(f => f.id !== item.id));
     else setFeatured([...featured, item]);
@@ -770,9 +834,10 @@ export default function ProfileClient() {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
 
-      const [articlesRes, booksRes] = await Promise.all([
+      const [articlesRes, booksRes, projectsRes] = await Promise.all([
         articlesService.listArticles({ limit: 50 }, token),
-        booksService.getUserBooks(token)
+        booksService.getUserBooks(token),
+        projectsService.list(token)
       ]);
 
       const items: any[] = [];
@@ -781,6 +846,9 @@ export default function ProfileClient() {
       }
       if (booksRes.success && Array.isArray(booksRes.data)) {
         booksRes.data.forEach((b: any) => items.push({ id: b.id, type: 'book', title: b.title }));
+      }
+      if (projectsRes.success && Array.isArray(projectsRes.data)) {
+        projectsRes.data.forEach((p: any) => items.push({ id: p.id, type: 'project', title: p.title }));
       }
       setAvailableItems(items);
     } catch (err) {
@@ -1301,13 +1369,16 @@ export default function ProfileClient() {
                 <div style={{ display: 'grid', gap: '2.5rem' }}>
                   <div>
                     <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>Project Title</label>
-                    <Input value={projForm.title} onChange={e => setProjForm({ ...projForm, title: e.target.value })} placeholder="e.g. AI Content Engine" style={{ padding: '1rem' }} />
+                    <Input value={projForm.title} onChange={e => {
+                      const val = e.target.value;
+                      setProjForm(prev => ({ ...prev, title: val }));
+                    }} placeholder="e.g. AI Content Engine" style={{ padding: '1rem' }} />
                   </div>
                   <div>
                     <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '1rem', display: 'block' }}>Description</label>
                     <TiptapEditor 
                       content={projForm.description || ''} 
-                      onChange={html => setProjForm({ ...projForm, description: html })} 
+                      onChange={html => setProjForm(prev => ({ ...prev, description: html }))} 
                       isCompact={true} 
                     />
                   </div>
