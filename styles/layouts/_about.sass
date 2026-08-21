@@ -29,7 +29,7 @@
   /* --- Hero Section --- */
   .about-hero
     padding: 8rem 0 4rem
-    
+
     @include desktop
       padding: 12rem 0 8rem
 
@@ -42,7 +42,7 @@
       max-width: 1400px
       margin: 0 auto
       padding: 0 $spacing-lg
-      
+
       @include desktop
         padding: 0 4rem
 
@@ -53,7 +53,7 @@
       overflow: hidden
       position: relative
       z-index: 1
-      
+
       @include desktop
         height: 320px
         border-radius: $radius-xl
@@ -80,7 +80,7 @@
         .about-hero__identity
           @include desktop
             align-items: flex-end
-            
+
         .about-hero__avatar
           margin-top: -4rem
           @include desktop
@@ -92,7 +92,7 @@
       align-items: center
       text-align: center
       gap: $spacing-lg
-      
+
       @include desktop
         flex-direction: row
         align-items: center
@@ -108,7 +108,7 @@
       background-color: $color-bg-secondary
       flex-shrink: 0
       box-shadow: $shadow-premium
-      
+
       @include desktop
         width: 200px
         height: 200px
@@ -134,7 +134,7 @@
       flex-direction: column
       padding-top: $spacing-xs
       width: 100%
-      
+
       @include desktop
         width: auto
 
@@ -157,7 +157,7 @@
       letter-spacing: -0.04em
       margin-bottom: $spacing-sm
       text-transform: uppercase
-      
+
       @include desktop
         white-space: nowrap
         font-size: clamp(3rem, 6vw, 7rem)
@@ -173,7 +173,7 @@
       grid-template-columns: 1fr
       gap: $spacing-xl
       align-items: start
-      
+
       @include desktop
         grid-template-columns: 1.5fr 1fr
         gap: 8rem
@@ -185,7 +185,7 @@
       margin-bottom: $spacing-xl
       color: $color-text-secondary
       letter-spacing: -0.01em
-      
+
       @include desktop
         margin-bottom: $spacing-xxl
 
@@ -290,23 +290,17 @@
   .about-activity
     padding: 6rem 0
     background-color: $color-bg-secondary
-    border-top: 1px solid $color-border
     border-bottom: 1px solid $color-border
 
-    &__container
-      max-width: 1400px
-      margin: 0 auto
-      padding: 0 $spacing-lg
-      
-      @include desktop
-        padding: 0 4rem
+    @include desktop
+      padding: 0 4rem
 
   /* --- Vision Statement --- */
   .about-vision
     padding: 6rem 0
     background-color: $color-black
     color: $color-white
-    
+
     @include desktop
       padding: 15rem 0
 
@@ -328,7 +322,7 @@
     padding: 6rem 0
     position: relative
     overflow: hidden
-    
+
     @include desktop
       padding: 12rem 0
 
@@ -349,7 +343,7 @@
       max-width: 1400px
       margin: 0 auto
       padding: 0 $spacing-lg
-      
+
       @include desktop
         padding: 0 4rem
 
@@ -357,7 +351,7 @@
       display: grid
       grid-template-columns: 1fr
       gap: $spacing-xl
-      
+
       @include desktop
         grid-template-columns: repeat(2, 1fr)
         gap: 4rem
@@ -458,7 +452,20 @@
   .about-career
     padding: 8rem 0
     background-color: $color-bg-tertiary
-    
+    position: relative
+    overflow: hidden
+
+    &__dynamic-bg
+      position: absolute
+      inset: 0
+      background-size: 20%
+      background-position: center
+      background-repeat: no-repeat
+      filter: blur(100px) saturate(1.5)
+      @include transition(all, 1s, ease)
+      z-index: 1
+      pointer-events: none
+
     @include desktop
       padding: 12rem 0
 
@@ -466,6 +473,8 @@
       max-width: 900px
       margin: 0 auto
       padding: 0 $spacing-lg
+      position: relative
+      z-index: 2
 
     .career-timeline
       display: flex
@@ -473,7 +482,7 @@
       gap: 4rem
       position: relative
       padding-left: 2.5rem
-      
+
       @include desktop
         gap: 6rem
         padding-left: 0
@@ -487,7 +496,7 @@
         width: 1px
         background: linear-gradient(to bottom, transparent, $color-border 5%, $color-border 95%, transparent)
         z-index: 0
-        
+
         @include desktop
           left: 32px
 
@@ -501,7 +510,7 @@
         background: linear-gradient(to bottom, transparent, $color-text-primary, transparent)
         z-index: 1
         animation: timeline-scan 8s linear infinite
-        
+
         @include desktop
           left: 31px
 
@@ -539,7 +548,7 @@
         &::before
           opacity: 0.05
           transform: scale(1)
-        
+
         .career-item__logo
           border-color: $color-text-primary
           transform: scale(1.05)
@@ -596,7 +605,7 @@
         display: flex
         flex-direction: column
         margin-bottom: $spacing-sm
-        
+
         @include desktop
           flex-direction: row
           justify-content: space-between
@@ -680,10 +689,24 @@
         font-weight: 700
         color: $color-text-primary
 
-  /* --- Academic Path --- */
-  .about-academic
+  /* --- Education Section --- */
+  .about-education
     padding: 8rem 0
-    
+    position: relative
+    overflow: hidden
+    border-top: 1px solid $color-border
+
+    &__dynamic-bg
+      position: absolute
+      inset: 0
+      background-size: 20%
+      background-position: center
+      background-repeat: no-repeat
+      filter: blur(100px) saturate(1.5)
+      @include transition(all, 1s, ease)
+      z-index: 1
+      pointer-events: none
+
     @include desktop
       padding: 12rem 0
 
@@ -691,18 +714,20 @@
       max-width: 1400px
       margin: 0 auto
       padding: 0 $spacing-lg
-      
+      position: relative
+      z-index: 2
+
       @include desktop
         padding: 0 4rem
 
-    .academic-grid
+    .education-grid
       display: grid
       grid-template-columns: 1fr
       gap: $spacing-lg
-      
+
       @include desktop
-        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr))
-        gap: 2.5rem
+        grid-template-columns: repeat(2, 1fr)
+        gap: 2rem
 
     .academic-card
       display: flex
@@ -729,7 +754,7 @@
         border-color: $color-text-primary
         transform: translateY(-8px)
         box-shadow: 0 20px 40px -15px rgba(0,0,0,0.1)
-        
+
         &::before
           opacity: 0.03
           transform: scale(1.02)
@@ -807,7 +832,7 @@
   .about-footer
     padding: 4rem 0
     border-top: 1px solid $color-border
-    
+
     @include desktop
       padding: 8rem 0
 
@@ -818,7 +843,7 @@
       display: flex
       flex-direction: column
       gap: $spacing-xl
-      
+
       @include desktop
         padding: 0 4rem
         flex-direction: row

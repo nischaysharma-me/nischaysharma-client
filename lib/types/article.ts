@@ -11,6 +11,7 @@ export interface Article {
   status: string;
   tags?: string[];
   access?: string;
+  isFavorite?: boolean;
 }
 
 export interface CreateArticleData {

@@ -18,14 +18,17 @@ interface ArticlesClientProps {
 }
 
 export default function ArticlesClient({ initialArticles }: ArticlesClientProps) {
-  const { 
-    articles, 
-    loading, 
-    setArticles, 
-    fetchArticles, 
-    publishArticle 
+  const {
+    articles,
+    loading,
+    setArticles,
+    fetchArticles,
+    publishArticle,
+    toggleFavorite,
+    deleteArticle,
+    processingId
   } = useArticlesStore();
-  
+
   const [showGenerator, setShowGenerator] = useState(false);
   const { openDialog } = useDialogStore();
 
@@ -61,6 +64,31 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
     });
   };
 
+  const handleToggleFavorite = async (id: string, current: boolean) => {
+    const success = await toggleFavorite(id, current);
+    if (success) {
+      toast.success(current ? 'Removed from favorites' : 'Added to favorites');
+    } else {
+      toast.error('Failed to update favorite status');
+    }
+  };
+
+  const handleDeleteArticle = async (id: string) => {
+    openDialog({
+      title: 'Delete Article',
+      message: 'Are you sure you want to permanently delete this article? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        const success = await deleteArticle(id);
+        if (success) {
+          toast.success('Article deleted successfully');
+        } else {
+          toast.error('Failed to delete article');
+        }
+      }
+    });
+  };
+
   if (loading && articles.length === 0) {
     return <ArticlesLoading />;
   }
@@ -77,9 +105,9 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
           {/* AI Generator Toggleable Section */}
           {showGenerator && (
             <div className="mb-8">
-              <ArticleGeneratorForm 
-                onSuccess={fetchArticles} 
-                onClose={() => setShowGenerator(false)} 
+              <ArticleGeneratorForm
+                onSuccess={fetchArticles}
+                onClose={() => setShowGenerator(false)}
               />
             </div>
           )}
@@ -88,8 +116,8 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
             <div className="dashboard__recent-header" style={{ padding: '1.5rem' }}>
               <h3>All Articles ({articles.length})</h3>
               <div style={{ display: 'flex', gap: '1rem' }}>
-                <Button 
-                  variant="secondary" 
+                <Button
+                  variant="secondary"
                   size="sm"
                   onClick={() => setShowGenerator(!showGenerator)}
                   leftIcon={<i className="ph ph-sparkle" />}
@@ -97,8 +125,8 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
                   AI
                 </Button>
                 <Link href="/admin/articles/create">
-                  <Button 
-                    variant="primary" 
+                  <Button
+                    variant="primary"
                     size="sm"
                     leftIcon={<i className="ph ph-plus" />}
                   >
@@ -107,11 +135,14 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
                 </Link>
               </div>
             </div>
-            
-            <ArticleList 
-              articles={articles} 
-              onPublish={handlePublish} 
-              onShowGenerator={() => setShowGenerator(true)} 
+
+            <ArticleList
+              articles={articles}
+              onPublish={handlePublish}
+              onToggleFavorite={handleToggleFavorite}
+              onDelete={handleDeleteArticle}
+              onShowGenerator={() => setShowGenerator(true)}
+              processingId={processingId}
             />
           </Card>
         </div>
@@ -120,7 +151,7 @@ export default function ArticlesClient({ initialArticles }: ArticlesClientProps)
           <Card padded className="articles-admin__insight-card">
             <h3 className="label">Editorial Insights</h3>
             <p className="mt-4 text-sm" style={{ color: '#737373', lineHeight: '1.6' }}>
-              Your current anthology consists of {articles.length} articles. 
+              Your current anthology consists of {articles.length} articles.
               <br /><br />
               <strong>AI Automation:</strong> Use the generator to create high-quality technical drafts in seconds. Ensure you select the right depth for your audience.
             </p>

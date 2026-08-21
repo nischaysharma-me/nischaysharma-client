@@ -7,46 +7,51 @@ export interface NavItem {
 }
 
 export const primaryNavItems: NavItem[] = [
-  { 
-    name: 'Overview', 
+  {
+    name: 'Overview',
     href: '/admin',
     icon: <i className="ph ph-squares-four" />
   },
-  { 
-    name: 'Profile', 
+  {
+    name: 'Profile',
     href: '/admin/profile',
     icon: <i className="ph ph-user" />
   },
-  { 
-    name: 'Templates', 
+  {
+    name: 'Templates',
     href: '/admin/templates',
     icon: <i className="ph ph-layout" />
   },
-  { 
-    name: 'Articles', 
+  {
+    name: 'Articles',
     href: '/admin/articles',
     icon: <i className="ph ph-article" />
   },
-  { 
-    name: 'Billboard', 
+  {
+    name: 'Billboard',
     href: '/admin/billboard',
     icon: <i className="ph ph-presentation-chart" />
   },
-  { 
-    name: 'Books', 
+  {
+    name: 'Books',
     href: '/admin/books',
     icon: <i className="ph ph-book" />
   },
-  { 
-    name: 'Threads', 
+  {
+    name: 'Threads',
     href: '/admin/threads',
     icon: <i className="ph ph-chat-circle-dots" />
+  },
+  {
+    name: 'Stack Menu',
+    href: '/admin/stack',
+    icon: <i className="ph ph-stack" />
   },
 ];
 
 export const secondaryNavItems: NavItem[] = [
-  { 
-    name: 'Settings', 
+  {
+    name: 'Settings',
     href: '/admin/settings',
     icon: <i className="ph ph-gear" />
   },
