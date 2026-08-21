@@ -103,9 +103,9 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
   const [hoveredEducation, setHoveredEducation] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
   const github = profile?.analytics?.github;
-  
+
   const rawPositions = profile?.experience || [];
-  
+
   // Migration helper: Convert flat structure to nested structure if needed
   const positions: Position[] = React.useMemo(() => {
     if (!rawPositions.length) {
@@ -185,15 +185,15 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
           <div className="about-hero__container">
             {showBanner && (
               <div className="about-hero__banner">
-                <img 
-                  src={profile?.coverURL || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2070&auto=format&fit=crop'} 
-                  alt="Cover" 
-                  className="about-hero__banner-img" 
+                <img
+                  src={profile?.coverURL || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2070&auto=format&fit=crop'}
+                  alt="Cover"
+                  className="about-hero__banner-img"
                 />
                 <div className="about-hero__banner-overlay" />
               </div>
             )}
-            
+
             <div className={`about-hero__header ${showBanner ? 'about-hero__header--overlapped' : ''}`}>
               <div className="about-hero__identity">
                 <div className="about-hero__avatar">
@@ -214,15 +214,15 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                 </div>
               </div>
             </div>
-            
+
             <div className="about-hero__grid">
               <div className="about-hero__bio-col">
                 <div className="about-hero__bio-text">
-                  <MarkdownContent 
-                    content={profile?.bio || 'I am a lead developer specializing in building scalable backend systems, architecting cloud-native applications, and creating intuitive developer experiences.'} 
+                  <MarkdownContent
+                    content={profile?.bio || 'I am a lead developer specializing in building scalable backend systems, architecting cloud-native applications, and creating intuitive developer experiences.'}
                   />
                 </div>
-                
+
                 {github && (
                   <div className="about-github-stats">
                     <div className="stat-item">
@@ -250,7 +250,7 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="contact-minimal">
                    <span className="contact-label">Inquiries</span>
                    <a href={`mailto:${profile?.email}`} className="contact-link">{profile?.email}</a>
@@ -264,8 +264,8 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
         {github?.contributionCalendar && (
           <section className="about-activity">
             <div className="about-activity__container">
-              <ActivityHeatmap 
-                data={github.contributionCalendar} 
+              <ActivityHeatmap
+                data={github.contributionCalendar}
                 title="Productivity Index"
                 limitDays={371}
               />
@@ -279,8 +279,8 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
               <div className="about-vision__content">
                 <h2 className="section-label">The Vision</h2>
                 <div className="vision-text">
-                   <MarkdownContent 
-                    content={profile?.vision || 'TaughtCode aims to become the standard for "Smart Backend" architectures—where infrastructure doesn\'t just store data, but actively participates in value creation.'} 
+                   <MarkdownContent
+                    content={profile?.vision || 'TaughtCode aims to become the standard for "Smart Backend" architectures—where infrastructure doesn\'t just store data, but actively participates in value creation.'}
                    />
                 </div>
               </div>
@@ -290,9 +290,9 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
         {/* --- Featured Projects --- */}
         {projects.length > 0 && (
           <section className="about-projects">
-            <div className="about-projects__dynamic-bg" style={{ 
-              backgroundImage: (hoveredProject !== null && projects[hoveredProject]?.image) 
-                ? `url(${projects[hoveredProject].image})` 
+            <div className="about-projects__dynamic-bg" style={{
+              backgroundImage: (hoveredProject !== null && projects[hoveredProject]?.image)
+                ? `url(${projects[hoveredProject].image})`
                 : (projects[0]?.image ? `url(${projects[0].image})` : 'none'),
               opacity: (hoveredProject !== null || projects[0]?.image) ? 0.15 : 0
             }} />
@@ -300,8 +300,8 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
               <h2 className="section-title">Selected Works</h2>
               <div className="projects-wall">
                 {projects.map((project, i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className="project-node"
                     onMouseEnter={() => setHoveredProject(i)}
                     onMouseLeave={() => setHoveredProject(null)}
@@ -342,12 +342,18 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
         {/* --- Career Timeline (LinkedIn Style) --- */}
         {positions.length > 0 && (
           <section className="about-career">
+            <div className="about-career__dynamic-bg" style={{
+              backgroundImage: (hoveredPosition !== null && positions[hoveredPosition]?.logo)
+                ? `url(${positions[hoveredPosition].logo})`
+                : 'none',
+              opacity: hoveredPosition !== null ? 0.1 : 0
+            }} />
             <div className="about-career__container">
               <h2 className="section-title">Professional Path</h2>
               <div className="career-timeline">
                 {positions.map((pos, i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className={`career-item ${hoveredPosition === i ? 'is-hovered' : ''}`}
                     onMouseEnter={() => setHoveredPosition(i)}
                     onMouseLeave={() => setHoveredPosition(null)}
@@ -362,7 +368,7 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                     <div className="career-item__body">
                       <h3 className="career-item__company">{pos.company}</h3>
                       {pos.location && <p className="career-item__location">{pos.location}</p>}
-                      
+
                       <div className="career-roles">
                         {pos.roles.map((role, idx) => (
                           <div key={idx} className="career-role">
@@ -391,15 +397,21 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
           </section>
         )}
 
-        {/* --- Academic Path --- */}
+        {/* --- Education Section --- */}
         {education.length > 0 && (
-          <section className="about-academic">
-            <div className="about-academic__container">
+          <section className="about-education">
+             <div className="about-education__dynamic-bg" style={{
+              backgroundImage: (hoveredEducation !== null && education[hoveredEducation]?.logo)
+                ? `url(${education[hoveredEducation].logo})`
+                : 'none',
+              opacity: hoveredEducation !== null ? 0.1 : 0
+            }} />
+            <div className="about-education__container">
               <h2 className="section-title">Academic Genesis</h2>
-              <div className="academic-grid">
+              <div className="education-grid">
                 {education.map((edu, i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className={`academic-card ${hoveredEducation === i ? 'is-hovered' : ''}`}
                     onMouseEnter={() => setHoveredEducation(i)}
                     onMouseLeave={() => setHoveredEducation(null)}

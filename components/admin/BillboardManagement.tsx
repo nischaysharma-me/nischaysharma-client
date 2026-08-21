@@ -8,24 +8,26 @@ import { auth } from '@/lib/firebase';
 import { toast } from 'sonner';
 import { Billboard } from '@/lib/types/billboard';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDialogStore } from '@/store/useDialogStore';
 
 export default function BillboardManagement() {
-  const { 
-    billboards, 
-    loading, 
-    fetchBillboards, 
-    createBillboard, 
-    updateBillboard, 
-    deleteBillboard, 
-    generateImage 
+  const {
+    billboards,
+    loading,
+    fetchBillboards,
+    createBillboard,
+    updateBillboard,
+    deleteBillboard,
+    generateImage
   } = useBillboardStore();
+  const { openDialog } = useDialogStore();
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
-  
+
   const [formData, setFormData] = useState({
     label: '',
     headline: '',
@@ -54,7 +56,7 @@ export default function BillboardManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const data = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       data.append(key, String(value));
@@ -118,10 +120,16 @@ export default function BillboardManagement() {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to remove this headline?')) {
-      const success = await deleteBillboard(id);
-      if (success) toast.success('Removed from Billboard');
-    }
+    openDialog({
+      title: 'Remove Headline',
+      message: 'Are you sure you want to remove this headline from the billboard?',
+      confirmLabel: 'Remove',
+      variant: 'danger',
+      onConfirm: async () => {
+        const success = await deleteBillboard(id);
+        if (success) toast.success('Removed from Billboard');
+      }
+    });
   };
 
   return (
@@ -132,7 +140,7 @@ export default function BillboardManagement() {
             <h2>Broadsheet Editor</h2>
             <p>Curate the newspaper navigation and daily stories.</p>
           </div>
-          <Button 
+          <Button
             onClick={() => {
               if (isAdding) {
                 setIsAdding(false);
@@ -141,7 +149,7 @@ export default function BillboardManagement() {
               } else {
                 setIsAdding(true);
               }
-            }} 
+            }}
             variant={isAdding ? 'secondary' : 'primary'}
             leftIcon={<i className={`ph ${isAdding ? 'ph-x' : 'ph-plus'}`} />}
           >
@@ -163,43 +171,43 @@ export default function BillboardManagement() {
                 <div className="billboard-admin__form-grid">
                   <div className="field">
                     <label>Internal Label</label>
-                    <input 
-                      placeholder="e.g. Home, About" 
-                      value={formData.label} 
-                      onChange={e => setFormData({...formData, label: e.target.value})} 
-                      required 
+                    <input
+                      placeholder="e.g. Home, About"
+                      value={formData.label}
+                      onChange={e => setFormData({...formData, label: e.target.value})}
+                      required
                     />
                   </div>
                   <div className="field">
                     <label>Destination Slug</label>
-                    <input 
-                      placeholder="e.g. /docs, /#contact" 
-                      value={formData.href} 
-                      onChange={e => setFormData({...formData, href: e.target.value})} 
-                      required 
+                    <input
+                      placeholder="e.g. /docs, /#contact"
+                      value={formData.href}
+                      onChange={e => setFormData({...formData, href: e.target.value})}
+                      required
                     />
                   </div>
                   <div className="field full">
                     <label>Headline Title</label>
-                    <input 
-                      placeholder="The Big News..." 
-                      value={formData.headline} 
-                      onChange={e => setFormData({...formData, headline: e.target.value})} 
-                      required 
+                    <input
+                      placeholder="The Big News..."
+                      value={formData.headline}
+                      onChange={e => setFormData({...formData, headline: e.target.value})}
+                      required
                     />
                   </div>
                   <div className="field full">
                     <label>Summary / Editorial</label>
-                    <textarea 
-                      placeholder="Brief overview of the story..." 
-                      value={formData.summary} 
-                      onChange={e => setFormData({...formData, summary: e.target.value})} 
+                    <textarea
+                      placeholder="Brief overview of the story..."
+                      value={formData.summary}
+                      onChange={e => setFormData({...formData, summary: e.target.value})}
                     />
                   </div>
                   <div className="field">
                     <label>Layout Style</label>
-                    <select 
-                      value={formData.layoutType} 
+                    <select
+                      value={formData.layoutType}
                       onChange={e => setFormData({...formData, layoutType: e.target.value as any})}
                     >
                       <option value="lead">Lead Story (Centerpiece)</option>
@@ -209,18 +217,18 @@ export default function BillboardManagement() {
                   </div>
                   <div className="field">
                     <label>Position Order</label>
-                    <input 
-                      type="number" 
-                      value={formData.position} 
-                      onChange={e => setFormData({...formData, position: parseInt(e.target.value)})} 
+                    <input
+                      type="number"
+                      value={formData.position}
+                      onChange={e => setFormData({...formData, position: parseInt(e.target.value)})}
                     />
                   </div>
                   <div className="field full">
                     <label>AI Image Prompt (Optional)</label>
-                    <input 
-                      placeholder="A vintage newspaper illustration of..." 
-                      value={formData.imagePrompt} 
-                      onChange={e => setFormData({...formData, imagePrompt: e.target.value})} 
+                    <input
+                      placeholder="A vintage newspaper illustration of..."
+                      value={formData.imagePrompt}
+                      onChange={e => setFormData({...formData, imagePrompt: e.target.value})}
                     />
                   </div>
 
@@ -237,10 +245,10 @@ export default function BillboardManagement() {
                         )}
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        <Button 
-                          type="button" 
-                          variant="secondary" 
-                          size="sm" 
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
                           onClick={() => fileInputRef.current?.click()}
                         >
                           {selectedFile ? 'Change Image' : 'Upload Custom Image'}
@@ -248,12 +256,12 @@ export default function BillboardManagement() {
                         <p style={{ fontSize: '0.65rem', color: '#737373' }}>
                           {selectedFile ? `Selected: ${selectedFile.name}` : 'Or use the AI generator after publishing.'}
                         </p>
-                        <input 
-                          type="file" 
-                          ref={fileInputRef} 
-                          onChange={handleFileChange} 
-                          accept="image/*" 
-                          style={{ display: 'none' }} 
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          accept="image/*"
+                          style={{ display: 'none' }}
                         />
                       </div>
                     </div>
@@ -275,7 +283,7 @@ export default function BillboardManagement() {
           <span>Active Headlines ({billboards.length})</span>
           <div className="dots"></div>
         </div>
-        
+
         {billboards.map(item => (
           <div key={item.id} className={`billboard-admin__item billboard-admin__item--${item.layoutType}`}>
             <div className="billboard-admin__item-preview">
@@ -285,7 +293,7 @@ export default function BillboardManagement() {
                 <div className="placeholder"><i className="ph ph-image" /></div>
               )}
             </div>
-            
+
             <div className="billboard-admin__item-content">
               <div className="meta">
                 <span className="type">{item.layoutType}</span>

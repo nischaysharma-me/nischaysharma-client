@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import AboutClient from '@/components/AboutClient';
 import { useReadingModeStore } from '@/store/useReadingModeStore';
 import MarkdownView from '@/components/ui/MarkdownView';
+import StackMenu from '@/components/StackMenu';
 
 interface FeaturedItem {
   id: string;
@@ -12,12 +13,12 @@ interface FeaturedItem {
   data: any;
 }
 
-const FeaturedSection = ({ 
-  item, 
+const FeaturedSection = ({
+  item,
   index,
   readingModeEnabled
-}: { 
-  item: FeaturedItem, 
+}: {
+  item: FeaturedItem,
   index: number,
   readingModeEnabled: boolean
 }) => {
@@ -29,9 +30,9 @@ const FeaturedSection = ({
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
       },
-      { 
+      {
         threshold: 0.5,
-        rootMargin: "0px" 
+        rootMargin: "0px"
       }
     );
 
@@ -89,28 +90,28 @@ const FeaturedSection = ({
   };
 
   return (
-    <section 
+    <section
       ref={sectionRef}
       className={`articles-parallax__section ${isVisible ? 'is-visible' : ''} ${readingModeEnabled ? 'reading-mode-enabled' : ''}`}
       style={{ zIndex: index + 10 }}
     >
-      <div 
+      <div
         className="articles-parallax__container"
-        style={{ 
+        style={{
           backgroundImage: `url(${getCoverImage(item)})`
         }}
       />
-      
+
       <div className={`articles-parallax__content ${readingModeEnabled ? 'reading-mode-active' : ''}`}>
         <div className="articles-parallax__main-info">
           <span className="articles-parallax__eyebrow">
             {item.type === 'article' ? 'Curated Edition' : item.type === 'book' ? 'Digital Volume' : 'Technical Study'} / Vol. 0{index + 1}
           </span>
-          
+
           <h3 className="articles-parallax__title">
             {item.title || item.data.title}
           </h3>
-          
+
           <div className="articles-parallax__description">
             <MarkdownView content={item.data.description || (item.type === 'article' ? "An immersive technical study designed for the modern reader." : "A curated collection of technical depth.")} />
           </div>
@@ -120,7 +121,7 @@ const FeaturedSection = ({
           <div className="articles-parallax__preview-text">
             {getPreviewText(item)}
           </div>
-          
+
           <a href={getLink(item)} className="articles-parallax__link">
             {getLinkLabel(item)}
             <i className="ph ph-arrow-right" style={{ fontSize: '1.25rem' }} />
@@ -139,7 +140,7 @@ export default function HomeClient({ profile, featured }: { profile: any; featur
         {/* --- Hero Section --- */}
         <section className={`landing ${readingModeEnabled ? 'reading-mode-active' : ''}`} style={{ zIndex: 1, height: '100vh', position: 'relative', scrollSnapAlign: 'start' }}>
           <div className="landing__bg" />
-          
+
           <section className="landing__hero">
             <div className="landing__hero-wrapper">
               <h1 className="landing__title">
@@ -151,7 +152,7 @@ export default function HomeClient({ profile, featured }: { profile: any; featur
               </p>
             </div>
           </section>
-          
+
           <footer className="landing__footer">
             <div className="landing__scroll-text">
               Begin Journey
@@ -162,9 +163,9 @@ export default function HomeClient({ profile, featured }: { profile: any; featur
         {/* --- Featured Items --- */}
         {featured && featured.length > 0 ? (
           featured.map((item, index) => (
-            <FeaturedSection 
-              key={item.id} 
-              item={item} 
+            <FeaturedSection
+              key={item.id}
+              item={item}
               index={index}
               readingModeEnabled={readingModeEnabled}
             />
@@ -175,15 +176,29 @@ export default function HomeClient({ profile, featured }: { profile: any; featur
           </div>
         )}
 
+        {/* --- Stack Menu Section --- */}
+        <section
+          className="articles-parallax__section home-stack-section"
+          style={{
+            zIndex: (featured?.length || 0) + 11,
+            background: 'var(--color-black)',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          <StackMenu isStatic />
+        </section>
+
         {/* --- Profile Section --- */}
-        <section className="home-profile-section" style={{ zIndex: 100, position: 'relative', background: 'var(--color-bg-primary)' }}>
+        <section className="home-profile-section" style={{ zIndex: (featured?.length || 0) + 20, position: 'relative', background: 'var(--color-bg-primary)' }}>
             <AboutClient profile={profile} />
         </section>
       </div>
 
       <style jsx global>{`
-        .home-profile-section {
+        .home-profile-section, .home-stack-section {
             scroll-snap-align: start;
+            height: 100vh;
         }
         .home-profile-section .landing-container {
             padding-top: 4rem;

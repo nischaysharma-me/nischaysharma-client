@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import Header from './Header';
 import BillboardOverlay from './BillboardOverlay';
+import StackMenu from './StackMenu';
 import { useBillboardOverlayStore } from '@/store/useBillboardOverlayStore';
 
 export default function NavigationWrapper() {
@@ -17,6 +18,7 @@ export default function NavigationWrapper() {
     <>
       <Header />
       <BillboardOverlay />
+      <StackMenu />
     </>
   );
 }

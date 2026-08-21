@@ -13,7 +13,7 @@
   font-weight: 600
   color: $color-text-secondary
   display: block
-  
+
   &__required
     color: #ef4444
     margin-left: 0.25rem
@@ -32,7 +32,7 @@
   justify-content: center
   color: $color-text-muted
   pointer-events: none
-  
+
   &--left
     left: 1rem
   &--right
@@ -52,13 +52,13 @@
 
   &--with-left-icon
     padding-left: 2.75rem
-  
+
   &--with-right-icon
     padding-right: 2.75rem
 
   &--error
     border-color: #ef4444
-    
+
     &:focus
       box-shadow: 0 0 0 1px #ef4444
       border-color: #ef4444
@@ -109,11 +109,11 @@
   &--sm
     padding: 0.4rem 0.8rem
     font-size: 0.75rem
-  
+
   &--md
     padding: 0.75rem 1.5rem
     font-size: 0.875rem
-  
+
   &--lg
     padding: 1rem 2rem
     font-size: 1rem
@@ -209,10 +209,10 @@
   &--text
     height: 1em
     margin-bottom: 0.5rem
-  
+
   &--circular
     border-radius: 50%
-  
+
   &--rectangular
     border-radius: $radius-md
 
@@ -229,7 +229,7 @@
   border: 1px solid $color-border
   box-shadow: $shadow-premium
   overflow: hidden
-  
+
   &--padded
     padding: $spacing-md
     @media (min-width: 768px)
@@ -239,7 +239,7 @@
     background-color: $color-text-primary
     color: $color-white
     border-color: transparent
-  
+
   &--transparent
     background-color: transparent
     border-color: transparent
@@ -269,3 +269,12 @@
     background-color: $color-bg-secondary
     color: $color-text-secondary
     border: 1px dashed $color-border
+
+.animate-spin
+  animation: spin 1s linear infinite
+
+@keyframes spin
+  from
+    transform: rotate(0deg)
+  to
+    transform: rotate(360deg)

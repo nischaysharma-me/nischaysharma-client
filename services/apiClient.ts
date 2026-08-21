@@ -15,7 +15,7 @@ export async function apiFetch<T>(endpoint: string, options: ApiFetchOptions = {
   const url = `${baseUrl}${path}`;
 
   const headers = new Headers(options.headers || {});
-  
+
   if (options.token && !headers.has('Authorization')) {
     headers.set('Authorization', `Bearer ${options.token}`);
   }
@@ -42,7 +42,8 @@ export async function apiFetch<T>(endpoint: string, options: ApiFetchOptions = {
     } catch {
       // Ignore
     }
-    throw new Error(errorData.message || `API Error: ${response.status} ${response.statusText}`);
+    const errorMessage = errorData.error || errorData.message || `API Error: ${response.status} ${response.statusText}`;
+    throw new Error(errorMessage);
   }
 
   // If response has no content, return empty object to prevent JSON parse error
