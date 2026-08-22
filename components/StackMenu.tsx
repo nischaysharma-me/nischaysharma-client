@@ -73,8 +73,8 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
         const distance = index - focusedIndex;
         const isFocused = distance === 0;
         const depth = Math.abs(distance);
-        const translateX = distance * 132;
-        const translateY = depth * 14;
+        const translateX = distance * 42;
+        const translateY = depth * 12;
 
         return (
           <motion.div
