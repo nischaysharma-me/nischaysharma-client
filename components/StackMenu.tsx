@@ -1,15 +1,18 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { useStackMenuStore } from '@/store/useStackMenuStore';
 import { useStackStore } from '@/store/admin/useStackStore';
 import Link from 'next/link';
 
 export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) {
-  const { isOpen, toggle } = useStackMenuStore();
+  const router = useRouter();
+  const { isOpen, toggle, setIsOpen } = useStackMenuStore();
   const { items, fetchItems } = useStackStore();
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen || isStatic) {
@@ -21,234 +24,234 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
     .filter(item => item.isActive)
     .sort((a, b) => a.order - b.order);
 
-  const renderCardContent = (item: any, isExpanded: boolean) => {
+  // Keep selected index within bounds when items list changes
+  useEffect(() => {
+    if (activeItems.length > 0 && selectedIndex >= activeItems.length) {
+      setSelectedIndex(0);
+    }
+  }, [activeItems.length, selectedIndex]);
+
+  const selectedItem = activeItems[selectedIndex] || activeItems[0] || null;
+
+  // Keyboard navigation for overlay mode
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (!isOpen && !isStatic) return;
+
+    if (e.key === 'Escape' && !isStatic) {
+      e.preventDefault();
+      setIsOpen(false);
+      return;
+    }
+
+    if (activeItems.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev + 1) % activeItems.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev - 1 + activeItems.length) % activeItems.length);
+    } else if (e.key === 'Enter') {
+      if (selectedItem) {
+        e.preventDefault();
+        if (selectedItem.linkType === 'external') {
+          window.open(selectedItem.link, '_blank', 'noopener,noreferrer');
+        } else {
+          if (!isStatic) setIsOpen(false);
+          router.push(selectedItem.link);
+        }
+      }
+    }
+  }, [isOpen, isStatic, activeItems.length, selectedItem, router, setIsOpen]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  const renderSplitContent = () => {
+    if (activeItems.length === 0) {
+      return (
+        <div className="stack-dossier__empty">
+          <i className="ph ph-stack-overflow" />
+          <p>No resources currently active in the archive.</p>
+        </div>
+      );
+    }
+
     return (
-      <AnimatePresence mode="wait">
-        {isExpanded ? (
-          <motion.div
-            key="expanded"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="card-grid-two-cols"
-            style={{ 
-              background: item.color || 'linear-gradient(135deg, #111 0%, #1e1b4b 100%)',
-              width: '100%',
-              height: '100%',
-              borderRadius: '1.5rem',
-              overflow: 'hidden'
-            }}
-          >
-            {/* Left side (dynamic text content) */}
-            <div className="card-col-left" style={{ justifyContent: 'center' }}>
-              <span className="card-copy__label">
-                {item.linkType === 'external' ? 'External destination' : 'Site collection'}
-              </span>
-              <h2 className="card-title card-title--expanded">
-                {item.title}
-              </h2>
-              {item.description && (
-                <p className="card-expanded-description">
-                  {item.description}
-                </p>
-              )}
-              <span className="card-destination-cue">
-                View destination
-                <i className="ph ph-arrow-up-right" />
-              </span>
-            </div>
+      <div className="stack-dossier" onClick={(e) => e.stopPropagation()}>
+        {/* Left Column: Numbered Editorial Index */}
+        <div className="stack-dossier__index-col" ref={listRef}>
+          <div className="stack-dossier__col-header">
+            <span className="stack-dossier__col-eyebrow">Index Catalog</span>
+            <span className="stack-dossier__col-count">{activeItems.length} Entries</span>
+          </div>
 
-            {/* Right side (dynamic framed image/graphics) */}
-            <div className="card-col-right" style={{ justifyContent: 'center' }}>
-              {item.imageUrl ? (
-                <div style={{
-                  width: '100%',
-                  maxWidth: '320px',
-                  height: '240px',
-                  borderRadius: '1.2rem',
-                  overflow: 'hidden',
-                  boxShadow: '0 20px 45px rgba(0,0,0,0.6)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  position: 'relative'
-                }}>
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.title} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                  />
-                </div>
-              ) : (
-                <div style={{
-                  width: '100%',
-                  maxWidth: '320px',
-                  height: '240px',
-                  borderRadius: '1.2rem',
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'rgba(255, 255, 255, 0.3)',
-                  fontSize: '0.8rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em'
-                }}>
-                  Interactive Preview
-                </div>
-              )}
-              <div className="card-preview-label">
-                Visual preview
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="normal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="card-content-wrapper"
-            style={{ width: '100%', height: '100%', borderRadius: '1.5rem' }}
-          >
-            {/* Full Bleed Background Image */}
-            {item.imageUrl && (
-              <div
-                className="card-background"
-                style={{ 
-                  backgroundImage: `url(${item.imageUrl})`,
-                }}
-              />
-            )}
-            
-            {/* Fallback Color if no image */}
-            {!item.imageUrl && (
-              <div className="card-background card-background--fallback" style={{ background: item.color || '#0f172a' }} />
-            )}
+          <div className="stack-dossier__list" role="tablist">
+            {activeItems.map((item, index) => {
+              const isSelected = selectedIndex === index;
+              const formattedNumber = String(index + 1).padStart(2, '0');
 
-            {/* Gradient Scrim for readable text */}
-            <div className="card-scrim" />
-            
-            <div className="card-copy">
-              <div className="card-copy__inner">
-                <span className="card-copy__label">
-                  {item.linkType === 'external' ? 'External destination' : 'Site collection'}
-                </span>
-                <h2 className="card-title">
-                  {item.title}
-                </h2>
-                {item.description && (
-                  <p className="card-description">
-                    {item.description}
-                  </p>
-                )}
-              </div>
+              return (
+                <div
+                  key={item.id}
+                  role="tab"
+                  aria-selected={isSelected}
+                  tabIndex={0}
+                  className={`stack-dossier__item ${isSelected ? 'is-selected' : ''}`}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                  onClick={() => {
+                    setSelectedIndex(index);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      setSelectedIndex(index);
+                    }
+                  }}
+                >
+                  {isSelected && (
+                    <motion.div
+                      layoutId={`active-pill-${isStatic ? 'static' : 'modal'}`}
+                      className="stack-dossier__item-highlight"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+
+                  <div className="stack-dossier__item-content">
+                    <div className="stack-dossier__item-left">
+                      <span className="stack-dossier__item-num">{formattedNumber}</span>
+                      <div className="stack-dossier__item-titles">
+                        <span className="stack-dossier__item-title">{item.title}</span>
+                        {item.description && (
+                          <span className="stack-dossier__item-subtitle">
+                            {item.description}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="stack-dossier__item-right">
+                      <span className={`stack-dossier__item-badge stack-dossier__item-badge--${item.linkType || 'internal'}`}>
+                        {item.linkType === 'external' ? 'External' : 'Collection'}
+                      </span>
+                      <i className={`ph ${isSelected ? 'ph-arrow-right' : 'ph-caret-right'} stack-dossier__item-icon`} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right Column: Visual Spotlight Stage */}
+        <div className="stack-dossier__stage-col">
+          <AnimatePresence mode="wait">
+            {selectedItem && (
+              <motion.div
+                key={selectedItem.id}
+                initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -12, scale: 0.98 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="stack-dossier__stage-card"
+              >
+                {/* Ambient glow in background matching accent color */}
+                <div
+                  className="stack-dossier__stage-glow"
+                  style={{
+                    backgroundColor: selectedItem.color || 'rgba(59, 130, 246, 0.4)'
+                  }}
+                />
+
+                {/* Preview Image / Visual Frame */}
+                <div className="stack-dossier__stage-frame">
+                  {selectedItem.imageUrl ? (
+                    <img
+                      src={selectedItem.imageUrl}
+                      alt={selectedItem.title}
+                      className="stack-dossier__stage-img"
+                    />
+                  ) : (
+                    <div
+                      className="stack-dossier__stage-fallback"
+                      style={{
+                        background: `linear-gradient(135deg, ${selectedItem.color || '#1e293b'} 0%, #0a0a0f 100%)`
+                      }}
+                    >
+                      <i className={`ph ${selectedItem.icon || 'ph-planet'} text-5xl`} />
+                      <span>{selectedItem.title}</span>
+                    </div>
+                  )}
+
+                  <div className="stack-dossier__stage-frame-overlay">
+                    <span className="stack-dossier__stage-tag">
+                      {selectedItem.linkType === 'external' ? 'External Destination' : 'Site Collection'}
+                    </span>
+                    <span className="stack-dossier__stage-index-tag">
+                      {String(selectedIndex + 1).padStart(2, '0')} / {String(activeItems.length).padStart(2, '0')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Metadata & Narrative */}
+                <div className="stack-dossier__stage-info">
+                  <h3 className="stack-dossier__stage-title">{selectedItem.title}</h3>
+                  {selectedItem.description && (
+                    <p className="stack-dossier__stage-desc">{selectedItem.description}</p>
+                  )}
+
+                  <div className="stack-dossier__stage-actions">
+                    {selectedItem.linkType === 'external' ? (
+                      <a
+                        href={selectedItem.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="stack-dossier__cta"
+                        onClick={() => !isStatic && setIsOpen(false)}
+                      >
+                        <span>Visit External Site</span>
+                        <i className="ph ph-arrow-up-right" />
+                      </a>
+                    ) : (
+                      <Link
+                        href={selectedItem.link}
+                        className="stack-dossier__cta"
+                        onClick={() => !isStatic && setIsOpen(false)}
+                      >
+                        <span>Explore Collection</span>
+                        <i className="ph ph-arrow-right" />
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Keyboard hints footer (in modal mode) */}
+          {!isStatic && (
+            <div className="stack-dossier__keyboard-hints">
+              <span><kbd>↑</kbd> <kbd>↓</kbd> Navigate</span>
+              <span><kbd>↵</kbd> Open</span>
+              <span><kbd>Esc</kbd> Close</span>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </div>
+      </div>
     );
   };
-
-  const renderContent = () => (
-    <div className={`stack-menu__container ${isStatic ? 'stack-menu__container--static' : ''}`} onClick={(e) => e.stopPropagation()}>
-      {activeItems.map((item, index) => {
-        const total = activeItems.length;
-        const centerIndex = (total - 1) / 2;
-        const offset = index - centerIndex;
-        
-        const isHovered = hoveredIndex === index;
-        const isAnyHovered = hoveredIndex !== null;
-
-        // Normal fanned spacing
-        const spacing = total > 3 ? 110 : 160;
-        
-        // Calculate translateX with fanning and offset shifts
-        let translateX = offset * spacing;
-        if (isAnyHovered) {
-          if (isHovered) {
-            translateX = 0;
-          } else {
-            // Push non-hovered cards to left or right of the center hovered card
-            if (index < hoveredIndex) {
-              translateX = -450 + (index - (hoveredIndex - 1)) * 80;
-            } else {
-              translateX = 450 + (index - (hoveredIndex + 1)) * 80;
-            }
-          }
-        }
-        
-        // Stacking order purely in 3D: larger index = higher translateZ (closer to screen)
-        // Hovered card is brought to the absolute front (300px)
-        const translateZ = isHovered ? 300 : index * 25; 
-        
-        // 3D rotations for the fanned look (parallel deck)
-        const rotateX = isHovered ? 0 : 12; // tilt back
-        const rotateY = isHovered ? 0 : -12; // tilt left
-        const rotateZ = isHovered ? 0 : -1; // subtle roll
-        
-        // Focus state opacity and scaling
-        const opacity = isAnyHovered ? (isHovered ? 1 : 0.25) : 1;
-        const scale = isHovered ? 1.25 : 1;
-
-        const cardWidth = isHovered ? '850px' : '420px';
-        const cardHeight = isHovered ? '500px' : '280px';
-
-        return (
-          <motion.div
-            key={item.id}
-            initial={{ opacity: 0, scale: 0.9, x: 0 }}
-            animate={{ 
-              opacity,
-              scale,
-              x: translateX,
-              z: translateZ,
-              rotateX,
-              rotateY,
-              rotateZ,
-              width: cardWidth,
-              height: cardHeight,
-              // NO zIndex property is set here so browser depth sorting uses translateZ natively!
-            }}
-            onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => setHoveredIndex(null)}
-            whileTap={{ scale: 0.98 }}
-            transition={{ 
-              type: 'spring', 
-              damping: 25, 
-              stiffness: 140,
-            }}
-            className="stack-menu__item"
-            style={{ 
-              padding: 0,
-              textDecoration: 'none'
-            }}
-          >
-            {item.linkType === 'external' ? (
-              <a href={item.link} target="_blank" rel="noopener noreferrer" className="stack-menu__link">
-                {renderCardContent(item, isHovered)}
-              </a>
-            ) : (
-              <Link href={item.link} className="stack-menu__link">
-                {renderCardContent(item, isHovered)}
-              </Link>
-            )}
-          </motion.div>
-        );
-      })}
-    </div>
-  );
 
   if (isStatic) {
     return (
       <div className="stack-menu stack-menu--static">
         <div className="stack-menu__header-static">
-          <span className="eyebrow">Discovery Stack</span>
-          <h2>Explore The Archive</h2>
+          <span className="eyebrow">Curated Index</span>
+          <h2>The Discovery Archive</h2>
+          <p className="stack-menu__subhead">Curated direct conduits into digital tools, volumes, and technical work.</p>
         </div>
-        <div className="stack-menu__viewport">
-           {renderContent()}
+        <div className="stack-menu__viewport-static">
+          {renderSplitContent()}
         </div>
       </div>
     );
@@ -257,18 +260,31 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="stack-menu"
-          onClick={toggle}
+          transition={{ duration: 0.2 }}
+          className="stack-menu stack-menu--overlay"
+          onClick={() => setIsOpen(false)}
         >
-          <button className="stack-menu__close" onClick={(e) => { e.stopPropagation(); toggle(); }}>
-            <i className="ph ph-x" />
-          </button>
-          <div className="stack-menu__viewport">
-            {renderContent()}
+          <div className="stack-menu__overlay-header" onClick={(e) => e.stopPropagation()}>
+            <div className="stack-menu__overlay-branding">
+              <span className="eyebrow">Dossier // Index</span>
+              <h2>Curated Resources</h2>
+            </div>
+            <button
+              className="stack-menu__close-btn"
+              onClick={() => setIsOpen(false)}
+              aria-label="Close Stack Menu"
+            >
+              <i className="ph ph-x" />
+              <span>ESC</span>
+            </button>
+          </div>
+
+          <div className="stack-menu__viewport-modal">
+            {renderSplitContent()}
           </div>
         </motion.div>
       )}
