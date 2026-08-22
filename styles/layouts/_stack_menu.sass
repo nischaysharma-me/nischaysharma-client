@@ -53,6 +53,7 @@
 
       .card-description
         opacity: 1
+        transform: translateY(0)
 
   &__link
     display: block
@@ -168,9 +169,37 @@
     justify-content: flex-end
     margin-bottom: 1rem
 
+    &::before
+      content: ''
+      width: 2.5rem
+      height: 1px
+      margin-bottom: 0.9rem
+      background: rgba(255, 255, 255, 0.55)
+
+  &__label
+    display: block
+    margin-bottom: 0.65rem
+    color: rgba(255, 255, 255, 0.6)
+    font-size: 0.62rem
+    font-weight: 700
+    letter-spacing: 0.18em
+    line-height: 1
+    text-transform: uppercase
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.8)
+
 .card-description
   opacity: 0
-  transition: opacity 0.5s ease
+  max-width: 30ch
+  margin: 0.7rem 0 0
+  color: rgba(255, 255, 255, 0.78)
+  font-size: 0.88rem
+  line-height: 1.55
+  display: -webkit-box
+  -webkit-box-orient: vertical
+  -webkit-line-clamp: 3
+  overflow: hidden
+  transform: translateY(8px)
+  transition: opacity 0.45s ease, transform 0.45s ease
 
 .card-scrim
   position: absolute
@@ -183,9 +212,48 @@
   font-family: $font-serif
   color: #fff
   margin: 0
-  line-height: 1.1
-  letter-spacing: -0.02em
-  text-shadow: 0 10px 30px rgba(0,0,0,0.8)
+  max-width: 10ch
+  font-size: clamp(1.9rem, 4vw, 2.8rem)
+  font-weight: 500
+  line-height: 0.98
+  letter-spacing: -0.035em
+  text-wrap: balance
+  text-shadow: 0 12px 36px rgba(0,0,0,0.95)
+
+  &--expanded
+    max-width: 12ch
+    margin-bottom: 1rem
+    font-size: clamp(2.75rem, 5vw, 4.5rem)
+    font-weight: 400
+    line-height: 0.94
+
+.card-expanded-description
+  max-width: 38ch
+  margin: 0
+  color: rgba(255, 255, 255, 0.76)
+  font-size: 1rem
+  line-height: 1.65
+  white-space: pre-wrap
+
+.card-destination-cue
+  display: inline-flex
+  align-items: center
+  gap: 0.55rem
+  margin-top: 1.5rem
+  color: rgba(255, 255, 255, 0.92)
+  font-size: 0.72rem
+  font-weight: 700
+  letter-spacing: 0.08em
+  text-transform: uppercase
+
+.card-preview-label
+  align-self: flex-end
+  margin-top: 1.2rem
+  color: rgba(255, 255, 255, 0.42)
+  font-size: 0.65rem
+  font-weight: 700
+  letter-spacing: 0.14em
+  text-transform: uppercase
 
 // Grid Layout for expanded cards
 .card-grid-two-cols

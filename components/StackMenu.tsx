@@ -42,21 +42,21 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
           >
             {/* Left side (dynamic text content) */}
             <div className="card-col-left" style={{ justifyContent: 'center' }}>
-              <h2 className="card-title select-none" style={{ fontSize: '2.5rem', marginBottom: '1.2rem', textDecoration: 'none' }}>
+              <span className="card-copy__label">
+                {item.linkType === 'external' ? 'External destination' : 'Site collection'}
+              </span>
+              <h2 className="card-title card-title--expanded">
                 {item.title}
               </h2>
               {item.description && (
-                <p style={{
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  fontSize: '1rem',
-                  lineHeight: '1.6',
-                  margin: 0,
-                  maxWidth: '95%',
-                  whiteSpace: 'pre-wrap'
-                }}>
+                <p className="card-expanded-description">
                   {item.description}
                 </p>
               )}
+              <span className="card-destination-cue">
+                View destination
+                <i className="ph ph-arrow-up-right" />
+              </span>
             </div>
 
             {/* Right side (dynamic framed image/graphics) */}
@@ -97,8 +97,8 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
                   Interactive Preview
                 </div>
               )}
-              <div style={{ alignSelf: 'flex-end', marginTop: '1.2rem', color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}>
-                KINDLY SCROLL DOWN
+              <div className="card-preview-label">
+                Visual preview
               </div>
             </div>
           </motion.div>
@@ -132,17 +132,14 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
             
             <div className="card-copy">
               <div className="card-copy__inner">
-                <h2 className="card-title" style={{ fontSize: '2.5rem', fontWeight: 600, textDecoration: 'none' }}>
+                <span className="card-copy__label">
+                  {item.linkType === 'external' ? 'External destination' : 'Site collection'}
+                </span>
+                <h2 className="card-title">
                   {item.title}
                 </h2>
                 {item.description && (
-                  <p className="card-description" style={{
-                    color: 'rgba(255,255,255,0.7)',
-                    fontSize: '0.9rem',
-                    margin: '0.5rem 0 0 0',
-                    maxWidth: '85%',
-                    lineHeight: 1.4
-                  }}>
+                  <p className="card-description">
                     {item.description}
                   </p>
                 )}
