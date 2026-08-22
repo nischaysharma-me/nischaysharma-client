@@ -109,37 +109,34 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="card-content-wrapper relative overflow-hidden"
+            className="card-content-wrapper"
             style={{ width: '100%', height: '100%', borderRadius: '1.5rem' }}
           >
             {/* Full Bleed Background Image */}
             {item.imageUrl && (
-              <div 
-                className="absolute inset-0 transition-transform duration-1000 group-hover:scale-105"
+              <div
+                className="card-background"
                 style={{ 
                   backgroundImage: `url(${item.imageUrl})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  zIndex: 0
                 }}
               />
             )}
             
             {/* Fallback Color if no image */}
             {!item.imageUrl && (
-              <div className="absolute inset-0 z-0" style={{ background: item.color || '#0f172a' }} />
+              <div className="card-background card-background--fallback" style={{ background: item.color || '#0f172a' }} />
             )}
 
             {/* Gradient Scrim for readable text */}
             <div className="card-scrim" />
             
-            <div className="absolute inset-0 p-10 flex flex-col justify-between z-10" style={{ boxSizing: 'border-box' }}>
-              <div className="flex-1 flex flex-col justify-end" style={{ marginBottom: '1rem' }}>
-                <h2 className="card-title select-none" style={{ fontSize: '2.5rem', fontWeight: 600, textDecoration: 'none' }}>
+            <div className="card-copy">
+              <div className="card-copy__inner">
+                <h2 className="card-title" style={{ fontSize: '2.5rem', fontWeight: 600, textDecoration: 'none' }}>
                   {item.title}
                 </h2>
                 {item.description && (
-                  <p className="opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ 
+                  <p className="card-description" style={{
                     color: 'rgba(255,255,255,0.7)',
                     fontSize: '0.9rem',
                     margin: '0.5rem 0 0 0',
@@ -225,18 +222,18 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
               damping: 25, 
               stiffness: 140,
             }}
-            className="stack-menu__item group"
+            className="stack-menu__item"
             style={{ 
               padding: 0,
               textDecoration: 'none'
             }}
           >
             {item.linkType === 'external' ? (
-              <a href={item.link} target="_blank" rel="noopener noreferrer" className="w-full h-full block no-underline" style={{ textDecoration: 'none' }}>
+              <a href={item.link} target="_blank" rel="noopener noreferrer" className="stack-menu__link">
                 {renderCardContent(item, isHovered)}
               </a>
             ) : (
-              <Link href={item.link} className="w-full h-full block no-underline" style={{ textDecoration: 'none' }}>
+              <Link href={item.link} className="stack-menu__link">
                 {renderCardContent(item, isHovered)}
               </Link>
             )}

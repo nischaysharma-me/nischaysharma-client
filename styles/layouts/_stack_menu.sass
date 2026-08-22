@@ -47,6 +47,20 @@
       pointer-events: none
       z-index: 2
 
+    &:hover
+      .card-background
+        transform: scale(1.05)
+
+      .card-description
+        opacity: 1
+
+  &__link
+    display: block
+    width: 100%
+    height: 100%
+    color: inherit
+    text-decoration: none
+
   &__close
     position: absolute
     top: $spacing-xl
@@ -127,6 +141,36 @@
   position: relative
   z-index: 5
   box-sizing: border-box
+  overflow: hidden
+
+.card-background
+  position: absolute
+  inset: 0
+  z-index: 0
+  background-size: cover
+  background-position: center
+  transition: transform 1s ease
+
+.card-copy
+  position: absolute
+  inset: 0
+  z-index: 2
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  padding: 2.5rem
+  box-sizing: border-box
+
+  &__inner
+    flex: 1
+    display: flex
+    flex-direction: column
+    justify-content: flex-end
+    margin-bottom: 1rem
+
+.card-description
+  opacity: 0
+  transition: opacity 0.5s ease
 
 .card-scrim
   position: absolute
@@ -173,4 +217,3 @@
     text-decoration: none !important
     &:hover
       text-decoration: none !important
-
