@@ -42,21 +42,21 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
           >
             {/* Left side (dynamic text content) */}
             <div className="card-col-left" style={{ justifyContent: 'center' }}>
-              <h2 className="card-title select-none" style={{ fontSize: '2.5rem', marginBottom: '1.2rem', textDecoration: 'none' }}>
+              <span className="card-copy__label">
+                {item.linkType === 'external' ? 'External destination' : 'Site collection'}
+              </span>
+              <h2 className="card-title card-title--expanded">
                 {item.title}
               </h2>
               {item.description && (
-                <p style={{
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  fontSize: '1rem',
-                  lineHeight: '1.6',
-                  margin: 0,
-                  maxWidth: '95%',
-                  whiteSpace: 'pre-wrap'
-                }}>
+                <p className="card-expanded-description">
                   {item.description}
                 </p>
               )}
+              <span className="card-destination-cue">
+                View destination
+                <i className="ph ph-arrow-up-right" />
+              </span>
             </div>
 
             {/* Right side (dynamic framed image/graphics) */}
@@ -97,8 +97,8 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
                   Interactive Preview
                 </div>
               )}
-              <div style={{ alignSelf: 'flex-end', marginTop: '1.2rem', color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}>
-                KINDLY SCROLL DOWN
+              <div className="card-preview-label">
+                Visual preview
               </div>
             </div>
           </motion.div>
@@ -109,43 +109,37 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="card-content-wrapper relative overflow-hidden"
+            className="card-content-wrapper"
             style={{ width: '100%', height: '100%', borderRadius: '1.5rem' }}
           >
             {/* Full Bleed Background Image */}
             {item.imageUrl && (
-              <div 
-                className="absolute inset-0 transition-transform duration-1000 group-hover:scale-105"
+              <div
+                className="card-background"
                 style={{ 
                   backgroundImage: `url(${item.imageUrl})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  zIndex: 0
                 }}
               />
             )}
             
             {/* Fallback Color if no image */}
             {!item.imageUrl && (
-              <div className="absolute inset-0 z-0" style={{ background: item.color || '#0f172a' }} />
+              <div className="card-background card-background--fallback" style={{ background: item.color || '#0f172a' }} />
             )}
 
             {/* Gradient Scrim for readable text */}
             <div className="card-scrim" />
             
-            <div className="absolute inset-0 p-10 flex flex-col justify-between z-10" style={{ boxSizing: 'border-box' }}>
-              <div className="flex-1 flex flex-col justify-end" style={{ marginBottom: '1rem' }}>
-                <h2 className="card-title select-none" style={{ fontSize: '2.5rem', fontWeight: 600, textDecoration: 'none' }}>
+            <div className="card-copy">
+              <div className="card-copy__inner">
+                <span className="card-copy__label">
+                  {item.linkType === 'external' ? 'External destination' : 'Site collection'}
+                </span>
+                <h2 className="card-title">
                   {item.title}
                 </h2>
                 {item.description && (
-                  <p className="opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ 
-                    color: 'rgba(255,255,255,0.7)',
-                    fontSize: '0.9rem',
-                    margin: '0.5rem 0 0 0',
-                    maxWidth: '85%',
-                    lineHeight: 1.4
-                  }}>
+                  <p className="card-description">
                     {item.description}
                   </p>
                 )}
@@ -225,18 +219,18 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
               damping: 25, 
               stiffness: 140,
             }}
-            className="stack-menu__item group"
+            className="stack-menu__item"
             style={{ 
               padding: 0,
               textDecoration: 'none'
             }}
           >
             {item.linkType === 'external' ? (
-              <a href={item.link} target="_blank" rel="noopener noreferrer" className="w-full h-full block no-underline" style={{ textDecoration: 'none' }}>
+              <a href={item.link} target="_blank" rel="noopener noreferrer" className="stack-menu__link">
                 {renderCardContent(item, isHovered)}
               </a>
             ) : (
-              <Link href={item.link} className="w-full h-full block no-underline" style={{ textDecoration: 'none' }}>
+              <Link href={item.link} className="stack-menu__link">
                 {renderCardContent(item, isHovered)}
               </Link>
             )}
