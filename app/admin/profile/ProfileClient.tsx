@@ -98,6 +98,7 @@ export default function ProfileClient() {
   const [featuredSearch, setFeaturedSearch] = useState('');
   const [showGitHubReposModal, setShowGitHubReposModal] = useState(false);
   const [gitHubRepos, setGitHubRepos] = useState<any[]>([]);
+  const [gitHubPinnedRepos, setGitHubPinnedRepos] = useState<any[]>([]);
   const [loadingRepos, setLoadingRepos] = useState(false);
   
   const [projectTagInput, setProjectTagInput] = useState('');
@@ -351,9 +352,17 @@ export default function ProfileClient() {
       setLoadingRepos(true);
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
-      const res = await integrationsService.syncGitHubProjects(token);
-      if (res.success && Array.isArray(res.data)) {
-        setGitHubRepos(res.data);
+      
+      const [reposRes, pinnedRes] = await Promise.all([
+        integrationsService.syncGitHubProjects(token),
+        integrationsService.syncGitHubPinned(token)
+      ]);
+
+      if (reposRes.success && Array.isArray(reposRes.data)) {
+        setGitHubRepos(reposRes.data);
+      }
+      if (pinnedRes.success && Array.isArray(pinnedRes.data)) {
+        setGitHubPinnedRepos(pinnedRes.data);
       }
     } catch (err: any) {
       toast.error('Failed to fetch repositories: ' + err.message);
@@ -367,9 +376,9 @@ export default function ProfileClient() {
       title: repo.title || '',
       description: repo.description || '',
       link: repo.link || '',
-      image: '',
-      tags: [],
-      skills: [],
+      image: repo.image || '',
+      tags: repo.tags || [],
+      skills: repo.skills || [],
       relatedArticles: [],
       resources: []
     });
@@ -1535,31 +1544,71 @@ export default function ProfileClient() {
                     <i className="ph ph-spinner animate-spin" style={{ fontSize: '2.5rem', color: 'var(--color-accent)' }} />
                     <p style={{ color: '#666', fontWeight: 600 }}>Fetching your repositories...</p>
                   </div>
-                ) : gitHubRepos.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {gitHubRepos.map((repo, i) => (
-                      <div 
-                        key={i} 
-                        onClick={() => importRepoAsProject(repo)}
-                        style={{ 
-                          padding: '1.25rem', 
-                          border: '1px solid #eee', 
-                          borderRadius: '1rem', 
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          background: '#fff'
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.background = '#f9f9f9'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#eee'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.transform = 'translateY(0)'; }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                          <h4 style={{ margin: 0, color: '#111', fontSize: '1.1rem', fontWeight: 700 }}>{repo.title}</h4>
-                          <i className="ph ph-github-logo" style={{ fontSize: '1.25rem', color: '#555' }} />
+                ) : (gitHubRepos.length > 0 || gitHubPinnedRepos.length > 0) ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    {gitHubPinnedRepos.length > 0 && (
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                          <i className="ph ph-push-pin" style={{ color: 'var(--color-accent)', fontSize: '1.25rem' }} />
+                          <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#111' }}>Pinned Repositories</h4>
                         </div>
-                        {repo.description && <p style={{ margin: 0, fontSize: '0.9rem', color: '#666', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{repo.description}</p>}
-                        <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 600 }}>{repo.link}</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+                          {gitHubPinnedRepos.map((repo, i) => (
+                            <div 
+                              key={`pinned-${i}`} 
+                              onClick={() => importRepoAsProject(repo)}
+                              style={{ 
+                                padding: '1.25rem', border: '1px solid #eee', borderRadius: '1rem', cursor: 'pointer',
+                                transition: 'all 0.2s', background: '#fff', position: 'relative', overflow: 'hidden'
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.background = '#f9f9f9'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#eee'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                            >
+                              {repo.image && <div style={{ position: 'absolute', top: 0, right: 0, width: '60px', height: '60px', opacity: 0.1, backgroundImage: `url(${repo.image})`, backgroundSize: 'cover' }} />}
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                                <h4 style={{ margin: 0, color: '#111', fontSize: '1rem', fontWeight: 700 }}>{repo.title}</h4>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: '#888' }}>
+                                  <i className="ph ph-star-fill" style={{ color: '#ffb400' }} />
+                                  <span>{repo.stars}</span>
+                                </div>
+                              </div>
+                              {repo.description && <p style={{ margin: 0, fontSize: '0.8rem', color: '#666', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{repo.description}</p>}
+                              <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                {repo.skills?.slice(0, 3).map((s: string) => <span key={s} style={{ fontSize: '0.65rem', background: '#eee', padding: '0.1rem 0.4rem', borderRadius: '0.25rem', color: '#555' }}>{s}</span>)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
+                    )}
+
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                        <i className="ph ph-git-branch" style={{ color: '#555', fontSize: '1.25rem' }} />
+                        <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#111' }}>All Repositories</h4>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {gitHubRepos.map((repo, i) => (
+                          <div 
+                            key={`repo-${i}`} 
+                            onClick={() => importRepoAsProject(repo)}
+                            style={{ 
+                              padding: '1.25rem', border: '1px solid #eee', borderRadius: '1rem', cursor: 'pointer',
+                              transition: 'all 0.2s', background: '#fff'
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent)'; e.currentTarget.style.background = '#f9f9f9'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#eee'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                              <h4 style={{ margin: 0, color: '#111', fontSize: '1.1rem', fontWeight: 700 }}>{repo.title}</h4>
+                              <i className="ph ph-github-logo" style={{ fontSize: '1.25rem', color: '#555' }} />
+                            </div>
+                            {repo.description && <p style={{ margin: 0, fontSize: '0.9rem', color: '#666', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{repo.description}</p>}
+                            <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--color-accent)', fontWeight: 600 }}>{repo.link}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div style={{ textAlign: 'center', padding: '4rem' }}>

@@ -90,6 +90,17 @@ export const integrationsService = {
   },
 
   /**
+   * Sync pinned repositories from GitHub
+   */
+  syncGitHubPinned: (token: string) => {
+    return apiFetch<{ success: boolean; data: any[] }>('/integrations/github/sync', {
+      method: 'POST',
+      token,
+      body: { action: 'get_pinned' }
+    });
+  },
+
+  /**
    * Share content to LinkedIn
    */
   shareToLinkedIn: (data: { text: string; url?: string; title?: string }, token: string) => {
