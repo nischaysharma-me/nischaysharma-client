@@ -75,8 +75,6 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
         const depth = Math.abs(distance);
         const translateX = distance * 42;
         const translateY = depth * 12;
-        const rotateY = isFocused ? 0 : Math.max(-8, Math.min(8, distance * -2.2));
-        const rotateZ = isFocused ? 0 : distance * 0.28;
 
         return (
           <motion.div
@@ -88,9 +86,9 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
               x: translateX,
               y: translateY,
               z: isFocused ? 180 : -depth * 110,
-              rotateX: isFocused ? 0 : Math.min(5, depth * 1.1),
-              rotateY,
-              rotateZ,
+              rotateX: 0,
+              rotateY: 0,
+              rotateZ: 0,
               width: isFocused ? 760 : 720,
               height: isFocused ? 480 : 450,
             }}
