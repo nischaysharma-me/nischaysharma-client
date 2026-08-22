@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStackMenuStore } from '@/store/useStackMenuStore';
 import { useStackStore } from '@/store/admin/useStackStore';
+import type { StackItem } from '@/lib/types/stack';
 import Link from 'next/link';
 
 export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) {
@@ -21,225 +22,107 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
     .filter(item => item.isActive)
     .sort((a, b) => a.order - b.order);
 
-  const renderCardContent = (item: any, isExpanded: boolean) => {
+  const focusedIndex = hoveredIndex ?? Math.max(activeItems.length - 1, 0);
+  const focusedItem = activeItems[focusedIndex];
+
+  const renderCardContent = (item: StackItem, isExpanded: boolean, index: number) => {
     return (
-      <AnimatePresence mode="wait">
-        {isExpanded ? (
-          <motion.div
-            key="expanded"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="card-grid-two-cols"
-            style={{ 
-              background: item.color || 'linear-gradient(135deg, #111 0%, #1e1b4b 100%)',
-              width: '100%',
-              height: '100%',
-              borderRadius: '1.5rem',
-              overflow: 'hidden'
-            }}
-          >
-            {/* Left side (dynamic text content) */}
-            <div className="card-col-left" style={{ justifyContent: 'center' }}>
-              <h2 className="card-title select-none" style={{ fontSize: '2.5rem', marginBottom: '1.2rem', textDecoration: 'none' }}>
-                {item.title}
-              </h2>
-              {item.description && (
-                <p style={{
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  fontSize: '1rem',
-                  lineHeight: '1.6',
-                  margin: 0,
-                  maxWidth: '95%',
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {item.description}
-                </p>
-              )}
-            </div>
-
-            {/* Right side (dynamic framed image/graphics) */}
-            <div className="card-col-right" style={{ justifyContent: 'center' }}>
-              {item.imageUrl ? (
-                <div style={{
-                  width: '100%',
-                  maxWidth: '320px',
-                  height: '240px',
-                  borderRadius: '1.2rem',
-                  overflow: 'hidden',
-                  boxShadow: '0 20px 45px rgba(0,0,0,0.6)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  position: 'relative'
-                }}>
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.title} 
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                  />
-                </div>
-              ) : (
-                <div style={{
-                  width: '100%',
-                  maxWidth: '320px',
-                  height: '240px',
-                  borderRadius: '1.2rem',
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'rgba(255, 255, 255, 0.3)',
-                  fontSize: '0.8rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em'
-                }}>
-                  Interactive Preview
-                </div>
-              )}
-              <div style={{ alignSelf: 'flex-end', marginTop: '1.2rem', color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em' }}>
-                KINDLY SCROLL DOWN
-              </div>
-            </div>
-          </motion.div>
+      <div className={`stack-card ${isExpanded ? 'stack-card--active' : 'stack-card--compact'}`}>
+        {item.imageUrl ? (
+          <div className="stack-card__image" style={{ backgroundImage: `url(${item.imageUrl})` }} />
         ) : (
-          <motion.div
-            key="normal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="card-content-wrapper"
-            style={{ width: '100%', height: '100%', borderRadius: '1.5rem' }}
-          >
-            {/* Full Bleed Background Image */}
-            {item.imageUrl && (
-              <div
-                className="card-background"
-                style={{ 
-                  backgroundImage: `url(${item.imageUrl})`,
-                }}
-              />
-            )}
-            
-            {/* Fallback Color if no image */}
-            {!item.imageUrl && (
-              <div className="card-background card-background--fallback" style={{ background: item.color || '#0f172a' }} />
-            )}
-
-            {/* Gradient Scrim for readable text */}
-            <div className="card-scrim" />
-            
-            <div className="card-copy">
-              <div className="card-copy__inner">
-                <h2 className="card-title" style={{ fontSize: '2.5rem', fontWeight: 600, textDecoration: 'none' }}>
-                  {item.title}
-                </h2>
-                {item.description && (
-                  <p className="card-description" style={{
-                    color: 'rgba(255,255,255,0.7)',
-                    fontSize: '0.9rem',
-                    margin: '0.5rem 0 0 0',
-                    maxWidth: '85%',
-                    lineHeight: 1.4
-                  }}>
-                    {item.description}
-                  </p>
-                )}
-              </div>
-            </div>
-          </motion.div>
+          <div className="stack-card__image stack-card__image--fallback" style={{ background: item.color || '#15151b' }} />
         )}
-      </AnimatePresence>
+
+        <div className="stack-card__wash" />
+        <div className="stack-card__grain" />
+
+        <div className="stack-card__topline">
+          <span>{String(index + 1).padStart(2, '0')}</span>
+          <span>{item.linkType === 'external' ? 'External' : 'Collection'}</span>
+        </div>
+
+        <div className="stack-card__content">
+          <span className="stack-card__eyebrow">Selected destination</span>
+          <h2>{item.title}</h2>
+          {item.description && <p>{item.description}</p>}
+          <span className="stack-card__action">
+            Open experience
+            <i className="ph ph-arrow-up-right" />
+          </span>
+        </div>
+      </div>
     );
   };
 
   const renderContent = () => (
     <div className={`stack-menu__container ${isStatic ? 'stack-menu__container--static' : ''}`} onClick={(e) => e.stopPropagation()}>
+      {focusedItem?.imageUrl && (
+        <motion.div
+          key={focusedItem.id}
+          className="stack-menu__ambient"
+          style={{ backgroundImage: `url(${focusedItem.imageUrl})` }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.22 }}
+          transition={{ duration: 0.6 }}
+        />
+      )}
+
+      <div className="stack-menu__stage">
       {activeItems.map((item, index) => {
-        const total = activeItems.length;
-        const centerIndex = (total - 1) / 2;
-        const offset = index - centerIndex;
-        
-        const isHovered = hoveredIndex === index;
-        const isAnyHovered = hoveredIndex !== null;
-
-        // Normal fanned spacing
-        const spacing = total > 3 ? 110 : 160;
-        
-        // Calculate translateX with fanning and offset shifts
-        let translateX = offset * spacing;
-        if (isAnyHovered) {
-          if (isHovered) {
-            translateX = 0;
-          } else {
-            // Push non-hovered cards to left or right of the center hovered card
-            if (index < hoveredIndex) {
-              translateX = -450 + (index - (hoveredIndex - 1)) * 80;
-            } else {
-              translateX = 450 + (index - (hoveredIndex + 1)) * 80;
-            }
-          }
-        }
-        
-        // Stacking order purely in 3D: larger index = higher translateZ (closer to screen)
-        // Hovered card is brought to the absolute front (300px)
-        const translateZ = isHovered ? 300 : index * 25; 
-        
-        // 3D rotations for the fanned look (parallel deck)
-        const rotateX = isHovered ? 0 : 12; // tilt back
-        const rotateY = isHovered ? 0 : -12; // tilt left
-        const rotateZ = isHovered ? 0 : -1; // subtle roll
-        
-        // Focus state opacity and scaling
-        const opacity = isAnyHovered ? (isHovered ? 1 : 0.25) : 1;
-        const scale = isHovered ? 1.25 : 1;
-
-        const cardWidth = isHovered ? '850px' : '420px';
-        const cardHeight = isHovered ? '500px' : '280px';
+        const distance = index - focusedIndex;
+        const isFocused = distance === 0;
+        const focusedX = focusedIndex === activeItems.length - 1 ? 140 : 0;
+        const translateX = isFocused
+          ? focusedX
+          : distance < 0
+            ? focusedX - 420 + (distance + 1) * 115
+            : focusedX + 420 + (distance - 1) * 115;
+        const rotateY = isFocused ? -1 : distance < 0 ? 5 : -5;
+        const rotateZ = isFocused ? 0 : distance < 0 ? -1.5 : 1.5;
 
         return (
           <motion.div
             key={item.id}
-            initial={{ opacity: 0, scale: 0.9, x: 0 }}
-            animate={{ 
-              opacity,
-              scale,
+            initial={{ opacity: 0, scale: 0.94, x: 0 }}
+            animate={{
+              opacity: isFocused ? 1 : 0.76,
+              scale: isFocused ? 1 : 0.97,
               x: translateX,
-              z: translateZ,
-              rotateX,
+              z: isFocused ? 160 : Math.max(0, 80 - Math.abs(distance) * 16),
+              rotateX: isFocused ? 0 : 1.5,
               rotateY,
               rotateZ,
-              width: cardWidth,
-              height: cardHeight,
-              // NO zIndex property is set here so browser depth sorting uses translateZ natively!
+              width: isFocused ? 760 : 310,
+              height: isFocused ? 480 : 430,
             }}
             onMouseEnter={() => setHoveredIndex(index)}
-            onMouseLeave={() => setHoveredIndex(null)}
             whileTap={{ scale: 0.98 }}
-            transition={{ 
-              type: 'spring', 
-              damping: 25, 
-              stiffness: 140,
+            transition={{
+              type: 'spring',
+              damping: 28,
+              stiffness: 170,
             }}
-            className="stack-menu__item"
-            style={{ 
+            className={`stack-menu__item ${isFocused ? 'is-focused' : ''}`}
+            style={{
               padding: 0,
-              textDecoration: 'none'
+              textDecoration: 'none',
+              zIndex: isFocused ? 100 : 20 + index,
             }}
           >
             {item.linkType === 'external' ? (
-              <a href={item.link} target="_blank" rel="noopener noreferrer" className="stack-menu__link">
-                {renderCardContent(item, isHovered)}
+              <a href={item.link} target="_blank" rel="noopener noreferrer" className="stack-menu__link" aria-label={`Open ${item.title}`}>
+                {renderCardContent(item, isFocused, index)}
               </a>
             ) : (
-              <Link href={item.link} className="stack-menu__link">
-                {renderCardContent(item, isHovered)}
+              <Link href={item.link} className="stack-menu__link" aria-label={`Open ${item.title}`}>
+                {renderCardContent(item, isFocused, index)}
               </Link>
             )}
           </motion.div>
         );
       })}
+      </div>
     </div>
   );
 
