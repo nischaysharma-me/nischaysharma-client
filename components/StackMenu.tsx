@@ -72,11 +72,14 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
       {activeItems.map((item, index) => {
         const distance = index - focusedIndex;
         const isFocused = distance === 0;
-        const depth = Math.abs(distance);
-        const translateX = distance * 42;
-        const translateY = depth * 12;
-        const rotateY = isFocused ? 0 : Math.max(-8, Math.min(8, distance * -2.2));
-        const rotateZ = isFocused ? 0 : distance * 0.28;
+        const focusedX = focusedIndex === activeItems.length - 1 ? 140 : 0;
+        const translateX = isFocused
+          ? focusedX
+          : distance < 0
+            ? focusedX - 420 + (distance + 1) * 115
+            : focusedX + 420 + (distance - 1) * 115;
+        const rotateY = isFocused ? -1 : distance < 0 ? 5 : -5;
+        const rotateZ = isFocused ? 0 : distance < 0 ? -1.5 : 1.5;
 
         return (
           <motion.div
@@ -84,15 +87,14 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
             initial={{ opacity: 0, scale: 0.94, x: 0 }}
             animate={{
               opacity: isFocused ? 1 : 0.76,
-              scale: isFocused ? 1 : Math.max(0.88, 0.98 - depth * 0.025),
+              scale: isFocused ? 1 : 0.97,
               x: translateX,
-              y: translateY,
-              z: isFocused ? 180 : -depth * 110,
-              rotateX: isFocused ? 0 : Math.min(5, depth * 1.1),
+              z: isFocused ? 160 : Math.max(0, 80 - Math.abs(distance) * 16),
+              rotateX: isFocused ? 0 : 1.5,
               rotateY,
               rotateZ,
-              width: isFocused ? 760 : 720,
-              height: isFocused ? 480 : 450,
+              width: isFocused ? 760 : 310,
+              height: isFocused ? 480 : 430,
             }}
             onMouseEnter={() => setHoveredIndex(index)}
             whileTap={{ scale: 0.98 }}
@@ -105,7 +107,7 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
             style={{
               padding: 0,
               textDecoration: 'none',
-              zIndex: isFocused ? 100 : Math.max(1, 60 - depth),
+              zIndex: isFocused ? 100 : 20 + index,
             }}
           >
             {item.linkType === 'external' ? (
