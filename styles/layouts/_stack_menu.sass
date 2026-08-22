@@ -8,59 +8,34 @@
   display: flex
   align-items: center
   justify-content: center
-  background: #0a0b0f
-  backdrop-filter: blur(18px)
+  background: rgba(10, 10, 12, 0.95)
+  backdrop-filter: blur(15px)
   padding: $spacing-lg
   overflow: hidden
   
   &__container
     position: relative
     width: 100%
-    max-width: 1440px
-    height: 620px
-    perspective: 2200px
+    max-width: 1200px
+    height: 600px
+    perspective: 2500px
     display: flex
     align-items: center
     justify-content: center
     transform-style: preserve-3d
-
-  &__stage
-    position: relative
-    z-index: 2
-    width: 100%
-    height: 100%
-    display: flex
-    align-items: center
-    justify-content: center
-    transform-style: preserve-3d
-
-  &__ambient
-    position: absolute
-    inset: -18%
-    z-index: 0
-    background-size: cover
-    background-position: center
-    filter: blur(90px) saturate(1.35)
-    transform: scale(1.08)
-    pointer-events: none
-
-    &::after
-      content: ''
-      position: absolute
-      inset: 0
-      background: radial-gradient(circle at center, rgba(10, 11, 15, 0.05), #0a0b0f 70%)
 
   &__item
     position: absolute
-    background: #111218
-    border: 1px solid rgba(255, 255, 255, 0.13)
-    border-radius: 1.75rem
+    background: #0d0d11
+    border: 1px solid rgba(255, 255, 255, 0.15)
+    border-radius: 1.5rem
     overflow: hidden
     cursor: pointer
-    box-shadow: 0 42px 90px rgba(0, 0, 0, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.09)
+    box-shadow: rgba(0, 0, 0, 0.6) 0px 40px 80px, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset
     transform-style: preserve-3d
     background-size: cover
     background-position: center
+    @include transition(all 0.5s cubic-bezier(0.25, 1, 0.5, 1))
     text-decoration: none
     color: #fff
     
@@ -68,13 +43,16 @@
       content: ''
       position: absolute
       inset: 0
-      background: linear-gradient(125deg, rgba(255,255,255,0.1) 0%, transparent 24%, transparent 74%, rgba(255,255,255,0.04) 100%)
+      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%)
       pointer-events: none
       z-index: 2
 
-    &.is-focused
-      border-color: rgba(255, 255, 255, 0.22)
-      box-shadow: 0 55px 120px rgba(0, 0, 0, 0.68), 0 0 55px rgba(112, 133, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.14)
+    &:hover
+      .card-background
+        transform: scale(1.05)
+
+      .card-description
+        opacity: 1
 
   &__link
     display: block
@@ -106,7 +84,7 @@
   &--static
     position: relative
     inset: auto
-    background: #08090c
+    background: transparent
     min-height: 100vh
     display: flex
     flex-direction: column
@@ -121,7 +99,7 @@
       position: absolute
       width: 150%
       height: 150%
-      background: radial-gradient(circle at center, rgba(112, 133, 255, 0.08) 0%, transparent 62%)
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, transparent 60%)
       pointer-events: none
 
   &__header-static
@@ -149,162 +127,93 @@
       letter-spacing: -0.02em
 
   &__container--static
-    height: 590px
-    max-width: 1440px
+    height: 550px
+    max-width: 1200px
     z-index: 2
     width: 100%
 
-.stack-card
-  position: relative
+// Card Custom Styles
+.card-content-wrapper
   width: 100%
   height: 100%
+  display: flex
+  flex-direction: row
+  position: relative
+  z-index: 5
+  box-sizing: border-box
   overflow: hidden
-  border-radius: inherit
-  isolation: isolate
 
-.stack-card__image
+.card-background
   position: absolute
   inset: 0
   z-index: 0
   background-size: cover
   background-position: center
-  transform: scale(1.025)
-  filter: saturate(0.82) contrast(1.03)
-  transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.6s ease
+  transition: transform 1s ease
 
-  &--fallback
-    background: linear-gradient(145deg, #272936, #101116)
-
-.stack-card__wash
-  position: absolute
-  inset: 0
-  z-index: 1
-  background: linear-gradient(90deg, rgba(7, 8, 12, 0.92) 0%, rgba(7, 8, 12, 0.46) 48%, rgba(7, 8, 12, 0.16) 100%), linear-gradient(0deg, rgba(7, 8, 12, 0.66), transparent 55%)
-
-.stack-card__grain
+.card-copy
   position: absolute
   inset: 0
   z-index: 2
-  opacity: 0.16
-  pointer-events: none
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E")
-  mix-blend-mode: soft-light
-
-.stack-card__topline
-  position: absolute
-  top: 1.5rem
-  left: 1.65rem
-  right: 1.65rem
-  z-index: 4
-  display: flex
-  justify-content: space-between
-  gap: 1rem
-  font-size: 0.62rem
-  font-weight: 700
-  letter-spacing: 0.18em
-  text-transform: uppercase
-  color: rgba(255, 255, 255, 0.55)
-
-.stack-card__content
-  position: absolute
-  left: 2.25rem
-  right: 2.25rem
-  bottom: 2.1rem
-  z-index: 4
   display: flex
   flex-direction: column
-  align-items: flex-start
-  max-width: 31rem
+  justify-content: space-between
+  padding: 2.5rem
+  box-sizing: border-box
 
-  h2
-    margin: 0
-    color: #fff
-    font-family: $font-serif
-    font-size: clamp(2.6rem, 5vw, 4.7rem)
-    font-weight: 400
-    line-height: 0.94
-    letter-spacing: -0.045em
-    text-wrap: balance
-    text-shadow: 0 18px 45px rgba(0, 0, 0, 0.55)
+  &__inner
+    flex: 1
+    display: flex
+    flex-direction: column
+    justify-content: flex-end
+    margin-bottom: 1rem
 
-  p
-    margin: 1.15rem 0 0
-    max-width: 28rem
-    color: rgba(255, 255, 255, 0.72)
-    font-size: 0.92rem
-    line-height: 1.65
-    white-space: pre-wrap
+.card-description
+  opacity: 0
+  transition: opacity 0.5s ease
 
-.stack-card__eyebrow
-  margin-bottom: 0.8rem
-  color: rgba(255, 255, 255, 0.48)
-  font-size: 0.65rem
-  font-weight: 800
-  letter-spacing: 0.2em
-  text-transform: uppercase
+.card-scrim
+  position: absolute
+  inset: 0
+  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)
+  z-index: 1
+  pointer-events: none
 
-.stack-card__action
-  display: inline-flex
-  align-items: center
-  gap: 0.65rem
-  margin-top: 1.5rem
-  padding: 0.72rem 0.95rem
-  border: 1px solid rgba(255, 255, 255, 0.18)
-  border-radius: 999px
-  background: rgba(255, 255, 255, 0.08)
+.card-title
+  font-family: $font-serif
   color: #fff
-  font-size: 0.72rem
-  font-weight: 700
-  letter-spacing: 0.06em
-  backdrop-filter: blur(14px)
+  margin: 0
+  line-height: 1.1
+  letter-spacing: -0.02em
+  text-shadow: 0 10px 30px rgba(0,0,0,0.8)
 
-.stack-card--compact
-  .stack-card__wash
-    background: linear-gradient(0deg, rgba(7, 8, 12, 0.95), rgba(7, 8, 12, 0.24) 75%)
+// Grid Layout for expanded cards
+.card-grid-two-cols
+  display: flex
+  width: 100%
+  height: 100%
+  padding: 2.5rem
+  gap: 2.5rem
+  box-sizing: border-box
 
-  .stack-card__content
-    left: 1.6rem
-    right: 1.6rem
-    bottom: 1.65rem
+.card-col-left
+  flex: 1.2
+  display: flex
+  flex-direction: column
+  justify-content: flex-start
+  text-align: left
 
-    h2
-      font-size: 2rem
-      line-height: 1
-
-    p, .stack-card__action, .stack-card__eyebrow
-      display: none
-
-.stack-menu__item.is-focused
-  .stack-card__image
-    transform: scale(1.075)
-    filter: saturate(1.02) contrast(1.05)
+.card-col-right
+  flex: 0.8
+  display: flex
+  flex-direction: column
+  justify-content: flex-start
+  align-items: center
+  text-align: left
 
 // Enforce no underlines on links and titles
-.stack-menu, .stack-menu__item, .stack-card
-  a, Link, h2, p
+.stack-menu, .stack-menu__item, .card-content-wrapper, .card-grid-two-cols
+  a, Link, .card-title, h2, p
     text-decoration: none !important
     &:hover
       text-decoration: none !important
-
-@media (max-width: 1100px)
-  .stack-menu__stage
-    transform: scale(0.78)
-
-  .stack-menu__container
-    height: 540px
-
-@media (max-width: 720px)
-  .stack-menu
-    padding: 1rem
-
-    &__header-static
-      margin-bottom: 0
-
-    &__stage
-      transform: scale(0.54)
-
-    &__container, &__container--static
-      height: 470px
-
-  .stack-card__content h2
-    font-size: 3.4rem
