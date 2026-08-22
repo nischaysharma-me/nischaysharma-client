@@ -73,24 +73,27 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
         const distance = index - focusedIndex;
         const isFocused = distance === 0;
         const depth = Math.abs(distance);
-        const translateX = distance * 132;
-        const translateY = depth * 14;
+        const translateX = distance * 138;
+        const translateY = depth * 16;
+        const rotateX = 4 + depth * 0.7;
+        const rotateY = -10 + distance * 1.35;
+        const rotateZ = 1.8 + distance * 0.5;
 
         return (
           <motion.div
             key={item.id}
             initial={{ opacity: 0, scale: 0.94, x: 0 }}
             animate={{
-              opacity: isFocused ? 1 : 0.76,
-              scale: isFocused ? 1 : Math.max(0.88, 0.98 - depth * 0.025),
+              opacity: isFocused ? 1 : Math.max(0.42, 0.8 - depth * 0.09),
+              scale: isFocused ? 1 : Math.max(0.86, 0.97 - depth * 0.025),
               x: translateX,
               y: translateY,
-              z: isFocused ? 180 : -depth * 110,
-              rotateX: 0,
-              rotateY: 0,
-              rotateZ: 0,
-              width: isFocused ? 760 : 720,
-              height: isFocused ? 480 : 450,
+              z: isFocused ? 180 : -depth * 95,
+              rotateX,
+              rotateY,
+              rotateZ,
+              width: isFocused ? 780 : 700,
+              height: isFocused ? 490 : 450,
             }}
             onMouseEnter={() => setHoveredIndex(index)}
             whileTap={{ scale: 0.98 }}
@@ -103,7 +106,7 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
             style={{
               padding: 0,
               textDecoration: 'none',
-              zIndex: isFocused ? 100 : Math.max(1, 60 - depth),
+              zIndex: isFocused ? 1000 : Math.max(1, 100 - depth),
             }}
           >
             {item.linkType === 'external' ? (
