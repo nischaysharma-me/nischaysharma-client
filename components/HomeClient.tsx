@@ -181,7 +181,7 @@ export default function HomeClient({ profile, featured }: { profile: any; featur
           className="articles-parallax__section home-stack-section"
           style={{
             zIndex: (featured?.length || 0) + 11,
-            background: 'var(--color-black)',
+            // background: 'var(--color-black)',
             display: 'flex',
             flexDirection: 'column'
           }}
@@ -191,7 +191,7 @@ export default function HomeClient({ profile, featured }: { profile: any; featur
 
         {/* --- Profile Section --- */}
         <section className="home-profile-section" style={{ zIndex: (featured?.length || 0) + 20, position: 'relative', background: 'var(--color-bg-primary)' }}>
-            <AboutClient profile={profile} />
+          <AboutClient profile={profile} />
         </section>
       </div>
 
