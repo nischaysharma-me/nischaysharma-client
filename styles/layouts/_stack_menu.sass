@@ -14,15 +14,15 @@
     display: flex
     flex-direction: column
     justify-content: space-between
+    width: 100%
+    height: 100vh
+    height: 100dvh
     background: rgba(8, 8, 12, 0.72)
     backdrop-filter: blur(30px)
     -webkit-backdrop-filter: blur(30px)
-    padding: $spacing-md $spacing-lg
+    padding: clamp(0.75rem, 2.5vh, #{$spacing-xl}) clamp(1rem, 3vw, #{$spacing-xxl})
     overflow-y: auto
     cursor: pointer
-
-    @media (min-width: $bp-md)
-      padding: $spacing-xl $spacing-xxl
 
   &__overlay-header
     display: flex
@@ -31,7 +31,7 @@
     max-width: 1240px
     width: 100%
     margin: 0 auto
-    padding-bottom: 1.25rem
+    padding-bottom: clamp(0.65rem, 1.8vh, 1.25rem)
     border-bottom: 1px solid rgba(255, 255, 255, 0.08)
     cursor: default
 
@@ -47,7 +47,7 @@
 
     h2
       font-family: $font-serif
-      font-size: 1.5rem
+      font-size: clamp(1.15rem, 2.7vh, 1.5rem)
       font-weight: 400
       color: $color-white
       margin: 0
@@ -80,13 +80,15 @@
 
   &__viewport-modal
     flex: 1
+    min-height: 0
     display: flex
     align-items: center
     justify-content: center
     width: 100%
     max-width: 1240px
     margin: 0 auto
-    padding: 1.5rem 0
+    padding: clamp(0.5rem, 2vh, 1.5rem) 0
+    overflow: auto
     cursor: default
 
   // Static Section Mode (Homepage Section)
@@ -167,6 +169,7 @@
   -webkit-backdrop-filter: blur(24px)
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1)
   box-sizing: border-box
+  min-width: 0
 
   @media (max-width: 960px)
     grid-template-columns: 1fr
@@ -198,6 +201,7 @@
     flex-direction: column
     gap: 0.75rem
     min-width: 0
+    min-height: 0
 
   &__col-header
     display: flex
@@ -227,6 +231,7 @@
     max-height: 460px
     overflow-y: auto
     padding-right: 0.25rem
+    min-height: 0
 
     &::-webkit-scrollbar
       width: 4px
@@ -368,7 +373,9 @@
     border: 1px solid rgba(255, 255, 255, 0.08)
     border-radius: $radius-lg
     padding: 1.25rem
-    overflow: hidden
+    min-height: 0
+    overflow-x: hidden
+    overflow-y: auto
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4)
 
   &__stage-glow
@@ -393,6 +400,8 @@
     border: 1px solid rgba(255, 255, 255, 0.1)
     background: #09090d
     z-index: 1
+    flex: 0 1 210px
+    min-height: 120px
 
   &__stage-img
     width: 100%
@@ -515,3 +524,87 @@
       font-family: inherit
       font-size: 0.62rem
 
+// Keep the complete deck and its actions usable on short laptop viewports and
+// when system font scaling consumes more vertical space.
+@media (min-width: 961px)
+  .stack-menu--overlay
+    .stack-dossier
+      height: min(560px, calc(100dvh - 8.5rem))
+      min-height: 350px
+
+    .stack-dossier__list
+      max-height: none
+
+    .stack-dossier__stage-col
+      min-height: 0
+
+@media (min-width: 961px) and (max-height: 760px)
+  .stack-menu--overlay
+    .stack-menu__overlay-header .eyebrow,
+    .stack-dossier__keyboard-hints
+      display: none
+
+    .stack-dossier
+      gap: 1rem
+      padding: 1rem
+      height: calc(100dvh - 5.5rem)
+
+    .stack-dossier__item
+      padding: 0.65rem 0.85rem
+
+    .stack-dossier__stage-card
+      padding: 0.8rem
+
+    .stack-dossier__stage-frame
+      flex-basis: clamp(120px, 27vh, 175px)
+
+    .stack-dossier__stage-info
+      margin-top: 0.65rem
+
+    .stack-dossier__stage-title
+      font-size: clamp(1.1rem, 3vh, 1.35rem)
+      margin-bottom: 0.3rem
+
+    .stack-dossier__stage-desc
+      margin-bottom: 0.65rem
+      line-height: 1.4
+      -webkit-line-clamp: 2
+
+    .stack-dossier__cta
+      padding: 0.55rem 1rem
+
+@media (max-width: 960px)
+  .stack-menu--overlay
+    display: block
+
+    .stack-menu__viewport-modal
+      display: block
+      overflow: visible
+
+    .stack-dossier__stage-col
+      min-height: 0
+
+    .stack-dossier__stage-card
+      min-height: min(440px, 70dvh)
+
+@media (max-width: 560px)
+  .stack-menu__close-btn span,
+  .stack-dossier__item-subtitle,
+  .stack-dossier__item-badge,
+  .stack-dossier__keyboard-hints
+    display: none
+
+  .stack-menu__overlay-header
+    align-items: flex-start
+
+  .stack-dossier
+    padding: 0.75rem
+
+  .stack-dossier__item
+    padding-inline: 0.75rem
+
+  .stack-dossier__stage-card
+    min-height: 390px
+
+  .stack-dossier__stage-frame
+    height: 180px
