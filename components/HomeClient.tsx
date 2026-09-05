@@ -138,7 +138,7 @@ export default function HomeClient({ profile, featured }: { profile: any; featur
     <div className={`landing-container ${readingModeEnabled ? 'reading-mode-active' : ''}`}>
       <div className="articles-parallax">
         {/* --- Hero Section --- */}
-        <section className={`landing ${readingModeEnabled ? 'reading-mode-active' : ''}`} style={{ zIndex: 1, height: '100vh', position: 'relative', scrollSnapAlign: 'start' }}>
+        <section className={`landing ${readingModeEnabled ? 'reading-mode-active' : ''}`} style={{ zIndex: 1, position: 'relative', scrollSnapAlign: 'start' }}>
           <div className="landing__bg" />
 
           <section className="landing__hero">
@@ -198,7 +198,8 @@ export default function HomeClient({ profile, featured }: { profile: any; featur
       <style jsx global>{`
         .home-profile-section, .home-stack-section {
             scroll-snap-align: start;
-            height: 100vh;
+            min-height: 100vh;
+            min-height: 100dvh;
         }
         .home-profile-section .landing-container {
             padding-top: 4rem;
