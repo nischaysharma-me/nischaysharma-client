@@ -15,6 +15,7 @@
     top: 0
     width: 100%
     height: 100vh
+    height: 100dvh
     overflow: hidden
     display: flex
     align-items: center
@@ -109,6 +110,7 @@
     transform: scale(0.95) translateY(20px)
     transition: opacity 1s ease-out, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)
     transition-delay: 0.2s
+    max-height: 100dvh
     
     // Reading mode scroll margin fix
     &.reading-mode-enabled
@@ -287,3 +289,90 @@
           font-size: 0.8rem
         @media (min-width: 768px)
           font-size: 0.875rem
+
+  // Windows display scaling reduces the CSS viewport even on wide screens.
+  // Height-aware rules keep the primary action inside the parallax frame.
+  @media (min-width: 769px) and (max-height: 800px)
+    &__content
+      gap: clamp(.7rem, 2.2vh, 1.25rem)
+      padding: clamp(4.5rem, 11vh, 5.75rem) 1.5rem clamp(1rem, 3vh, 1.75rem)
+
+      &.reading-mode-active
+        gap: clamp(.8rem, 2.4vh, 1.4rem)
+        padding: clamp(4.5rem, 11vh, 5.75rem) 1.5rem clamp(1rem, 3vh, 1.75rem)
+
+    &__main-info, &__main-info.reading-mode-active
+      gap: clamp(.45rem, 1.6vh, .85rem)
+
+    &__eyebrow, &__eyebrow.reading-mode-active
+      font-size: clamp(.48rem, 1.25vh, .6rem)
+      letter-spacing: .38em
+
+    &__title, &__title.reading-mode-active
+      font-size: clamp(1.55rem, 6.5vh, 3rem)
+      line-height: 1.03
+      display: -webkit-box
+      -webkit-box-orient: vertical
+      -webkit-line-clamp: 3
+      overflow: hidden
+
+    &__description
+      font-size: clamp(.76rem, 2vh, .95rem)
+      line-height: 1.45
+      max-width: 58ch
+      display: -webkit-box
+      -webkit-box-orient: vertical
+      -webkit-line-clamp: 3
+      overflow: hidden
+
+    &__preview-col, &__preview-col.reading-mode-active
+      gap: clamp(.65rem, 2vh, 1.15rem)
+      margin-top: 0
+
+    &__preview-text, &__preview-text.reading-mode-active
+      max-height: clamp(48px, 12vh, 88px)
+      font-size: clamp(.68rem, 1.7vh, .78rem)
+      line-height: 1.55
+
+    &__link
+      gap: .65rem
+      padding: clamp(.7rem, 1.8vh, .9rem) clamp(1.5rem, 3.8vw, 2.25rem)
+      font-size: clamp(.58rem, 1.35vh, .7rem)
+
+    &.reading-mode-active .articles-parallax__content
+      .articles-parallax__description
+        font-size: clamp(.8rem, 2.15vh, 1rem)
+        line-height: 1.5
+
+      .articles-parallax__link
+        padding: clamp(.72rem, 1.9vh, .95rem) clamp(1.6rem, 4vw, 2.4rem)
+        font-size: clamp(.6rem, 1.4vh, .72rem)
+
+  @media (min-width: 769px) and (max-height: 620px)
+    &__content, &__content.reading-mode-active
+      gap: .7rem
+      padding-top: 3.75rem
+      padding-bottom: .65rem
+
+    &__preview-text, &__preview-text.reading-mode-active
+      display: none
+
+    &__title, &__title.reading-mode-active
+      font-size: clamp(1.35rem, 6vh, 2.2rem)
+      -webkit-line-clamp: 2
+
+    &__description
+      font-size: .76rem
+      line-height: 1.35
+      -webkit-line-clamp: 2
+
+    &__link
+      padding: .62rem 1.5rem
+
+    &.reading-mode-active .articles-parallax__content
+      .articles-parallax__description
+        font-size: .8rem
+        line-height: 1.4
+
+      .articles-parallax__link
+        padding: .65rem 1.6rem
