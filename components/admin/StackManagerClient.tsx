@@ -119,8 +119,8 @@ export default function StackManagerClient() {
         {/* Left Column: Form */}
         <aside className="stack-admin__form-container">
           <Card padded className="form-premium">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-lg">
+            <div className="stack-admin__form-header">
+              <h3>
                 {editingItem ? 'Edit Resource' : 'Add New Resource'}
               </h3>
               {editingItem && (
@@ -129,7 +129,7 @@ export default function StackManagerClient() {
                 </Button>
               )}
             </div>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="stack-admin__form">
               <div className="form-group">
                 <label className="label">Title</label>
                 <input
@@ -169,14 +169,14 @@ export default function StackManagerClient() {
               <div className="form-group">
                 <label className="label">Visual Description (AI Prompt)</label>
                 <textarea
-                  className="input h-24 py-3"
+                  className="input stack-admin__textarea"
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                   placeholder="Describe the 3D graphic for this card. e.g. 'A futuristic crystal library with glowing books'..."
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="stack-admin__form-grid">
                 <div className="form-group">
                   <label className="label">Icon Class</label>
                   <input
@@ -188,9 +188,9 @@ export default function StackManagerClient() {
                 </div>
                 <div className="form-group">
                   <label className="label">Accent Color</label>
-                  <div className="flex gap-2">
+                  <div className="stack-admin__color-field">
                     <input
-                      className="input p-1 h-10 w-full"
+                      className="input stack-admin__color-input"
                       type="color"
                       value={formData.color}
                       onChange={(e) => setFormData({...formData, color: e.target.value})}
@@ -209,7 +209,7 @@ export default function StackManagerClient() {
                 />
               </div>
 
-              <Button type="submit" loading={loading} variant="primary" className="mt-2">
+              <Button type="submit" loading={loading} variant="primary" className="stack-admin__submit">
                 <i className={`ph ${editingItem ? 'ph-check-circle' : 'ph-plus-circle'} mr-2`} />
                 {editingItem ? 'Update Item' : 'Add to Stack'}
               </Button>
@@ -220,14 +220,14 @@ export default function StackManagerClient() {
         {/* Right Column: Grid */}
         <div className="stack-admin__grid">
           {items.length === 0 && !loading && (
-            <div className="col-span-full py-20 text-center">
-              <i className="ph ph-stack-overflow text-6xl text-gray-200 mb-4" />
-              <p className="text-gray-400 font-medium">No resources in your stack yet.</p>
+            <div className="stack-admin__empty">
+              <i className="ph ph-stack-overflow" />
+              <p>No resources in your stack yet.</p>
             </div>
           )}
 
           {items.map((item) => (
-            <div key={item.id} className={`stack-admin__card ${editingItem === item.id ? 'ring-2 ring-primary' : ''}`}>
+            <div key={item.id} className={`stack-admin__card ${editingItem === item.id ? 'is-editing' : ''}`}>
               <div className="stack-admin__card-preview">
                 {item.imageUrl ? (
                   <img src={item.imageUrl} alt={item.title} />
@@ -238,7 +238,7 @@ export default function StackManagerClient() {
                 )}
 
                 <div
-                  className="absolute inset-0 opacity-20"
+                  className="stack-admin__card-tint"
                   style={{ backgroundColor: item.color }}
                 />
 
@@ -267,7 +267,9 @@ export default function StackManagerClient() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEdit(item)}
-                      className={editingItem === item.id ? 'text-primary' : 'text-gray-400'}
+                      className={editingItem === item.id ? 'action-btn is-active' : 'action-btn'}
+                      aria-label={`Edit ${item.title}`}
+                      title="Edit item"
                     >
                       <i className="ph ph-pencil-simple text-lg" />
                     </Button>
@@ -275,7 +277,9 @@ export default function StackManagerClient() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleToggleActive(item.id, item.isActive)}
-                      className={item.isActive ? 'text-primary' : 'text-gray-400'}
+                      className={item.isActive ? 'action-btn is-active' : 'action-btn'}
+                      aria-label={`${item.isActive ? 'Hide' : 'Publish'} ${item.title}`}
+                      title={item.isActive ? 'Hide item' : 'Publish item'}
                     >
                       <i className={`ph ${item.isActive ? 'ph-eye' : 'ph-eye-slash'} text-lg`} />
                     </Button>
@@ -283,7 +287,9 @@ export default function StackManagerClient() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDelete(item.id)}
-                      className="text-red-500 hover:bg-red-50"
+                      className="action-btn action-btn--danger"
+                      aria-label={`Delete ${item.title}`}
+                      title="Delete item"
                     >
                       <i className="ph ph-trash text-lg" />
                     </Button>
@@ -299,7 +305,7 @@ export default function StackManagerClient() {
                   </div>
                 </div>
 
-                <div className="stack-admin__card-footer mt-auto">
+                <div className="stack-admin__card-footer">
                   <div className={`status-pill ${item.isActive ? 'status-pill--active' : 'status-pill--inactive'}`}>
                     <span className="dot" />
                     {item.isActive ? 'Published' : 'Draft'}

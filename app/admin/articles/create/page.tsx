@@ -19,8 +19,16 @@ export default function CreateArticlePage() {
   const [content, setContent] = useState('');
 
   const handleCreate = async () => {
-    if (!title || !content) {
-      toast.error('Title and Content are required');
+    const normalizedTitle = title.trim();
+    const normalizedContent = content.trim();
+
+    if (!normalizedTitle) {
+      toast.error('Article title is required');
+      return;
+    }
+
+    if (!normalizedContent) {
+      toast.error('Article content is required');
       return;
     }
 
@@ -30,9 +38,9 @@ export default function CreateArticlePage() {
       if (!token) throw new Error('No authentication token');
 
       const response = await articlesService.createArticle({
-        title,
-        description,
-        content,
+        title: normalizedTitle,
+        description: description.trim(),
+        content: normalizedContent,
         status: 'draft',
         access: 'free'
       }, token);

@@ -25,9 +25,12 @@ const lowlight = createLowlight(common);
 
 interface TiptapEditorProps {
   content: string;
-  onChange: (html: string) => void;
+  onChange: (content: string) => void;
   isCompact?: boolean;
 }
+
+const getContentType = (content: string): 'html' | 'markdown' =>
+  /<([a-z][\w-]*)(?:\s[^>]*)?>/i.test(content) ? 'html' : 'markdown';
 
 const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProps) => {
   const [isRawMode, setIsRawMode] = useState(false);
@@ -95,9 +98,10 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
       }),
     ],
     content: content,
+    contentType: getContentType(content),
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      const markdown = (editor.storage as any).markdown?.getMarkdown?.() || '';
+      const markdown = editor.isEmpty ? '' : editor.getMarkdown();
       setRawHtml(markdown);
       onChange(markdown);
     },
@@ -179,10 +183,13 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
   };
 
   useEffect(() => {
-    if (editor && (editor.storage as any)?.markdown?.getMarkdown) {
-      const currentMarkdown = (editor.storage as any).markdown.getMarkdown();
+    if (editor) {
+      const currentMarkdown = editor.isEmpty ? '' : editor.getMarkdown();
       if (content !== currentMarkdown) {
-        editor.commands.setContent(content, { emitUpdate: false });
+        editor.commands.setContent(content, {
+          emitUpdate: false,
+          contentType: getContentType(content),
+        });
       }
     }
   }, [content, editor]);
@@ -206,10 +213,10 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
   const toggleRawMode = () => {
     if (isRawMode) {
       // Switching from Raw to Visual
-      editor.commands.setContent(rawHtml);
+      editor.commands.setContent(rawHtml, { contentType: getContentType(rawHtml) });
     } else {
       // Switching from Visual to Raw
-      setRawHtml(editor.getHTML());
+      setRawHtml(editor.isEmpty ? '' : editor.getMarkdown());
     }
     setIsRawMode(!isRawMode);
   };
