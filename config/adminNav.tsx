@@ -47,6 +47,11 @@ export const primaryNavItems: NavItem[] = [
     href: '/admin/stack',
     icon: <i className="ph ph-stack" />
   },
+  {
+    name: 'Prompt Library',
+    href: '/admin/prompt-library',
+    icon: <i className="ph ph-brackets-curly" />
+  },
 ];
 
 export const secondaryNavItems: NavItem[] = [
