@@ -46,8 +46,16 @@ export default function PromptLibraryClient() {
     try {
       const response = await promptsService.list(await requireToken());
       const nextPrompts = response.data || [];
+      const searchParams = new URLSearchParams(window.location.search);
+      const requestedPrompt = searchParams.get('prompt');
+      const requestedCategory = searchParams.get('category');
       setPrompts(nextPrompts);
-      setSelectedKey((current) => current || nextPrompts[0]?.key || '');
+      setSelectedKey((current) => (
+        current || (requestedPrompt && nextPrompts.some((prompt) => prompt.key === requestedPrompt) ? requestedPrompt : nextPrompts[0]?.key) || ''
+      ));
+      if (requestedCategory && nextPrompts.some((prompt) => prompt.category === requestedCategory)) {
+        setCategory(requestedCategory);
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unable to load prompts');
     } finally {
@@ -174,7 +182,7 @@ export default function PromptLibraryClient() {
       <header className="prompt-library__header">
         <div className="dashboard__title">
           <h2>Prompt Library</h2>
-          <p>Edit the instructions used by article, book, image, social, and conversation generation.</p>
+          <p>Edit the instructions used by articles, posts, LinkedIn media, books, images, and conversations.</p>
         </div>
         <Button variant="outline" onClick={resetAll} disabled={loading || saving}>Reset all defaults</Button>
       </header>

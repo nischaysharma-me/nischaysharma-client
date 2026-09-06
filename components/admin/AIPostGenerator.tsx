@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/Textarea';
 import { Select } from '@/components/ui/Select';
 import { Card } from '@/components/ui/Card';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 interface AIPostGeneratorProps {
   onGenerated: (post: Post) => void;
@@ -71,7 +72,7 @@ export default function AIPostGenerator({ onGenerated, onClose }: AIPostGenerato
           <Textarea label="Additional direction" value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Mention the feedback loop; avoid buzzwords…" />
         </div>
         <div className="posts-admin__generator-footer">
-          <small>Uses the editable <strong>post.generate</strong> prompt from Prompt Library.</small>
+          <small>Uses the editable <Link href="/admin/prompt-library?prompt=post.generate"><strong>post.generate</strong></Link> prompt.</small>
           <Button type="submit" loading={generating} leftIcon={<i className="ph ph-sparkle" />}>Generate draft</Button>
         </div>
       </form>
