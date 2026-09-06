@@ -10,12 +10,16 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { toast } from 'sonner';
 import { useDialogStore } from '@/store/useDialogStore';
+import { useRouter } from 'next/navigation';
+import AIPostGenerator from '@/components/admin/AIPostGenerator';
 
 export default function PostsAdminClient() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [showGenerator, setShowGenerator] = useState(false);
   const { openDialog } = useDialogStore();
+  const router = useRouter();
 
   const loadPosts = useCallback(async () => {
     try {
@@ -79,10 +83,21 @@ export default function PostsAdminClient() {
           <h2>Posts</h2>
           <p>Create short-form updates for your site and distribute them to LinkedIn.</p>
         </div>
-        <Link className="btn btn--primary btn--sm" href="/admin/posts/create">
-          <i className="ph ph-plus" /> New post
-        </Link>
+        <div className="posts-admin__title-actions">
+          <Button variant="secondary" size="sm" onClick={() => setShowGenerator((visible) => !visible)} leftIcon={<i className="ph ph-sparkle" />}>AI generate</Button>
+          <Link className="btn btn--primary btn--sm" href="/admin/posts/create"><i className="ph ph-plus" /> New post</Link>
+        </div>
       </div>
+
+      {showGenerator && (
+        <AIPostGenerator
+          onClose={() => setShowGenerator(false)}
+          onGenerated={(post) => {
+            setPosts((current) => [post, ...current]);
+            router.push(`/admin/posts/${post.id}`);
+          }}
+        />
+      )}
 
       <Card className="posts-admin__list" padded={false}>
         <div className="posts-admin__list-heading">

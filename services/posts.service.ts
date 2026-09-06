@@ -22,6 +22,9 @@ export const postsService = {
   create: (data: PostInput, token: string): Promise<ActionResponse<Post>> =>
     apiFetch<ActionResponse<Post>>('/posts', { method: 'POST', token, body: data }),
 
+  generate: (data: { topic: string; tone: string; instructions?: string }, token: string): Promise<ActionResponse<Post>> =>
+    apiFetch<ActionResponse<Post>>('/posts/generate', { method: 'POST', token, body: data }),
+
   update: (id: string, data: Partial<PostInput>, token: string): Promise<ActionResponse<Post>> =>
     apiFetch<ActionResponse<Post>>(`/posts/${id}`, { method: 'PATCH', token, body: data }),
 
