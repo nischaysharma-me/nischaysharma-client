@@ -31,7 +31,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Sync active tab with pathname
   useEffect(() => {
-    const activeItem = [...primaryNavItems, ...secondaryNavItems].find(item => item.href === pathname);
+    const activeItem = [...primaryNavItems, ...secondaryNavItems].find((item) => (
+      pathname === item.href || (item.href !== '/admin' && pathname.startsWith(`${item.href}/`))
+    ));
     if (activeItem) {
       setActiveAdminTab(activeItem.name);
     }
@@ -44,7 +46,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => pathname === href || (href !== '/admin' && pathname.startsWith(`${href}/`));
+  const isPostsArea = pathname.startsWith('/admin/posts');
 
   return (
     <div className="dashboard">
@@ -124,9 +127,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <i className="ph ph-arrow-square-out" />
               <span>View Site</span>
             </Link>
-            <Link href="/admin/articles/create" className="btn btn--primary">
+            <Link href={isPostsArea ? '/admin/posts/create' : '/admin/articles/create'} className="btn btn--primary">
               <i className="ph ph-plus" />
-              <span>Create Article</span>
+              <span>{isPostsArea ? 'Create Post' : 'Create Article'}</span>
             </Link>
             <NotificationBell />
           </div>
