@@ -6,7 +6,7 @@ const promptPath = (key: string) => `/prompts/${encodeURIComponent(key)}`;
 
 export const promptsService = {
   list: (token: string): Promise<ActionResponse<PromptDefinition[]>> =>
-    apiFetch('/prompts', { method: 'GET', token }),
+    apiFetch(`/prompts?refresh=${Date.now()}`, { method: 'GET', token, cache: 'no-store' }),
 
   update: (key: string, template: string, token: string): Promise<ActionResponse<PromptDefinition>> =>
     apiFetch(promptPath(key), { method: 'PUT', token, body: { template } }),

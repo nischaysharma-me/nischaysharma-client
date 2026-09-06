@@ -65,6 +65,9 @@ export default function PromptLibraryClient() {
 
   useEffect(() => { loadPrompts(); }, [loadPrompts]);
   useEffect(() => {
+    if (!categories.includes(category)) setCategory('All');
+  }, [categories, category]);
+  useEffect(() => {
     if (selected) {
       setDraft(selected.template);
       setPreview('');
@@ -197,6 +200,13 @@ export default function PromptLibraryClient() {
             <select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by category">
               {categories.map((item) => <option key={item}>{item}</option>)}
             </select>
+            <div className="prompt-library__quick-filters" aria-label="Generation prompt categories">
+              {['Posts', 'LinkedIn'].filter((item) => categories.includes(item)).map((item) => (
+                <button type="button" key={item} className={category === item ? 'is-active' : ''} onClick={() => setCategory(item)}>
+                  <i className={`ph ${item === 'Posts' ? 'ph-note-pencil' : 'ph-linkedin-logo'}`} /> {item}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="prompt-library__list">
             {loading && <p className="prompt-library__empty">Loading prompt catalog…</p>}

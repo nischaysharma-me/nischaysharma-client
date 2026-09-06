@@ -61,6 +61,31 @@
       background: transparent
       color: $color-text-primary
 
+  &__quick-filters
+    display: grid
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+    gap: .45rem
+
+    button
+      display: flex
+      align-items: center
+      justify-content: center
+      gap: .35rem
+      min-height: 2.2rem
+      padding: 0 .55rem
+      color: $color-text-secondary
+      background: $color-bg-secondary
+      border: 1px solid $color-border
+      border-radius: $radius-md
+      cursor: pointer
+      font-size: .72rem
+      font-weight: 700
+
+      &.is-active
+        color: $color-white
+        background: $color-text-primary
+        border-color: $color-text-primary
+
   &__list
     min-height: 0
     overflow-y: auto
