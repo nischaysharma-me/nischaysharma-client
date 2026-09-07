@@ -494,6 +494,7 @@
     text-transform: uppercase
     letter-spacing: 0.08em
     text-decoration: none
+    min-height: 44px
     box-shadow: 0 4px 18px rgba(255, 255, 255, 0.18)
     @include transition(all)
 
@@ -694,6 +695,25 @@
 
     .stack-dossier__stage-card
       min-height: min(440px, 70dvh)
+
+@media (max-width: 760px)
+  .home-stack-section
+    position: relative
+    height: auto
+    min-height: 100dvh
+    align-items: flex-start
+    overflow: visible
+
+  .stack-menu--static
+    min-height: 100dvh
+    justify-content: flex-start
+    padding: max(7rem, calc(6rem + env(safe-area-inset-top))) 1rem max(2rem, env(safe-area-inset-bottom))
+
+    .stack-menu__header-static
+      margin-bottom: 1.5rem
+
+    .stack-menu__viewport-static
+      flex: 0 0 auto
 
 @media (max-width: 560px)
   .stack-menu__close-btn span,

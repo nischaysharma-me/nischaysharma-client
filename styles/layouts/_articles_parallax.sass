@@ -111,6 +111,17 @@
     transition: opacity 1s ease-out, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1)
     transition-delay: 0.2s
     max-height: 100dvh
+
+    @media (max-width: 760px)
+      box-sizing: border-box
+      justify-content: flex-start
+      height: 100%
+      max-height: 100%
+      padding-top: max(8rem, calc(7rem + env(safe-area-inset-top)))
+      padding-bottom: max(1.25rem, env(safe-area-inset-bottom))
+      overflow-x: hidden
+      overflow-y: auto
+      overscroll-behavior: contain
     
     // Reading mode scroll margin fix
     &.reading-mode-enabled
@@ -246,6 +257,7 @@
     color: $color-black
     border-radius: $radius-pill
     text-decoration: none
+    min-height: 44px
     font-size: 0.6rem
     @media (min-width: 480px)
       font-size: 0.65rem
