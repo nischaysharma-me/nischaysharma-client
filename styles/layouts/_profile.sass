@@ -136,3 +136,42 @@
   .modal-overlay
     .card
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)
+
+@media (max-width: 768px)
+  .profile-admin__split-field
+    min-width: 0 !important
+
+  .profile-modal
+    min-height: 0
+
+    > div:first-child,
+    > div:last-child
+      flex-wrap: wrap
+      gap: .75rem !important
+      padding: 1rem !important
+
+    > div:nth-child(2)
+      padding: 1rem !important
+
+    h3
+      min-width: 0
+      font-size: 1.15rem !important
+      overflow-wrap: anywhere
+
+    &__grid
+      grid-template-columns: minmax(0, 1fr) !important
+      gap: 1rem !important
+      margin-bottom: 1.5rem !important
+
+      > [style*='grid-column']
+        grid-column: auto !important
+
+    &__row
+      align-items: stretch !important
+      flex-direction: column
+
+    [style*='padding: 2.5rem']
+      padding: 1rem !important
+
+    &--compact
+      align-self: center

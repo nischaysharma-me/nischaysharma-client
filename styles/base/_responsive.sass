@@ -1,0 +1,58 @@
+// Shared interaction and viewport guarantees for touch devices and narrow screens.
+html
+  min-width: 0
+  min-height: 100%
+  -webkit-text-size-adjust: 100%
+  text-size-adjust: 100%
+
+body
+  min-width: 0
+  min-height: 100vh
+  min-height: 100dvh
+
+button,
+[role='button'],
+input[type='button'],
+input[type='submit'],
+input[type='reset'],
+summary
+  touch-action: manipulation
+  -webkit-tap-highlight-color: transparent
+
+@media (max-width: 768px), (pointer: coarse)
+  button,
+  [role='button'],
+  input[type='button'],
+  input[type='submit'],
+  input[type='reset'],
+  summary
+    min-inline-size: 44px
+    min-block-size: 44px
+
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+  select,
+  textarea
+    min-block-size: 44px
+    font-size: 16px
+
+  .modal-overlay
+    align-items: flex-start !important
+    overflow-x: hidden
+    overflow-y: auto
+    overscroll-behavior: contain
+    padding: max(.75rem, env(safe-area-inset-top)) max(.75rem, env(safe-area-inset-right)) max(.75rem, env(safe-area-inset-bottom)) max(.75rem, env(safe-area-inset-left)) !important
+
+    > .card
+      width: 100% !important
+      max-width: 100% !important
+      max-height: calc(100dvh - 1.5rem) !important
+      overflow-y: auto
+      overscroll-behavior: contain
+      border-radius: 1rem !important
+
+@media (max-width: 380px)
+  .modal-overlay
+    padding: max(.5rem, env(safe-area-inset-top)) max(.5rem, env(safe-area-inset-right)) max(.5rem, env(safe-area-inset-bottom)) max(.5rem, env(safe-area-inset-left)) !important
+
+    > .card
+      max-height: calc(100dvh - 1rem) !important

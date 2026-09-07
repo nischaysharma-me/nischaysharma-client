@@ -27,6 +27,7 @@ export default function Header() {
         <button
           onClick={toggleStackMenu}
           className="landing__logo"
+          aria-label="Open stack menu"
           style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit' }}
         >
           <i className="ph ph-stack" style={{ fontSize: '1.5rem' }} />
@@ -40,6 +41,7 @@ export default function Header() {
       <button
         onClick={toggle}
         className="landing__menu-btn"
+        aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
         style={{ justifySelf: 'end', background: 'none', border: 'none', cursor: 'pointer' }}
       >
         {isOpen ? 'Close' : 'Menu'}

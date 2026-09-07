@@ -566,11 +566,13 @@
 
 @media (max-width: 760px)
   .linkedin-composer
-    padding: 0
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)
     &__panel
       height: 100dvh
       max-height: none
       border-radius: 0
+    &__header
+      padding: .8rem 1rem
     &__formats
       padding: .75rem
       > button
@@ -591,7 +593,7 @@
       overflow: visible
       padding: 1rem
     &__footer
-      padding: .75rem
+      padding: .75rem max(.75rem, env(safe-area-inset-right)) max(.75rem, env(safe-area-inset-bottom)) max(.75rem, env(safe-area-inset-left))
       span
         display: none
       button
@@ -601,8 +603,26 @@
     &__actions
       grid-column: 2
       flex-direction: row
+      button
+        width: 2.75rem
+        height: 2.75rem
   .linkedin-composer--page
-    height: calc(100dvh - 5rem)
-    min-height: 560px
+    height: calc(100dvh - 4.5rem)
+    min-height: 0
     .linkedin-composer__panel
       height: 100%
+
+@media (max-width: 380px)
+  .linkedin-composer
+    &__formats
+      gap: .35rem
+      > button
+        min-width: 0
+        padding: .55rem .3rem
+    &__editor,
+    &__preview
+      padding: .75rem
+
+  .linkedin-slide-editor
+    grid-template-columns: 1.25rem minmax(0, 1fr)
+    padding: .55rem

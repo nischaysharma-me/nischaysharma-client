@@ -45,6 +45,7 @@ export const ChatInput = ({ onSend, sending }: ChatInputProps) => {
           className="send-btn" 
           onClick={handleSend}
           disabled={!input.trim() || sending}
+          aria-label={sending ? 'Sending message' : 'Send message'}
         >
           {sending ? (
             <i className="ph ph-spinner animate-spin" style={{ fontSize: '1rem' }} />

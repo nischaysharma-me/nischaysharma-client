@@ -118,8 +118,8 @@
       display: flex
       align-items: center
       justify-content: center
-      width: 2rem
-      height: 2rem
+      width: 2.75rem
+      height: 2.75rem
       color: $color-text-primary
       margin-left: -0.5rem
 
@@ -259,6 +259,9 @@
     width: calc(100% - 1.5rem)
     max-width: 800px
     z-index: 20
+
+    @media (max-width: 767px)
+      bottom: max(0.75rem, env(safe-area-inset-bottom))
     
     @media (min-width: 768px)
       bottom: 1.5rem
@@ -296,8 +299,8 @@
         outline: none
 
     .send-btn
-      width: 2.25rem
-      height: 2.25rem
+      width: 2.75rem
+      height: 2.75rem
       border-radius: 50%
       background-color: $color-text-primary
       color: $color-white

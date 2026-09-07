@@ -22,6 +22,7 @@
     -webkit-backdrop-filter: blur(30px)
     padding: clamp(0.75rem, 2.5vh, #{$spacing-xl}) clamp(1rem, 3vw, #{$spacing-xxl})
     overflow-y: auto
+    overscroll-behavior: contain
     cursor: pointer
 
   &__overlay-header
@@ -95,6 +96,7 @@
   &--static
     position: relative
     min-height: 100vh
+    min-height: 100dvh
     display: flex
     flex-direction: column
     align-items: center
