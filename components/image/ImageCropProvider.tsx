@@ -243,7 +243,13 @@ export function ImageCropProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const cropImageUrl = useCallback(async (url: string, options: CropOptions = {}) => {
-    const response = await fetch(url, { mode: 'cors', credentials: 'omit' });
+    let response: Response;
+    try {
+      response = await fetch(url, { mode: 'cors', credentials: 'omit' });
+      if (!response.ok) throw new Error('Direct image download failed');
+    } catch {
+      response = await fetch(`/api/image-proxy?url=${encodeURIComponent(url)}`, { credentials: 'same-origin' });
+    }
     if (!response.ok) throw new Error('The current image could not be downloaded for cropping');
     const blob = await response.blob();
     const mimeType = blob.type.startsWith('image/') ? blob.type : 'image/jpeg';
