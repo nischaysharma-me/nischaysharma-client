@@ -1,14 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useStackStore } from '@/store/admin/useStackStore';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { toast } from 'sonner';
+import { auth } from '@/lib/firebase';
+import { usersService } from '@/services/users.service';
+import { useImageCrop } from '@/components/image/ImageCropProvider';
 
 export default function StackManagerClient() {
   const { items, loading, fetchItems, addItem, updateItem, deleteItem, generateImage, processingId } = useStackStore();
   const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const { cropImageUrl } = useImageCrop();
   const [formData, setFormData] = useState({
     title: '',
     link: '',
@@ -16,6 +22,7 @@ export default function StackManagerClient() {
     icon: 'ph-link',
     color: '#000000',
     description: '',
+    imageUrl: '',
     order: 0,
     isActive: true
   });
@@ -53,6 +60,7 @@ export default function StackManagerClient() {
       icon: 'ph-link',
       color: '#000000',
       description: '',
+      imageUrl: '',
       order: 0,
       isActive: true
     });
@@ -67,6 +75,7 @@ export default function StackManagerClient() {
       icon: item.icon,
       color: item.color,
       description: item.description || '',
+      imageUrl: item.imageUrl || '',
       order: item.order,
       isActive: item.isActive
     });
@@ -94,6 +103,34 @@ export default function StackManagerClient() {
     const success = await generateImage(id, prompt);
     if (success) {
       toast.success('AI Image generation started');
+    }
+  };
+
+  const handleImageUpload = async (file?: File) => {
+    if (!file) return;
+    try {
+      setUploadingImage(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error('No authentication token');
+      const response = await usersService.uploadAsset(file, 'stack', token);
+      if (!response.success || !response.url) throw new Error('Upload failed');
+      setFormData((current) => ({ ...current, imageUrl: response.url }));
+      toast.success('Cropped stack image uploaded');
+    } catch (error) {
+      toast.error(`Image upload failed: ${(error as Error).message}`);
+    } finally {
+      setUploadingImage(false);
+      if (imageInputRef.current) imageInputRef.current.value = '';
+    }
+  };
+
+  const handleCropCurrentImage = async () => {
+    if (!formData.imageUrl) return;
+    try {
+      const cropped = await cropImageUrl(formData.imageUrl, { aspect: 16 / 9, label: 'stack card image', maxWidth: 1800 });
+      if (cropped) await handleImageUpload(cropped);
+    } catch (error) {
+      toast.error(`Unable to crop current image: ${(error as Error).message}`);
     }
   };
 
@@ -173,6 +210,33 @@ export default function StackManagerClient() {
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                   placeholder="Describe the 3D graphic for this card. e.g. 'A futuristic crystal library with glowing books'..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="label">Card Image</label>
+                {formData.imageUrl && (
+                  <img src={formData.imageUrl} alt="Stack card preview" style={{ width: '100%', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: '0.75rem', marginBottom: '0.75rem' }} />
+                )}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <Button type="button" variant="secondary" size="sm" onClick={() => imageInputRef.current?.click()} loading={uploadingImage}>
+                    <i className="ph ph-upload-simple mr-2" /> Upload & Crop
+                  </Button>
+                  {formData.imageUrl && (
+                    <Button type="button" variant="secondary" size="sm" onClick={handleCropCurrentImage} disabled={uploadingImage}>
+                      <i className="ph ph-crop mr-2" /> Crop Current
+                    </Button>
+                  )}
+                </div>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  data-crop-aspect="16/9"
+                  data-crop-label="stack card image"
+                  data-crop-max-width="1800"
+                  onChange={(event) => handleImageUpload(event.target.files?.[0])}
                 />
               </div>
 

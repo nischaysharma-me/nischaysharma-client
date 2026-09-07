@@ -9,6 +9,7 @@ import { Dialog } from "@/components/ui/Dialog";
 import NavigationWrapper from "@/components/NavigationWrapper";
 import { ReadingModeProvider } from "@/components/ReadingModeProvider";
 import { GoogleTagManager } from '@next/third-parties/google';
+import { ImageCropProvider } from '@/components/image/ImageCropProvider';
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -137,14 +138,16 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${merriweather.variable} font-sans antialiased`}
       >
         <ReadingModeProvider>
-          <SplashLoader />
-          <Toaster position="top-right" richColors expand closeButton />
-          <Dialog />
-          <RealtimeNotificationHandler />
-          <NavigationWrapper />
-          <SmoothScrollProvider>
-            {children}
-          </SmoothScrollProvider>
+          <ImageCropProvider>
+            <SplashLoader />
+            <Toaster position="top-right" richColors expand closeButton />
+            <Dialog />
+            <RealtimeNotificationHandler />
+            <NavigationWrapper />
+            <SmoothScrollProvider>
+              {children}
+            </SmoothScrollProvider>
+          </ImageCropProvider>
         </ReadingModeProvider>
       </body>
     </html>
