@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# nischaysharma.com Client
 
-## Getting Started
+The Next.js client for nischaysharma.com, including the public portfolio and content experience plus the authenticated writing and distribution studio.
 
-First, run the development server:
+## Current Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Public articles, documentation, books, and paginated short-form post feed.
+- Admin article and post management with draft, published, and archived states.
+- AI post draft generation with selectable tone and custom instructions.
+- AI image generation for post covers and LinkedIn assets.
+- LinkedIn text, image, and document/carousel composition for articles and posts.
+- Per-slide images and bulk generation of missing carousel images.
+- Admin Prompt Library for editable article, post, and LinkedIn generation templates.
+- Responsive navigation, stack menu, modals, and admin workspaces.
+
+## Important Routes
+
+| Route | Purpose |
+| --- | --- |
+| `/posts` | Public short-form post feed |
+| `/admin/posts` | Post management |
+| `/admin/posts/create` | Manual and AI-assisted post creation |
+| `/admin/posts/:id` | Post editor and image generation |
+| `/admin/posts/:id/post/linkedin` | LinkedIn composer for a post |
+| `/admin/articles/:id/post/linkedin` | LinkedIn composer for an article |
+| `/admin/prompt-library` | Prompt defaults, overrides, history, preview, and reset |
+| `/docs` | Documentation rendered from the server repository |
+
+## Local Development
+
+Requirements:
+
+- Node.js and npm
+- A running `nischaysharma-server`
+- Firebase web credentials
+
+Copy `.env.example` to `.env.local`, supply the Firebase values, and set `NEXT_PUBLIC_API_URL` to the server API. The server normally runs on port 3002 in this workspace, so a typical value is:
+
+```dotenv
+NEXT_PUBLIC_API_URL=http://localhost:3002/api/v1
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Install dependencies and start the app:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+## Verification
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npx tsc --noEmit
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The backend documentation includes the Posts API, LinkedIn publishing formats, Prompt Library behavior, and operational setup notes.
