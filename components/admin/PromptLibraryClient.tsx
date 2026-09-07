@@ -46,8 +46,16 @@ export default function PromptLibraryClient() {
     try {
       const response = await promptsService.list(await requireToken());
       const nextPrompts = response.data || [];
+      const searchParams = new URLSearchParams(window.location.search);
+      const requestedPrompt = searchParams.get('prompt');
+      const requestedCategory = searchParams.get('category');
       setPrompts(nextPrompts);
-      setSelectedKey((current) => current || nextPrompts[0]?.key || '');
+      setSelectedKey((current) => (
+        current || (requestedPrompt && nextPrompts.some((prompt) => prompt.key === requestedPrompt) ? requestedPrompt : nextPrompts[0]?.key) || ''
+      ));
+      if (requestedCategory && nextPrompts.some((prompt) => prompt.category === requestedCategory)) {
+        setCategory(requestedCategory);
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unable to load prompts');
     } finally {
@@ -56,6 +64,9 @@ export default function PromptLibraryClient() {
   }, [requireToken]);
 
   useEffect(() => { loadPrompts(); }, [loadPrompts]);
+  useEffect(() => {
+    if (!categories.includes(category)) setCategory('All');
+  }, [categories, category]);
   useEffect(() => {
     if (selected) {
       setDraft(selected.template);
@@ -174,7 +185,7 @@ export default function PromptLibraryClient() {
       <header className="prompt-library__header">
         <div className="dashboard__title">
           <h2>Prompt Library</h2>
-          <p>Edit the instructions used by article, book, image, social, and conversation generation.</p>
+          <p>Edit the instructions used by articles, posts, LinkedIn media, books, images, and conversations.</p>
         </div>
         <Button variant="outline" onClick={resetAll} disabled={loading || saving}>Reset all defaults</Button>
       </header>
@@ -189,6 +200,13 @@ export default function PromptLibraryClient() {
             <select value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter by category">
               {categories.map((item) => <option key={item}>{item}</option>)}
             </select>
+            <div className="prompt-library__quick-filters" aria-label="Generation prompt categories">
+              {['Posts', 'LinkedIn'].filter((item) => categories.includes(item)).map((item) => (
+                <button type="button" key={item} className={category === item ? 'is-active' : ''} onClick={() => setCategory(item)}>
+                  <i className={`ph ${item === 'Posts' ? 'ph-note-pencil' : 'ph-linkedin-logo'}`} /> {item}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="prompt-library__list">
             {loading && <p className="prompt-library__empty">Loading prompt catalog…</p>}

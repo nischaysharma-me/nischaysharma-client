@@ -15,7 +15,7 @@ interface LinkedInComposerProps {
   connected: boolean;
   title: string;
   description?: string;
-  type: 'article' | 'book';
+  type: 'article' | 'book' | 'post';
   sourcePath: string;
   initialImageUrl?: string;
   sourceContent?: string;
@@ -346,7 +346,8 @@ export default function LinkedInComposer({
             <header className="linkedin-composer__header">
               <div>
                 <span className="linkedin-composer__eyebrow">LinkedIn Studio</span>
-                <h2>Turn this {type} into a post</h2>
+                <h2>{type === 'post' ? 'Shape this post for LinkedIn' : `Turn this ${type} into a post`}</h2>
+                <Link className="linkedin-composer__prompt-link" href="/admin/prompt-library?category=LinkedIn"><i className="ph ph-sliders-horizontal" /> Tune LinkedIn prompts</Link>
               </div>
               {isPage
                 ? <Link href={backHref} aria-label="Back to article"><i className="ph ph-arrow-left" /></Link>

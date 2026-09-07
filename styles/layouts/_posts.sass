@@ -1,0 +1,478 @@
+.posts-feed
+  min-height: 100vh
+  padding: clamp(8rem, 12vw, 11rem) 1.25rem 6rem
+  background: #f3f3f0
+  color: #171717
+
+  &__intro
+    width: min(680px, 100%)
+    margin: 0 auto 3rem
+    text-align: center
+
+    > span
+      display: inline-block
+      margin-bottom: 0.75rem
+      color: #777
+      font-size: 0.72rem
+      font-weight: 700
+      letter-spacing: 0.16em
+      text-transform: uppercase
+
+    h1
+      margin: 0
+      font-family: var(--font-serif), Georgia, serif
+      font-size: clamp(3.5rem, 9vw, 7rem)
+      font-weight: 500
+      letter-spacing: -0.06em
+
+    p
+      max-width: 520px
+      margin: 1rem auto 0
+      color: #676767
+      line-height: 1.6
+
+  &__stream
+    width: min(680px, 100%)
+    margin: 0 auto
+
+  &__card
+    overflow: hidden
+    margin-bottom: 1.25rem
+    background: #fff
+    border: 1px solid rgba(0, 0, 0, 0.09)
+    border-radius: 22px
+    box-shadow: 0 16px 44px rgba(20, 20, 20, 0.05)
+    scroll-margin-top: 8rem
+
+  &__card-header
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    padding: 1.25rem 1.35rem 0.5rem
+
+    > div
+      display: flex
+      flex: 1
+      flex-direction: column
+      gap: 0.15rem
+
+      strong
+        font-size: 0.92rem
+
+      span
+        color: #8a8a8a
+        font-size: 0.76rem
+
+    > i
+      color: #999
+      font-size: 1.35rem
+
+  &__avatar
+    display: grid
+    width: 42px
+    height: 42px
+    place-items: center
+    color: #fff
+    background: #171717
+    border-radius: 50%
+    font-family: Georgia, serif
+    font-size: 0.78rem
+
+  &__body
+    padding: 1rem 1.35rem 1.25rem
+
+    h2
+      margin: 0 0 0.65rem
+      font-size: clamp(1.15rem, 3vw, 1.45rem)
+      letter-spacing: -0.025em
+
+    p
+      margin: 0
+      color: #333
+      font-size: 1rem
+      line-height: 1.68
+      white-space: pre-wrap
+
+  &__media
+    margin: 0
+    background: #e8e8e5
+    aspect-ratio: 16 / 10
+
+    img
+      display: block
+      width: 100%
+      height: 100%
+      object-fit: cover
+
+  &__tags
+    display: flex
+    flex-wrap: wrap
+    gap: 0.5rem
+    padding: 1rem 1.35rem 1.2rem
+    color: #365ad8
+    font-size: 0.8rem
+    font-weight: 600
+
+  &__empty
+    padding: 4rem 2rem
+    color: #777
+    text-align: center
+
+  &__sentinel
+    display: grid
+    min-height: 4rem
+    place-items: center
+
+.posts-admin
+  max-width: 1180px
+  margin: 0 auto
+
+  &__title
+    display: flex
+    align-items: end
+    justify-content: space-between
+    gap: 1rem
+
+  &__list
+    overflow: hidden
+    margin-top: 2rem
+
+  &__title-actions
+    display: flex
+    flex-wrap: wrap
+    gap: 0.65rem
+
+  &__generator
+    margin-top: 1.5rem
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(244, 242, 255, 0.96))
+
+    form
+      margin-top: 1.4rem
+
+  &__generator-heading
+    display: flex
+    align-items: start
+    justify-content: space-between
+    gap: 1rem
+
+    span
+      color: #7357d6
+      font-size: 0.68rem
+      font-weight: 700
+      letter-spacing: 0.14em
+      text-transform: uppercase
+
+    h3
+      margin: 0.35rem 0 0.25rem
+      font-size: 1.25rem
+
+    p
+      margin: 0
+      color: #777
+      font-size: 0.85rem
+
+    > button
+      display: grid
+      width: 2rem
+      height: 2rem
+      place-items: center
+      color: #666
+      background: transparent
+      border: 1px solid var(--color-border)
+      border-radius: 50%
+      cursor: pointer
+
+  &__generator-row
+    display: grid
+    grid-template-columns: minmax(180px, 0.45fr) minmax(0, 1fr)
+    gap: 1rem
+    align-items: start
+    margin-top: 1rem
+
+  &__generator-footer
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 1rem
+    margin-top: 1.2rem
+
+    small
+      color: #777
+
+  &__generator-options
+    display: grid
+    gap: .35rem
+
+    label
+      display: flex
+      align-items: center
+      gap: .5rem
+      color: #444
+      cursor: pointer
+      font-size: .8rem
+      font-weight: 700
+
+    input
+      width: 1rem
+      height: 1rem
+      accent-color: #7357d6
+
+  &__list-heading
+    display: flex
+    align-items: center
+    gap: 0.6rem
+    padding: 1.2rem 1.4rem
+    border-bottom: 1px solid var(--color-border)
+
+    span
+      display: grid
+      min-width: 1.7rem
+      height: 1.7rem
+      padding: 0 0.45rem
+      place-items: center
+      color: #666
+      background: #f1f1f1
+      border-radius: 999px
+      font-size: 0.75rem
+
+  &__row
+    display: grid
+    grid-template-columns: minmax(0, 1fr) 104px auto
+    gap: 1rem
+    align-items: center
+    padding: 1.25rem 1.4rem
+    border-bottom: 1px solid var(--color-border)
+
+    &:last-child
+      border-bottom: 0
+
+    &.is-processing
+      opacity: 0.55
+      pointer-events: none
+
+  &__row-content
+    min-width: 0
+
+    h3
+      margin: 0.55rem 0 0.35rem
+      font-size: 1.05rem
+
+    p
+      overflow: hidden
+      margin: 0 0 0.45rem
+      color: #666
+      font-size: 0.88rem
+      text-overflow: ellipsis
+      white-space: nowrap
+
+    small
+      color: #777
+
+  &__thumb
+    width: 104px
+    height: 72px
+    object-fit: cover
+    border-radius: 10px
+
+  &__actions
+    display: flex
+    align-items: center
+    gap: 0.2rem
+
+    .btn
+      width: 2.45rem
+      height: 2.45rem
+      padding: 0
+
+  &__linkedin
+    color: #0a66c2 !important
+
+  &__empty
+    padding: 4rem 2rem
+    color: #777
+    text-align: center
+
+    > i
+      display: block
+      margin-bottom: 0.75rem
+      font-size: 2rem
+
+    h3
+      margin: 0 0 0.45rem
+      color: #222
+
+    p
+      margin: 0
+
+.post-editor
+  max-width: 1240px
+  margin: 0 auto
+
+  &__header
+    display: flex
+    align-items: end
+    justify-content: space-between
+    gap: 2rem
+    margin-bottom: 2rem
+
+  &__eyebrow
+    display: block
+    margin-bottom: 0.5rem
+    color: #777
+    font-size: 0.7rem
+    font-weight: 700
+    letter-spacing: 0.14em
+    text-transform: uppercase
+
+  &__header-actions
+    display: flex
+    flex-wrap: wrap
+    gap: 0.65rem
+
+  &__grid
+    display: grid
+    grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.8fr)
+    gap: 1.5rem
+    align-items: start
+
+  &__canvas,
+  &__panel
+    padding: 1.5rem
+    background: var(--color-surface, #fff)
+    border: 1px solid var(--color-border)
+    border-radius: 16px
+
+  &__canvas
+    textarea
+      width: 100%
+      min-height: 420px
+      padding: 1.1rem
+      resize: vertical
+      color: inherit
+      background: transparent
+      border: 1px solid var(--color-border)
+      border-radius: 12px
+      font: inherit
+      font-size: 1rem
+      line-height: 1.65
+
+      &:focus
+        border-color: #555
+        outline: none
+
+  &__label
+    display: block
+    margin: 1.5rem 0 0.55rem
+    font-size: 0.82rem
+    font-weight: 700
+
+    span
+      color: #dc2626
+
+  &__count
+    margin-top: 0.5rem
+    color: #888
+    font-size: 0.75rem
+    text-align: right
+
+  &__sidebar
+    display: flex
+    flex-direction: column
+    gap: 1rem
+
+  &__panel
+    h3
+      margin: 0 0 1rem
+      font-size: 0.9rem
+
+    p,
+    small
+      color: #777
+      font-size: 0.8rem
+      line-height: 1.5
+
+    .form-group + .form-group
+      margin-top: 1rem
+
+    select
+      width: 100%
+      padding: 0.8rem
+      color: inherit
+      background: transparent
+      border: 1px solid var(--color-border)
+      border-radius: 10px
+
+  &__preview
+    display: block
+    width: 100%
+    margin: 0.9rem 0
+    aspect-ratio: 16 / 10
+    object-fit: cover
+    border-radius: 10px
+
+  &__image-generator
+    display: grid
+    gap: .7rem
+    margin-bottom: 1.25rem
+    padding-bottom: 1.25rem
+    border-bottom: 1px solid var(--color-border)
+
+    small
+      margin-top: -.25rem
+
+    > a
+      color: #0a66c2
+      font-size: .72rem
+      font-weight: 700
+      text-decoration: none
+
+@media (max-width: 860px)
+  .posts-admin
+    &__title
+      align-items: start
+
+    &__row
+      grid-template-columns: minmax(0, 1fr) auto
+
+    &__thumb
+      display: none
+
+  .post-editor
+    &__header
+      align-items: start
+      flex-direction: column
+
+    &__grid
+      grid-template-columns: 1fr
+
+@media (max-width: 560px)
+  .posts-feed
+    padding-inline: 0.75rem
+
+    &__intro
+      padding-inline: 1rem
+
+    &__card
+      border-radius: 16px
+
+  .posts-admin
+    &__title
+      flex-direction: column
+
+    &__row
+      grid-template-columns: 1fr
+
+    &__actions
+      justify-content: flex-start
+
+    &__generator-row
+      grid-template-columns: 1fr
+
+    &__generator-footer
+      align-items: stretch
+      flex-direction: column
+
+  .post-editor
+    &__canvas,
+    &__panel
+      padding: 1rem
