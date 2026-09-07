@@ -15,7 +15,9 @@
     inset: 0
     z-index: 900 // Below main header (1000)
     overflow-y: auto
+    overscroll-behavior: contain
     padding-top: 6rem // Increased to clear fixed site header
+    padding-bottom: max(2rem, env(safe-area-inset-bottom))
     
     @media (min-width: 768px)
       padding-top: 8rem
@@ -242,6 +244,8 @@
     display: flex
     align-items: center
     justify-content: center
+    min-width: 2.75rem
+    min-height: 2.75rem
     
     &:hover
       color: $color-black

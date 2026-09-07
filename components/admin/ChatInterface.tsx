@@ -266,6 +266,7 @@ export default function ChatInterface() {
               className="threads-admin__back-btn" 
               onClick={() => router.push('/admin/threads')}
               title="Back"
+              aria-label="Back to conversations"
            >
               <i className="ph ph-caret-left" style={{ fontSize: '1.25rem' }} />
            </button>
@@ -297,6 +298,7 @@ export default function ChatInterface() {
                     onClick={() => setIsEditingTitle(true)}
                     style={{ background: 'none', border: 'none', color: '#737373', padding: '0.2rem', opacity: 0.5 }}
                     className="threads-admin__edit-icon-btn"
+                    aria-label="Edit conversation title"
                   >
                     <i className="ph ph-pencil-simple" style={{ fontSize: '0.85rem' }} />
                   </button>
@@ -312,6 +314,7 @@ export default function ChatInterface() {
                 onClick={handlePinToggle}
                 style={{ background: 'none', border: 'none', color: currentThread?.isPinned ? '#111' : '#737373', padding: '0.4rem' }}
                 title={currentThread?.isPinned ? "Unpin" : "Pin"}
+                aria-label={currentThread?.isPinned ? "Unpin conversation" : "Pin conversation"}
               >
                 <i className={`ph-push-pin ${currentThread?.isPinned ? 'ph-fill' : 'ph'}`} style={{ fontSize: '1rem', transform: currentThread?.isPinned ? 'none' : 'rotate(45deg)', display: 'inline-block' }} />
               </button>
@@ -319,6 +322,7 @@ export default function ChatInterface() {
                 variant="ghost" 
                 style={{ padding: '0.4rem', color: '#ff6b6b' }} 
                 title="Delete Thread"
+                aria-label="Delete conversation"
                 onClick={handleDelete}
               >
                  <i className="ph ph-trash" style={{ fontSize: '1rem' }} />
@@ -368,25 +372,27 @@ export default function ChatInterface() {
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }}
+              style={{ position: 'relative', maxWidth: '90vw', maxHeight: 'calc(100dvh - 5rem)' }}
             >
               <img 
                 src={selectedImage} 
                 alt="Enlarged view" 
-                style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: '0.5rem', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }} 
+                style={{ maxWidth: '100%', maxHeight: 'calc(100dvh - 5rem)', borderRadius: '0.5rem', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}
               />
               <div style={{ position: 'absolute', top: '-3rem', right: 0, display: 'flex', gap: '1rem' }}>
                 <button 
                   onClick={() => handleDownload(selectedImage)}
-                  style={{ color: 'white', background: 'rgba(255,255,255,0.1)', width: '2.5rem', height: '2.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  style={{ color: 'white', background: 'rgba(255,255,255,0.1)', width: '2.75rem', height: '2.75rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   title="Download Image"
+                  aria-label="Download image"
                 >
                   <i className="ph ph-download-simple" style={{ fontSize: '1.25rem' }} />
                 </button>
                 <button 
                   onClick={() => setSelectedImage(null)}
-                  style={{ color: 'white', background: 'rgba(255,255,255,0.1)', width: '2.5rem', height: '2.5rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  style={{ color: 'white', background: 'rgba(255,255,255,0.1)', width: '2.75rem', height: '2.75rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   title="Close"
+                  aria-label="Close image preview"
                 >
                   <i className="ph ph-x" style={{ fontSize: '1.25rem' }} />
                 </button>

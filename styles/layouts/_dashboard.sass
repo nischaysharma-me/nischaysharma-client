@@ -4,6 +4,7 @@
 .dashboard
   display: flex
   height: 100vh
+  height: 100dvh
   width: 100%
   overflow: hidden
   position: relative
@@ -11,6 +12,7 @@
   @include mobile
     flex-direction: column
     height: 100dvh
+    min-height: 0
   
   // Sidebar
   &__sidebar
@@ -21,6 +23,7 @@
     flex-direction: column
     position: relative
     height: 100vh
+    height: 100dvh
     z-index: 50
     flex-shrink: 0
     @include transition(transform)
@@ -179,11 +182,14 @@
     flex-direction: column
     min-width: 0
     height: 100vh
+    height: 100dvh
     overflow: hidden
     position: relative
 
     @include mobile
-      height: calc(100vh - 4rem) // Subtract mobile logo height if visible? No, mobile header is separate.
+      flex: 1
+      height: 100%
+      min-height: 0
 
   &__header
     height: 3.5rem
@@ -213,8 +219,8 @@
       .btn
         @include mobile
           padding: 0
-          width: 2.25rem
-          height: 2.25rem
+          width: 2.75rem
+          height: 2.75rem
           border-radius: $radius-md
           gap: 0
           
@@ -230,8 +236,8 @@
       display: flex
       align-items: center
       justify-content: center
-      width: 2.5rem
-      height: 2.5rem
+      width: 2.75rem
+      height: 2.75rem
       color: $color-text-primary
       flex-shrink: 0
 

@@ -67,7 +67,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin" style={{ textDecoration: 'none', color: 'inherit' }}>
             <h1>TaughtCode<span>.</span></h1>
           </Link>
-          <button className="dashboard__sidebar-close" onClick={() => setIsSidebarOpen(false)}>
+          <button className="dashboard__sidebar-close" aria-label="Close admin navigation" onClick={() => setIsSidebarOpen(false)}>
             <i className="ph ph-x" style={{ fontSize: '1.5rem' }} />
           </button>
         </div>
@@ -118,7 +118,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* --- Main Content --- */}
       <main className="dashboard__main">
         <header className="dashboard__header">
-          <button className="dashboard__menu-toggle" onClick={() => setIsSidebarOpen(true)}>
+          <button className="dashboard__menu-toggle" aria-label="Open admin navigation" onClick={() => setIsSidebarOpen(true)}>
             <i className="ph ph-list" style={{ fontSize: '1.5rem' }} />
           </button>
           

@@ -1078,14 +1078,14 @@ export default function ProfileClient() {
             <div className="form-divider" style={{ borderTop: '1px solid var(--color-border)', margin: '2rem 0' }}></div>
 
             <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-               <div style={{ flex: 1, minWidth: '300px' }}>
+               <div className="profile-admin__split-field" style={{ flex: 1, minWidth: '300px' }}>
                   <label className="label">Technical Skills</label>
                   <Input value={skillInput} onChange={e => setSkillInput(e.target.value)} onKeyDown={e => handleAddTag(e, 'skills')} placeholder="Press Enter" />
                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
                       {skills.map(s => <span key={s} className="badge badge--draft" style={{ color: 'var(--color-text-primary)' }}>{s} <i className="ph ph-x" onClick={() => removeTag(s, 'skills')} /></span>)}
                    </div>
                </div>
-               <div style={{ flex: 1, minWidth: '300px' }}>
+               <div className="profile-admin__split-field" style={{ flex: 1, minWidth: '300px' }}>
                   <label className="label">Expertise</label>
                   <Input value={expertiseInput} onChange={e => setExpertiseInput(e.target.value)} onKeyDown={e => handleAddTag(e, 'expertise')} placeholder="Press Enter" />
                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
@@ -1144,7 +1144,7 @@ export default function ProfileClient() {
       <AnimatePresence>
         {configModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="card card--padded" style={{ width: '400px', background: 'var(--color-bg-secondary)' }}>
+            <div className="card card--padded profile-modal profile-modal--compact" style={{ width: '400px', background: 'var(--color-bg-secondary)' }}>
                <h3 className="label" style={{ color: 'var(--color-text-primary)' }}>Configure {configModal}</h3>
                <Input value={tempConfig.clientId} onChange={e => setTempConfig({...tempConfig, clientId: e.target.value})} placeholder="Client ID" style={{ marginBottom: '1rem' }} />
                <Input type="password" value={tempConfig.clientSecret} onChange={e => setTempConfig({...tempConfig, clientSecret: e.target.value})} placeholder="Client Secret" />
@@ -1162,7 +1162,7 @@ export default function ProfileClient() {
                 initial={{ opacity: 0, scale: 0.98, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.98, y: 10 }}
-                className="card" 
+                className="card profile-modal"
                 style={{ width: '100%', maxWidth: '600px', background: '#ffffff', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #eeeeee' }}
               >
                 <div style={{ padding: '1.75rem 2.5rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff' }}>
@@ -1216,7 +1216,7 @@ export default function ProfileClient() {
               initial={{ opacity: 0, scale: 0.98, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: 10 }}
-              className="card" 
+              className="card profile-modal"
               style={{ 
                 width: '100%', 
                 maxWidth: '900px', 
@@ -1236,7 +1236,7 @@ export default function ProfileClient() {
               </div>
               
               <div style={{ flex: 1, overflowY: 'auto', padding: '3rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', marginBottom: '3.5rem' }}>
+                <div className="profile-modal__grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', marginBottom: '3.5rem' }}>
                   <div style={{ gridColumn: 'span 2' }}>
                     <label className="label" style={{ marginBottom: '0.85rem', display: 'block', fontWeight: 700, fontSize: '0.9rem', color: '#444' }}>Company Name</label>
                     <Input value={expForm.company} onChange={e => setExpForm({ ...expForm, company: e.target.value })} placeholder="e.g. Google, TaughtCode" style={{ padding: '1rem', fontSize: '1rem' }} />
@@ -1275,7 +1275,7 @@ export default function ProfileClient() {
                         {(expForm.roles || []).length > 1 && (
                           <button onClick={() => handleRemoveRole(idx)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#fff', border: '1px solid #eee', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.borderColor = '#ef4444'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.borderColor = '#eee'; }}><i className="ph ph-trash" /></button>
                         )}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+                        <div className="profile-modal__grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
                           <div style={{ gridColumn: 'span 2' }}>
                             <label className="label" style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.65rem', display: 'block', color: '#555' }}>Job Title</label>
                             <Input value={role.title} onChange={e => handleRoleChange(idx, 'title', e.target.value)} placeholder="e.g. Senior Software Engineer" style={{ padding: '0.85rem' }} />
@@ -1316,13 +1316,13 @@ export default function ProfileClient() {
         )}
         {showEducationModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-            <motion.div initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 10 }} className="card" style={{ width: '100%', maxWidth: '750px', background: '#ffffff', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #eeeeee' }}>
+            <motion.div initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 10 }} className="card profile-modal" style={{ width: '100%', maxWidth: '750px', background: '#ffffff', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #eeeeee' }}>
               <div style={{ padding: '1.75rem 3rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff' }}>
                 <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#111', fontFamily: 'var(--font-merriweather), serif' }}>{editingEducationIndex !== null ? 'Edit Academic Background' : 'Add Academic Background'}</h3>
                 <Button variant="ghost" onClick={() => setShowEducationModal(false)} style={{ padding: '0.5rem', borderRadius: '50%' }}><i className="ph ph-x" style={{ fontSize: '1.5rem' }} /></Button>
               </div>
               <div style={{ flex: 1, overflowY: 'auto', padding: '3rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
+                <div className="profile-modal__grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
                   <div style={{ gridColumn: 'span 2' }}>
                     <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>School / University</label>
                     <Input value={eduForm.school} onChange={e => setEduForm({ ...eduForm, school: e.target.value })} placeholder="e.g. Stanford University" style={{ padding: '1rem' }} />
@@ -1369,7 +1369,7 @@ export default function ProfileClient() {
 
         {showProjectModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-            <motion.div initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 10 }} className="card" style={{ width: '100%', maxWidth: '850px', background: '#ffffff', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #eeeeee' }}>
+            <motion.div initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 10 }} className="card profile-modal" style={{ width: '100%', maxWidth: '850px', background: '#ffffff', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #eeeeee' }}>
               <div style={{ padding: '1.75rem 3rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff' }}>
                 <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#111', fontFamily: 'var(--font-merriweather), serif' }}>{editingProjectIndex !== null ? 'Edit Featured Project' : 'Add Featured Project'}</h3>
                 <Button variant="ghost" onClick={() => setShowProjectModal(false)} style={{ padding: '0.5rem', borderRadius: '50%' }}><i className="ph ph-x" style={{ fontSize: '1.5rem' }} /></Button>
@@ -1396,7 +1396,7 @@ export default function ProfileClient() {
                     <Input value={projForm.link} onChange={e => setProjForm({ ...projForm, link: e.target.value })} placeholder="https://..." style={{ padding: '1rem' }} />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
+                  <div className="profile-modal__grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
                     <div>
                       <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '0.75rem', display: 'block' }}>Project Tags</label>
                       <Input 
@@ -1485,7 +1485,7 @@ export default function ProfileClient() {
 
                   <div>
                     <label className="label" style={{ fontWeight: 700, color: '#444', marginBottom: '1rem', display: 'block' }}>External Resources</label>
-                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <div className="profile-modal__row" style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
                       <Input value={resourceForm.title} onChange={e => setResourceForm({ ...resourceForm, title: e.target.value })} placeholder="Resource Title (e.g. GitHub Repo)" style={{ flex: 1 }} />
                       <Input value={resourceForm.url} onChange={e => setResourceForm({ ...resourceForm, url: e.target.value })} placeholder="https://..." style={{ flex: 2 }} />
                       <Button 
@@ -1532,7 +1532,7 @@ export default function ProfileClient() {
 
         {showGitHubReposModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-            <motion.div initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 10 }} className="card" style={{ width: '100%', maxWidth: '700px', background: '#ffffff', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #eeeeee' }}>
+            <motion.div initial={{ opacity: 0, scale: 0.98, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 10 }} className="card profile-modal" style={{ width: '100%', maxWidth: '700px', background: '#ffffff', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRadius: '1.5rem', boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.35)', border: '1px solid #eeeeee' }}>
               <div style={{ padding: '1.75rem 3rem', borderBottom: '1px solid #f0f0f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff' }}>
                 <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#111', fontFamily: 'var(--font-merriweather), serif' }}>Import Repository</h3>
                 <Button variant="ghost" onClick={() => setShowGitHubReposModal(false)} style={{ padding: '0.5rem', borderRadius: '50%' }}><i className="ph ph-x" style={{ fontSize: '1.5rem' }} /></Button>
