@@ -21,6 +21,7 @@ export default function AIPostGenerator({ onGenerated, onClose }: AIPostGenerato
   const [topic, setTopic] = useState('');
   const [tone, setTone] = useState('conversational');
   const [instructions, setInstructions] = useState('');
+  const [includeImage, setIncludeImage] = useState(true);
   const [generating, setGenerating] = useState(false);
 
   const generate = async (event: React.FormEvent) => {
@@ -40,8 +41,17 @@ export default function AIPostGenerator({ onGenerated, onClose }: AIPostGenerato
         instructions: instructions.trim()
       }, token);
       if (!response.data) throw new Error('AI did not return a post draft');
-      toast.success('AI post draft created');
-      onGenerated(response.data);
+      let draft = response.data;
+      if (includeImage) {
+        try {
+          const imageResponse = await postsService.generateImage(draft.id, { visualDirection: instructions.trim() }, token);
+          if (imageResponse.data) draft = imageResponse.data;
+        } catch (imageError) {
+          toast.warning(`Draft created, but its image failed: ${(imageError as Error).message}`);
+        }
+      }
+      toast.success(includeImage && draft.imageUrl ? 'AI post and image created' : 'AI post draft created');
+      onGenerated(draft);
     } catch (error) {
       toast.error(`Post generation failed: ${(error as Error).message}`);
     } finally {
@@ -72,7 +82,10 @@ export default function AIPostGenerator({ onGenerated, onClose }: AIPostGenerato
           <Textarea label="Additional direction" value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Mention the feedback loop; avoid buzzwords…" />
         </div>
         <div className="posts-admin__generator-footer">
-          <small>Uses the editable <Link href="/admin/prompt-library?prompt=post.generate"><strong>post.generate</strong></Link> prompt.</small>
+          <div className="posts-admin__generator-options">
+            <label><input type="checkbox" checked={includeImage} onChange={(event) => setIncludeImage(event.target.checked)} /> Generate a matching image</label>
+            <small>Uses editable <Link href="/admin/prompt-library?category=Posts"><strong>Posts prompts</strong></Link>.</small>
+          </div>
           <Button type="submit" loading={generating} leftIcon={<i className="ph ph-sparkle" />}>Generate draft</Button>
         </div>
       </form>

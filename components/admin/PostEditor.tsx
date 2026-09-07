@@ -27,6 +27,8 @@ export default function PostEditor({ postId }: { postId?: string }) {
   const [loading, setLoading] = useState(Boolean(postId));
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [visualDirection, setVisualDirection] = useState('');
 
   useEffect(() => {
     if (!postId) return;
@@ -110,6 +112,37 @@ export default function PostEditor({ postId }: { postId?: string }) {
     }
   };
 
+  const generateImage = async () => {
+    if (!postId) {
+      toast.error('Save the draft before generating an image');
+      return;
+    }
+    const payload = normalizedForm();
+    if (!payload.title || !payload.content) {
+      toast.error('Add a headline and post copy first');
+      return;
+    }
+    try {
+      setGeneratingImage(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error('No authentication token');
+      await postsService.update(postId, payload, token);
+      const response = await postsService.generateImage(postId, { visualDirection: visualDirection.trim() }, token);
+      if (!response.data?.imageUrl) throw new Error('AI did not return a post image');
+      setPost(response.data);
+      setForm((current) => ({
+        ...current,
+        imageUrl: response.data!.imageUrl || '',
+        imageAltText: response.data!.imageAltText || current.imageAltText
+      }));
+      toast.success('Post image generated');
+    } catch (error) {
+      toast.error(`Image generation failed: ${(error as Error).message}`);
+    } finally {
+      setGeneratingImage(false);
+    }
+  };
+
   const update = <K extends keyof PostInput>(key: K, value: PostInput[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
   };
@@ -153,6 +186,14 @@ export default function PostEditor({ postId }: { postId?: string }) {
 
           <div className="post-editor__panel">
             <h3>Media and discovery</h3>
+            <div className="post-editor__image-generator">
+              <Input label="AI visual direction" value={visualDirection} onChange={(event) => setVisualDirection(event.target.value)} placeholder="Optional mood, subject, or art direction" />
+              <Button type="button" variant="secondary" size="full" onClick={generateImage} loading={generatingImage} disabled={!postId} leftIcon={<i className="ph ph-magic-wand" />}>
+                {form.imageUrl ? 'Regenerate post image' : 'Generate post image'}
+              </Button>
+              {!postId && <small>Save the draft to enable image generation.</small>}
+              <Link href="/admin/prompt-library?prompt=post.image">Tune the post image prompt</Link>
+            </div>
             <Input label="Image URL" type="url" value={form.imageUrl} onChange={(event) => update('imageUrl', event.target.value)} placeholder="https://…" />
             {form.imageUrl && <img className="post-editor__preview" src={form.imageUrl} alt="Post preview" />}
             <Input label="Image alt text" maxLength={300} value={form.imageAltText} onChange={(event) => update('imageAltText', event.target.value)} placeholder="Describe the image" />
