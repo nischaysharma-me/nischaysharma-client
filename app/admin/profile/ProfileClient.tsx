@@ -497,21 +497,24 @@ export default function ProfileClient() {
     }
   };
 
+  const addTag = (type: 'skills' | 'expertise') => {
+    const input = type === 'skills' ? skillInput.trim() : expertiseInput.trim();
+    const list = type === 'skills' ? skills : expertise;
+    if (!input || list.some(item => item.toLowerCase() === input.toLowerCase())) return;
+
+    if (type === 'skills') {
+      setSkills([...skills, input]);
+      setSkillInput('');
+    } else {
+      setExpertise([...expertise, input]);
+      setExpertiseInput('');
+    }
+  };
+
   const handleAddTag = (e: React.KeyboardEvent, type: 'skills' | 'expertise') => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const input = type === 'skills' ? skillInput.trim() : expertiseInput.trim();
-      const list = type === 'skills' ? skills : expertise;
-      
-      if (input && !list.includes(input)) {
-        if (type === 'skills') {
-          setSkills([...skills, input]);
-          setSkillInput('');
-        } else {
-          setExpertise([...expertise, input]);
-          setExpertiseInput('');
-        }
-      }
+      addTag(type);
     }
   };
 
@@ -1079,22 +1082,38 @@ export default function ProfileClient() {
 
             <div className="form-divider" style={{ borderTop: '1px solid var(--color-border)', margin: '2rem 0' }}></div>
 
-            <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-               <div className="profile-admin__split-field" style={{ flex: 1, minWidth: '300px' }}>
-                  <label className="label">Technical Skills</label>
-                  <Input value={skillInput} onChange={e => setSkillInput(e.target.value)} onKeyDown={e => handleAddTag(e, 'skills')} placeholder="Press Enter" />
-                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
-                      {skills.map(s => <span key={s} className="badge badge--draft" style={{ color: 'var(--color-text-primary)' }}>{s} <i className="ph ph-x" onClick={() => removeTag(s, 'skills')} /></span>)}
-                   </div>
-               </div>
-               <div className="profile-admin__split-field" style={{ flex: 1, minWidth: '300px' }}>
-                  <label className="label">Expertise</label>
-                  <Input value={expertiseInput} onChange={e => setExpertiseInput(e.target.value)} onKeyDown={e => handleAddTag(e, 'expertise')} placeholder="Press Enter" />
-                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
-                      {expertise.map(e => <span key={e} className="badge badge--published" style={{ color: 'var(--color-text-primary)' }}>{e} <i className="ph ph-x" onClick={() => removeTag(e, 'expertise')} /></span>)}
-                   </div>
-               </div>
-            </div>
+            <section className="profile-competencies">
+              <div className="profile-competencies__heading">
+                <div>
+                  <span className="profile-competencies__eyebrow">Professional profile</span>
+                  <h3>Technical skills & expertise</h3>
+                  <p>These appear on your public About page.</p>
+                </div>
+                <div className="profile-competencies__counts"><span>{skills.length} skills</span><span>{expertise.length} expertise</span></div>
+              </div>
+              <div className="profile-competencies__grid">
+                <div className="profile-competencies__group">
+                  <label className="label" htmlFor="technical-skill">Technical skills</label>
+                  <div className="profile-competencies__add">
+                    <Input id="technical-skill" value={skillInput} onChange={e => setSkillInput(e.target.value)} onKeyDown={e => handleAddTag(e, 'skills')} placeholder="e.g. TypeScript" />
+                    <Button type="button" variant="secondary" onClick={() => addTag('skills')} disabled={!skillInput.trim()}>Add</Button>
+                  </div>
+                  <div className="profile-competencies__tags">
+                    {skills.length ? skills.map(skill => <span key={skill} className="profile-competencies__tag">{skill}<button type="button" aria-label={`Remove ${skill}`} onClick={() => removeTag(skill, 'skills')}><i className="ph ph-x" /></button></span>) : <p className="profile-competencies__empty">No technical skills added yet.</p>}
+                  </div>
+                </div>
+                <div className="profile-competencies__group">
+                  <label className="label" htmlFor="profile-expertise">Expertise</label>
+                  <div className="profile-competencies__add">
+                    <Input id="profile-expertise" value={expertiseInput} onChange={e => setExpertiseInput(e.target.value)} onKeyDown={e => handleAddTag(e, 'expertise')} placeholder="e.g. System architecture" />
+                    <Button type="button" variant="secondary" onClick={() => addTag('expertise')} disabled={!expertiseInput.trim()}>Add</Button>
+                  </div>
+                  <div className="profile-competencies__tags">
+                    {expertise.length ? expertise.map(item => <span key={item} className="profile-competencies__tag profile-competencies__tag--expertise">{item}<button type="button" aria-label={`Remove ${item}`} onClick={() => removeTag(item, 'expertise')}><i className="ph ph-x" /></button></span>) : <p className="profile-competencies__empty">No expertise areas added yet.</p>}
+                  </div>
+                </div>
+              </div>
+            </section>
 
             <Button type="submit" variant="primary" className="btn--full" loading={saving}>Save Profile Changes</Button>
           </form>

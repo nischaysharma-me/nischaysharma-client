@@ -123,6 +123,112 @@
   .form-divider
     border-top: 1px solid variables.$color-border
 
+  .profile-competencies
+    margin-bottom: 2rem
+    padding: 1.25rem
+    border: 1px solid variables.$color-border
+    border-radius: variables.$radius-lg
+    background: variables.$color-bg-primary
+
+    &__heading
+      display: flex
+      align-items: flex-start
+      justify-content: space-between
+      gap: 1rem
+      margin-bottom: 1.5rem
+      h3
+        margin: .2rem 0 .25rem
+        color: variables.$color-text-primary
+        font-size: 1.2rem
+      p
+        margin: 0
+        color: variables.$color-text-secondary
+        font-size: .82rem
+
+    &__eyebrow
+      color: variables.$color-text-muted
+      font-size: .65rem
+      font-weight: 800
+      letter-spacing: .12em
+      text-transform: uppercase
+
+    &__counts
+      display: flex
+      flex-wrap: wrap
+      justify-content: flex-end
+      gap: .4rem
+      span
+        padding: .35rem .6rem
+        border: 1px solid variables.$color-border
+        border-radius: variables.$radius-pill
+        color: variables.$color-text-secondary
+        background: variables.$color-bg-secondary
+        font-size: .68rem
+        font-weight: 700
+
+    &__grid
+      display: grid
+      grid-template-columns: repeat(2, minmax(0, 1fr))
+      gap: 1.25rem
+
+    &__group
+      min-width: 0
+
+    &__add
+      display: grid
+      grid-template-columns: minmax(0, 1fr) auto
+      gap: .5rem
+      margin-top: .45rem
+      .form-group
+        min-width: 0
+      .btn
+        min-width: 70px
+
+    &__tags
+      display: flex
+      flex-wrap: wrap
+      gap: .45rem
+      max-height: 220px
+      overflow-y: auto
+      margin-top: .8rem
+      padding-right: .2rem
+
+    &__tag
+      display: inline-flex
+      align-items: center
+      gap: .35rem
+      max-width: 100%
+      padding: .38rem .5rem .38rem .7rem
+      border: 1px solid variables.$color-border
+      border-radius: variables.$radius-pill
+      background: variables.$color-bg-secondary
+      color: variables.$color-text-primary
+      font-size: .72rem
+      font-weight: 650
+      overflow-wrap: anywhere
+      &--expertise
+        background: variables.$color-bg-tertiary
+      button
+        width: 24px
+        height: 24px
+        display: inline-flex
+        align-items: center
+        justify-content: center
+        flex: 0 0 24px
+        border: 0
+        border-radius: 50%
+        background: transparent
+        color: variables.$color-text-muted
+        cursor: pointer
+        &:hover
+          background: variables.$color-bg-tertiary
+          color: variables.$color-error
+
+    &__empty
+      margin: .25rem 0
+      color: variables.$color-text-muted
+      font-size: .78rem
+
   .badge
     &--draft
       background-color: variables.$color-bg-tertiary
@@ -140,6 +246,17 @@
 @media (max-width: 768px)
   .profile-admin__split-field
     min-width: 0 !important
+
+  .profile-admin .profile-competencies
+    padding: 1rem
+    &__heading
+      flex-direction: column
+    &__counts
+      justify-content: flex-start
+    &__grid
+      grid-template-columns: minmax(0, 1fr)
+    &__tags
+      max-height: none
 
   .profile-modal
     min-height: 0
