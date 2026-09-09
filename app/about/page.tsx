@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
     if (res?.success) profile = res.data;
   } catch {}
   const description = plainText(profile?.bio).slice(0, 155) || "Official profile of Nischay Sharma, a software engineer and architect specializing in scalable systems, cloud architecture, and AI orchestration.";
-  const image = profile?.photoURL || '/og-image.jpg';
+  const image = '/og-image.jpg';
   return {
     title: "About Nischay Sharma | Official Profile",
     description,
@@ -31,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
       firstName: "Nischay",
       lastName: "Sharma",
       username: "nischaysharma-me",
-      images: [{ url: image, alt: 'Portrait of Nischay Sharma' }],
+      images: [{ url: image, width: 1200, height: 630, alt: 'Nischay Sharma — AI Solution Architect and Technical Writer' }],
     },
     twitter: { card: 'summary_large_image', title: 'Nischay Sharma — Official Profile', description, images: [image] },
   };

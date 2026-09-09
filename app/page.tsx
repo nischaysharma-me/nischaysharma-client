@@ -8,10 +8,8 @@ import { PERSON_ID, SITE_URL } from '@/lib/seo/identity';
 
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
-export async function generateMetadata(): Promise<Metadata> {
-  const response = await getHomeDataAction();
-  const profile = ('data' in response && response.success) ? response.data?.profile : null;
-  const image = profile?.photoURL || '/og-image.jpg';
+export function generateMetadata(): Metadata {
+  const image = '/og-image.jpg';
   const title = 'Nischay Sharma | Official Portfolio & Technical Writing';
   const description = 'Official portfolio of Nischay Sharma (also searched as Nishchay Sharma): software engineering, AI, technical writing, projects, and social profiles.';
   return {
@@ -19,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description,
     keywords: ["Nischay Sharma", "Nishchay Sharma", "Nischay", "Nishchay", "Edvanta", "Thoughtjumper", "Thought Jumper", "TaughtCode", "App Avengers", "Software Engineering", "Technical Writing"],
     alternates: { canonical: '/' },
-    openGraph: { title, description, url: SITE_URL, type: 'website', images: [{ url: image, alt: 'Nischay Sharma' }] },
+    openGraph: { title, description, url: SITE_URL, type: 'website', images: [{ url: image, width: 1200, height: 630, alt: 'Nischay Sharma — AI Solution Architect and Technical Writer' }] },
     twitter: { card: 'summary_large_image', title, description, images: [image] },
   };
 }
