@@ -14,7 +14,7 @@ export interface ResumePreview {
   }>;
   education: Array<{ school: string; degree: string; fieldOfStudy: string; startDate: string; endDate: string; description: string }>;
   projects: Array<{ title: string; description: string; link: string; skills: string[] }>;
-  socialLinks: { linkedin?: string; github?: string; twitter?: string; website?: string };
+  socialLinks: { linkedin?: string; github?: string; instagram?: string; threads?: string; twitter?: string; website?: string; youtube?: string };
 }
 
 export interface ResumeImportPayload {

@@ -8,6 +8,8 @@ import NavigationWrapper from "@/components/NavigationWrapper";
 import { ReadingModeProvider } from "@/components/ReadingModeProvider";
 import { ImageCropProvider } from '@/components/image/ImageCropProvider';
 import Script from "next/script";
+import StructuredData from "@/components/seo/StructuredData";
+import { PERSON_ID, SITE_URL, canonicalSocialLinks } from "@/lib/seo/identity";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -27,9 +29,9 @@ export const metadata: Metadata = {
     default: "Nischay Sharma | Portfolio, Technical Writing & Inspiration",
     template: "%s | Nischay Sharma"
   },
-  description: "Minimalist portfolio and magazine for Nischay Sharma. Explore technical stories, documentation, and curated collections.",
-  keywords: ["Nischay Sharma", "Nishchay Sharma", "Nischay", "Nishchay", "Edvanta", "Thoughtjumper", "Thought Jumper", "TaughtCode", "Software Engineering", "Minimalist Portfolio", "Technical Writing"],
-  authors: [{ name: "Nischay Sharma" }],
+  description: "Official website of Nischay Sharma (Nishchay Sharma), software engineer, architect, creator, and technical writer. Explore his work, articles, projects, and profiles.",
+  keywords: ["Nischay Sharma", "Nishchay Sharma", "Nischay", "Nishchay", "nischaysharma-me", "nischay.me", "Iamnischaysharma", "Edvanta", "Thoughtjumper", "Thought Jumper", "TaughtCode", "App Avengers", "Software Engineering", "Technical Writing"],
+  authors: [{ name: "Nischay Sharma", url: "/about" }],
   creator: "Nischay Sharma",
   openGraph: {
     type: "website",
@@ -37,7 +39,7 @@ export const metadata: Metadata = {
     url: "https://nischaysharma.com",
     siteName: "Nischay Sharma",
     title: "Nischay Sharma | Portfolio, Technical Writing & Inspiration",
-    description: "Minimalist portfolio and magazine for Nischay Sharma. Explore technical stories, documentation, and curated collections.",
+    description: "The official website of Nischay Sharma—software engineer, architect, creator, and technical writer.",
     images: [
       {
         url: "/og-image.jpg",
@@ -51,7 +53,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Nischay Sharma | Portfolio, Technical Writing & Inspiration",
     description: "Minimalist portfolio and magazine for Nischay Sharma. Explore technical stories, documentation, and curated collections.",
-    creator: "@nishuns",
     images: ["/og-image.jpg"],
   },
   icons: {
@@ -88,37 +89,24 @@ export default function RootLayout({
 }>) {
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "Nischay Sharma",
-    "alternateName": ["Nishchay Sharma", "Nishchay", "Nischay"],
-    "url": "https://nischaysharma.com",
-    "jobTitle": "Software Engineer & Creator",
-    "sameAs": [
-      "https://github.com/nishuns",
-      "https://linkedin.com/in/nischaysharma"
-    ],
-    "worksFor": [
+    "@graph": [
       {
-        "@type": "Organization",
-        "name": "TaughtCode"
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        "url": SITE_URL,
+        "name": "Nischay Sharma",
+        "alternateName": ["Nishchay Sharma", "Nischay Sharma's Digital Anthology"],
+        "publisher": { "@id": PERSON_ID }
       },
       {
-        "@type": "Organization",
-        "name": "Thoughtjumper"
+        "@type": "Person",
+        "@id": PERSON_ID,
+        "name": "Nischay Sharma",
+        "alternateName": ["Nishchay Sharma", "Nischay", "Nishchay", "nischaysharma-me", "nischay.me", "Iamnischaysharma"],
+        "url": `${SITE_URL}/about`,
+        "image": `${SITE_URL}/og-image.jpg`,
+        "sameAs": Object.values(canonicalSocialLinks)
       }
-    ],
-    "alumniOf": [
-      {
-        "@type": "Organization",
-        "name": "Edvanta"
-      }
-    ],
-    "knowsAbout": [
-      "Software Engineering",
-      "AI Orchestration",
-      "System Architecture",
-      "Thoughtjumper",
-      "Edvanta"
     ]
   };
 
@@ -126,10 +114,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <StructuredData data={jsonLd} />
       </head>
       <body
         className={`${spaceGrotesk.variable} ${merriweather.variable} font-sans antialiased`}

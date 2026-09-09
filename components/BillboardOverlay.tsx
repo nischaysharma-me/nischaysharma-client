@@ -136,16 +136,19 @@ export default function BillboardOverlay() {
 
           <footer className="billboard__footer">
             <div className="billboard__socials">
-              <a href="https://instagram.com/nishuns" target="_blank" rel="noopener noreferrer" className="billboard__social-link" title="Instagram">
+              <a href="https://www.instagram.com/nischay.me/" target="_blank" rel="me noopener noreferrer" className="billboard__social-link" title="Instagram">
                 <i className="ph-fill ph-instagram-logo" />
               </a>
-              <a href="https://linkedin.com/in/nischaysharma" target="_blank" rel="noopener noreferrer" className="billboard__social-link" title="LinkedIn">
+              <a href="https://www.linkedin.com/in/nischaysharma-me" target="_blank" rel="me noopener noreferrer" className="billboard__social-link" title="LinkedIn">
                 <i className="ph-fill ph-linkedin-logo" />
               </a>
-              <a href="https://twitter.com/nishuns" target="_blank" rel="noopener noreferrer" className="billboard__social-link" title="Twitter">
-                <i className="ph-fill ph-twitter-logo" />
+              <a href="https://www.threads.net/@nischay.me" target="_blank" rel="me noopener noreferrer" className="billboard__social-link" title="Threads">
+                <i className="ph-fill ph-threads-logo" />
               </a>
-              <a href="https://github.com/nishuns" target="_blank" rel="noopener noreferrer" className="billboard__social-link" title="GitHub">
+              <a href="https://www.youtube.com/@Iamnischaysharma" target="_blank" rel="me noopener noreferrer" className="billboard__social-link" title="YouTube">
+                <i className="ph-fill ph-youtube-logo" />
+              </a>
+              <a href="https://github.com/nischaysharma-me" target="_blank" rel="me noopener noreferrer" className="billboard__social-link" title="GitHub">
                 <i className="ph-fill ph-github-logo" />
               </a>
             </div>
