@@ -73,6 +73,12 @@ export const metadata: Metadata = {
   verification: {
     google: "vTAXBoSbMgMyHBDuUiz6Mmn9lEwu-GHHUwbnER84lTk",
   },
+  alternates: {
+    types: {
+      'application/rss+xml': `${SITE_URL}/feed.xml`,
+      'text/plain': `${SITE_URL}/llms.txt`,
+    },
+  },
 };
 
 export const viewport: Viewport = {

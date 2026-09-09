@@ -286,6 +286,70 @@
         &::after
           width: 100%
 
+  /* --- Answer-friendly verified facts --- */
+  .about-facts
+    padding: 1rem 0 5rem
+
+    @include desktop
+      padding: 1rem 0 8rem
+
+    &__container
+      max-width: 1400px
+      margin: 0 auto
+      padding: 0 $spacing-lg
+
+      @include desktop
+        padding: 0 4rem
+
+    &__header
+      max-width: 720px
+      margin-bottom: $spacing-xl
+
+      h2
+        margin: 0
+        font-size: clamp(2rem, 5vw, 3.75rem)
+        line-height: 1.05
+        letter-spacing: -0.04em
+
+    &__grid
+      display: grid
+      grid-template-columns: 1fr
+      gap: $spacing-md
+      margin: 0
+
+      @include desktop
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+
+    &__item
+      margin: 0
+      padding: clamp(1.25rem, 3vw, 2rem)
+      border: 1px solid $color-border
+      border-radius: $radius-lg
+      background: $color-bg-secondary
+
+      dt
+        margin-bottom: $spacing-sm
+        font-size: 0.8rem
+        font-weight: 800
+        letter-spacing: 0.08em
+        text-transform: uppercase
+
+      dd
+        margin: 0
+        color: $color-text-secondary
+        font-size: 1rem
+        line-height: 1.65
+
+    &__links
+      display: flex
+      flex-wrap: wrap
+      gap: 0.5rem 1rem
+
+      a
+        color: $color-text-primary
+        font-weight: 700
+        text-underline-offset: 0.25em
+
   /* --- Activity Visualization --- */
   .about-activity
     padding: 6rem 0
