@@ -519,8 +519,8 @@
       flex-direction: column
       gap: $spacing-md
       position: relative
-      opacity: 0
-      transform: translateY(30px)
+      opacity: 1
+      transform: translateY(0)
       @include transition(all)
       transition-duration: 600ms
 
@@ -539,10 +539,6 @@
         @include transition(all)
         pointer-events: none
         z-index: 0
-
-      &.visible
-        opacity: 1
-        transform: translateY(0)
 
       &.is-hovered
         &::before

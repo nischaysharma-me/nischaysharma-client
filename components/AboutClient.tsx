@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import ActivityHeatmap, { ActivityDay } from '@/components/ui/ActivityHeatmap';
 
 import ReactMarkdown from 'react-markdown';
@@ -101,7 +101,6 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
   const [hoveredPosition, setHoveredPosition] = useState<number | null>(null);
   const [hoveredEducation, setHoveredEducation] = useState<number | null>(null);
-  const [mounted, setMounted] = useState(false);
   const github = profile?.analytics?.github;
 
   const rawPositions = profile?.experience || [];
@@ -160,22 +159,6 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
   const skills = profile?.skills?.length ? profile.skills : ['TypeScript', 'Node.js', 'Next.js', 'React', 'Python', 'Go', 'Docker', 'Kubernetes', 'AWS', 'Firebase', 'PostgreSQL', 'MongoDB', 'GraphQL', 'REST APIs', 'System Design'];
   const expertise = profile?.expertise?.length ? profile.expertise : ['System Architecture', 'Cloud Infrastructure', 'API Design', 'Database Modeling', 'DevOps', 'Security'];
   const projects = profile?.projects || [];
-
-  // Animation effect for career items
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.1 });
-
-    const careerItems = document.querySelectorAll('.career-item');
-    careerItems.forEach(item => observer.observe(item));
-
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <div className="about-wrapper">
