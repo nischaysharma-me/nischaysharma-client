@@ -3,13 +3,11 @@ import { Space_Grotesk, Merriweather } from "next/font/google";
 import "../styles/globals.sass";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { Toaster } from "sonner";
-import RealtimeNotificationHandler from "@/components/RealtimeNotificationHandler";
-import SplashLoader from "@/components/SplashLoader";
 import { Dialog } from "@/components/ui/Dialog";
 import NavigationWrapper from "@/components/NavigationWrapper";
 import { ReadingModeProvider } from "@/components/ReadingModeProvider";
-import { GoogleTagManager } from '@next/third-parties/google';
 import { ImageCropProvider } from '@/components/image/ImageCropProvider';
+import Script from "next/script";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -126,9 +124,8 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <GoogleTagManager gtmId="GTM-NVGLQ2LM" />
       <head>
-        <script src="https://unpkg.com/@phosphor-icons/web" async></script>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -137,12 +134,25 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${merriweather.variable} font-sans antialiased`}
       >
+        <Script id="google-tag-manager" strategy="lazyOnload">
+          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','GTM-NVGLQ2LM');`}
+        </Script>
+        <Script id="phosphor-icons" strategy="lazyOnload">
+          {`for (const weight of ['regular', 'fill']) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/' + weight + '/style.css';
+            document.head.appendChild(link);
+          }`}
+        </Script>
         <ReadingModeProvider>
           <ImageCropProvider>
-            <SplashLoader />
             <Toaster position="top-right" richColors expand closeButton />
             <Dialog />
-            <RealtimeNotificationHandler />
             <NavigationWrapper />
             <SmoothScrollProvider>
               {children}

@@ -1,24 +1,22 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { Suspense, lazy } from 'react';
 import Header from './Header';
-import BillboardOverlay from './BillboardOverlay';
-import StackMenu from './StackMenu';
 import { useBillboardOverlayStore } from '@/store/useBillboardOverlayStore';
+import { useStackMenuStore } from '@/store/useStackMenuStore';
+
+const BillboardOverlay = lazy(() => import('./BillboardOverlay'));
+const StackMenu = lazy(() => import('./StackMenu'));
 
 export default function NavigationWrapper() {
-  const fetchBillboards = useBillboardOverlayStore(state => state.fetchBillboards);
-
-  useEffect(() => {
-    // Pre-fetch billboard data in the background for zero-latency overlay
-    fetchBillboards();
-  }, [fetchBillboards]);
+  const isBillboardOpen = useBillboardOverlayStore(state => state.isOpen);
+  const isStackOpen = useStackMenuStore(state => state.isOpen);
 
   return (
     <>
       <Header />
-      <BillboardOverlay />
-      <StackMenu />
+      {isBillboardOpen && <Suspense fallback={null}><BillboardOverlay /></Suspense>}
+      {isStackOpen && <Suspense fallback={null}><StackMenu /></Suspense>}
     </>
   );
 }

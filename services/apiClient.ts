@@ -6,6 +6,10 @@ export const getBaseUrl = () => {
 interface ApiFetchOptions extends Omit<RequestInit, 'body'> {
   body?: any;
   token?: string;
+  next?: {
+    revalidate?: number | false;
+    tags?: string[];
+  };
 }
 
 export async function apiFetch<T>(endpoint: string, options: ApiFetchOptions = {}): Promise<T> {

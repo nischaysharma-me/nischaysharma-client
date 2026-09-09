@@ -172,6 +172,8 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                   src={profile?.coverURL || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2070&auto=format&fit=crop'}
                   alt="Cover"
                   className="about-hero__banner-img"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="about-hero__banner-overlay" />
               </div>
@@ -181,7 +183,7 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
               <div className="about-hero__identity">
                 <div className="about-hero__avatar">
                   {profile?.photoURL ? (
-                    <img src={profile.photoURL} alt={profile.displayName || 'Profile'} className="about-hero__avatar-img" />
+                    <img src={profile.photoURL} alt={profile.displayName || 'Profile'} className="about-hero__avatar-img" loading="lazy" decoding="async" />
                   ) : (
                     <div className="avatar-placeholder">
                       {profile?.displayName?.[0] || 'N'}
@@ -350,7 +352,7 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                   >
                     <div className="career-item__logo">
                        {pos.logo ? (
-                         <img src={pos.logo} alt={pos.company} />
+                         <img src={pos.logo} alt={pos.company} loading="lazy" decoding="async" />
                        ) : (
                          <div className="logo-placeholder">{pos.company[0]}</div>
                        )}
@@ -407,7 +409,7 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                     onMouseLeave={() => setHoveredEducation(null)}
                   >
                     <div className="academic-card__logo">
-                       {edu.logo ? <img src={edu.logo} alt={edu.school} /> : <div className="logo-placeholder">{edu.school[0]}</div>}
+                       {edu.logo ? <img src={edu.logo} alt={edu.school} loading="lazy" decoding="async" /> : <div className="logo-placeholder">{edu.school[0]}</div>}
                     </div>
                     <div className="academic-card__content">
                        <h3 className="academic-card__school">{edu.school}</h3>

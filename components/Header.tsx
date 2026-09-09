@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { useReadingModeStore } from '@/store/useReadingModeStore';
 import { useBillboardOverlayStore } from '@/store/useBillboardOverlayStore';
 import { useStackMenuStore } from '@/store/useStackMenuStore';
-import ReadingModeToggle from '@/components/ReadingModeToggle';
 
 export default function Header() {
   const pathname = usePathname();
@@ -33,9 +32,6 @@ export default function Header() {
           <i className="ph ph-stack" style={{ fontSize: '1.5rem' }} />
         </button>
 
-        <div style={{ display: 'none' }}>
-          <ReadingModeToggle />
-        </div>
       </div>
 
       <button

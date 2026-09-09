@@ -3,7 +3,6 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
-import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -25,14 +24,4 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 const rtdb = getDatabase(app);
 
-// Initialize Analytics conditionally (it only works in the browser)
-let analytics: any = null;
-if (typeof window !== "undefined") {
-  isSupported().then((supported) => {
-    if (supported) {
-      analytics = getAnalytics(app);
-    }
-  });
-}
-
-export { app, auth, db, rtdb, storage, analytics };
+export { app, auth, db, rtdb, storage };

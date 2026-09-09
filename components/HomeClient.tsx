@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import AboutClient from '@/components/AboutClient';
+import React, { Suspense, lazy, useState, useRef, useEffect } from 'react';
 import { useReadingModeStore } from '@/store/useReadingModeStore';
-import MarkdownView from '@/components/ui/MarkdownView';
-import StackMenu from '@/components/StackMenu';
+
+const AboutClient = lazy(() => import('@/components/AboutClient'));
+const StackMenu = lazy(() => import('@/components/StackMenu'));
+const MarkdownView = lazy(() => import('@/components/ui/MarkdownView'));
 
 interface FeaturedItem {
   id: string;
@@ -23,6 +24,7 @@ const FeaturedSection = ({
   readingModeEnabled: boolean
 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [shouldLoadImage, setShouldLoadImage] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,6 +44,24 @@ const FeaturedSection = ({
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || shouldLoadImage) return;
+
+    const imageObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoadImage(true);
+          imageObserver.disconnect();
+        }
+      },
+      { threshold: 0.01, rootMargin: '300px 0px' }
+    );
+
+    imageObserver.observe(section);
+    return () => imageObserver.disconnect();
+  }, [shouldLoadImage]);
 
   const getCoverImage = (item: FeaturedItem) => {
     const { data, type } = item;
@@ -98,7 +118,7 @@ const FeaturedSection = ({
       <div
         className="articles-parallax__container"
         style={{
-          backgroundImage: `url(${getCoverImage(item)})`
+          backgroundImage: shouldLoadImage ? `url(${getCoverImage(item)})` : 'none'
         }}
       />
 
@@ -113,7 +133,9 @@ const FeaturedSection = ({
           </h3>
 
           <div className="articles-parallax__description">
-            <MarkdownView content={item.data.description || (item.type === 'article' ? "An immersive technical study designed for the modern reader." : "A curated collection of technical depth.")} />
+            <Suspense fallback={<p>{item.data.description || 'A curated collection of technical depth.'}</p>}>
+              <MarkdownView content={item.data.description || (item.type === 'article' ? "An immersive technical study designed for the modern reader." : "A curated collection of technical depth.")} />
+            </Suspense>
           </div>
         </div>
 
@@ -129,6 +151,41 @@ const FeaturedSection = ({
         </div>
       </div>
     </section>
+  );
+};
+
+const DeferredContent = ({
+  children,
+  rootMargin = '600px 0px'
+}: {
+  children: () => React.ReactNode;
+  rootMargin?: string;
+}) => {
+  const [shouldRender, setShouldRender] = useState(false);
+  const placeholderRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const placeholder = placeholderRef.current;
+    if (!placeholder || shouldRender) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldRender(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.01, rootMargin }
+    );
+
+    observer.observe(placeholder);
+    return () => observer.disconnect();
+  }, [rootMargin, shouldRender]);
+
+  return (
+    <div ref={placeholderRef} style={{ minHeight: shouldRender ? undefined : '100dvh' }}>
+      {shouldRender ? children() : null}
+    </div>
   );
 };
 
@@ -186,12 +243,12 @@ export default function HomeClient({ profile, featured }: { profile: any; featur
             flexDirection: 'column'
           }}
         >
-          <StackMenu isStatic />
+          <DeferredContent>{() => <Suspense fallback={null}><StackMenu isStatic /></Suspense>}</DeferredContent>
         </section>
 
         {/* --- Profile Section --- */}
         <section className="home-profile-section" style={{ zIndex: (featured?.length || 0) + 20, position: 'relative', background: 'var(--color-bg-primary)' }}>
-          <AboutClient profile={profile} />
+          <DeferredContent>{() => <Suspense fallback={null}><AboutClient profile={profile} /></Suspense>}</DeferredContent>
         </section>
       </div>
 

@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { primaryNavItems, secondaryNavItems } from '@/config/adminNav';
 import { useStore } from '@/store/useStore';
 import NotificationBell from '@/components/admin/NotificationBell';
+import RealtimeNotificationHandler from '@/components/RealtimeNotificationHandler';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, setUser, setActiveAdminTab } = useStore();
@@ -51,6 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="dashboard">
+      <RealtimeNotificationHandler />
       
       {/* Mobile Sidebar Overlay */}
       <div 

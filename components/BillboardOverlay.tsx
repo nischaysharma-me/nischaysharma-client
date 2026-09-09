@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -16,12 +16,22 @@ const navLinks = [
 ];
 
 export default function BillboardOverlay() {
-  const { billboards, isOpen, toggle, setIsOpen } = useBillboardOverlayStore();
+  const { billboards, isOpen, setIsOpen, fetchBillboards } = useBillboardOverlayStore();
   const pathname = usePathname();
+  const previousPathname = useRef(pathname);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchBillboards();
+    }
+  }, [fetchBillboards, isOpen]);
 
   // Close overlay when pathname changes
   useEffect(() => {
-    setIsOpen(false);
+    if (previousPathname.current !== pathname) {
+      previousPathname.current = pathname;
+      setIsOpen(false);
+    }
   }, [pathname, setIsOpen]);
 
   const leadArticle = billboards.find(b => b.layoutType === 'lead');

@@ -171,6 +171,8 @@ export default function StackMenu({ isStatic = false }: { isStatic?: boolean }) 
                       src={selectedItem.imageUrl}
                       alt={selectedItem.title}
                       className="stack-dossier__stage-img"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <div
