@@ -17,6 +17,7 @@ export const usersService = {
   getHomeData: () => {
     return apiFetch<any>('/users/public/home', {
       method: 'GET',
+      next: { revalidate: 60, tags: ['home-data'] },
     });
   },
 
