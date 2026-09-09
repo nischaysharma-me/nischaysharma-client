@@ -167,7 +167,7 @@ export default function ResumeImportDialog({ open, onClose, onImported }: Props)
               {sectionOptions.map((section) => {
                 const active = sections.includes(section.id);
                 return <button type="button" key={section.id} className={active ? 'is-selected' : ''} onClick={() => toggleSection(section.id)} aria-pressed={active}>
-                  <i className={`ph ${section.icon}`} /><span><strong>{section.label}</strong><small>{section.hint}</small></span><i className={`ph ${active ? 'ph-check-circle-fill' : 'ph-circle'}`} />
+                  <i className={`ph ${section.icon}`} /><span><strong>{section.label}</strong><small>{section.hint}</small></span><i className={active ? 'ph-fill ph-check-circle' : 'ph ph-circle'} />
                 </button>;
               })}
             </div>
