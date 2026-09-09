@@ -19,6 +19,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import TiptapEditor from '@/components/editor/TiptapEditor';
 import { useDialogStore } from '@/store/useDialogStore';
+import ResumeImportDialog from '@/components/admin/ResumeImportDialog';
 
 export default function ProfileClient() {
   const router = useRouter();
@@ -104,6 +105,7 @@ export default function ProfileClient() {
   const [projectTagInput, setProjectTagInput] = useState('');
   const [projectSkillInput, setProjectSkillInput] = useState('');
   const [resourceForm, setResourceForm] = useState({ title: '', url: '' });
+  const [showResumeImport, setShowResumeImport] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -871,9 +873,9 @@ export default function ProfileClient() {
 
   return (
     <div className="profile-admin">
-      <div className="dashboard__title">
-        <h2>Your Identity</h2>
-        <p>Manage your public persona and professional background.</p>
+      <div className="dashboard__title resume-import-trigger">
+        <div><h2>Your Identity</h2><p>Manage your public persona and professional background.</p></div>
+        <Button type="button" variant="secondary" onClick={() => setShowResumeImport(true)} leftIcon={<i className="ph ph-file-arrow-up" />}>Import resume</Button>
       </div>
 
       {/* Hero / Cover Section */}
@@ -1624,6 +1626,8 @@ export default function ProfileClient() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ResumeImportDialog open={showResumeImport} onClose={() => setShowResumeImport(false)} onImported={fetchProfile} />
 
       <style jsx>{`
         .profile-admin__photo-btn {

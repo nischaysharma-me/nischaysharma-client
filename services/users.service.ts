@@ -1,5 +1,29 @@
 import { apiFetch } from './apiClient';
 
+export type ResumeSection = 'basics' | 'summary' | 'skills' | 'experience' | 'education' | 'projects' | 'socialLinks';
+
+export interface ResumePreview {
+  basics: { displayName?: string; email?: string; occupation?: string };
+  summary: string;
+  skills: string[];
+  expertise: string[];
+  experience: Array<{
+    company: string;
+    location: string;
+    roles: Array<{ title: string; startDate: string; endDate: string; description: string; employmentType: string }>;
+  }>;
+  education: Array<{ school: string; degree: string; fieldOfStudy: string; startDate: string; endDate: string; description: string }>;
+  projects: Array<{ title: string; description: string; link: string; skills: string[] }>;
+  socialLinks: { linkedin?: string; github?: string; twitter?: string; website?: string };
+}
+
+export interface ResumeImportPayload {
+  profile?: Record<string, unknown>;
+  experience?: ResumePreview['experience'];
+  education?: ResumePreview['education'];
+  projects?: ResumePreview['projects'];
+}
+
 export const usersService = {
   getMe: (token: string) => {
     return apiFetch<any>('/users/me', {
@@ -133,5 +157,23 @@ export const usersService = {
       token,
       body: formData,
     });
-  }
+  },
+
+  previewResume: (file: File, sections: ResumeSection[], token: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('sections', JSON.stringify(sections));
+    return apiFetch<{ success: boolean; data: { sections: ResumeSection[]; data: ResumePreview } }>('/users/me/resume/preview', {
+      method: 'POST',
+      token,
+      body: formData,
+    });
+  },
+
+  applyResumeImport: (data: ResumeImportPayload, token: string) =>
+    apiFetch<{ success: boolean; data: { profileUpdated: boolean; created: Record<string, number>; skipped: Record<string, number> } }>('/users/me/resume/apply', {
+      method: 'POST',
+      token,
+      body: data,
+    }),
 };
