@@ -1,6 +1,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import StructuredData from '@/components/seo/StructuredData';
+import { PERSON_ID, SITE_URL } from '@/lib/seo/identity';
 import { articlesService } from '@/services/articles.service';
 import { Article } from '@/lib/types/article';
 import { Metadata } from 'next';
@@ -91,33 +93,27 @@ export default async function PublicArticleView({ params }: PageProps) {
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
+    "@id": `${SITE_URL}/articles/${article.slug}#article`,
+    "mainEntityOfPage": `${SITE_URL}/articles/${article.slug}`,
     "headline": article.title,
     "description": article.description,
-    "image": getCoverImage(article),
+    "image": getCoverImage(article).startsWith('http') ? getCoverImage(article) : `${SITE_URL}${getCoverImage(article)}`,
     "datePublished": article.publishedAt,
     "dateModified": article.publishedAt,
     "author": {
-      "@type": "Person",
-      "name": "Nischay Sharma",
-      "url": "https://nischaysharma.com"
+      "@id": PERSON_ID
     },
     "publisher": {
-      "@type": "Organization",
-      "name": "TaughtCode",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://nischaysharma.com/logo.png"
-      }
-    }
+      "@id": PERSON_ID
+    },
+    "keywords": article.tags?.join(', '),
+    "isAccessibleForFree": true
   };
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <StructuredData data={jsonLd} />
       <div className="article-view">
         <header className="article-view__hero">
           <Image 

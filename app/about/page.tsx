@@ -2,26 +2,40 @@ import React from 'react';
 import AboutClient from '@/components/AboutClient';
 import { usersService } from '@/services/users.service';
 import { Metadata } from 'next';
+import StructuredData from '@/components/seo/StructuredData';
+import { buildProfilePage } from '@/lib/seo/person';
+import { plainText } from '@/lib/seo/identity';
 
 export const revalidate = 60; // Cache for 1 minute
 
-export const metadata: Metadata = {
-  title: "About Nischay Sharma | Lead Software Engineer & Architect",
-  description: "Learn about Nischay Sharma, a lead developer specializing in scalable backend systems, cloud-native architectures, and AI orchestration.",
-  keywords: ["Nischay Sharma", "Nishchay Sharma", "Nischay", "Nishchay", "Edvanta", "Thoughtjumper", "Thought Jumper", "TaughtCode", "Software Engineering", "Minimalist Portfolio", "Technical Writing"],
-  alternates: {
-    canonical: '/about',
-  },
-  openGraph: {
-    title: "About Nischay Sharma | Lead Software Engineer & Architect",
-    description: "Learn about Nischay Sharma, a lead developer specializing in scalable backend systems, cloud-native architectures, and AI orchestration.",
-    url: "https://nischaysharma.com/about",
-    type: "profile",
-    firstName: "Nischay",
-    lastName: "Sharma",
-    username: "nishuns",
-  }
-};
+export async function generateMetadata(): Promise<Metadata> {
+  let profile: Parameters<typeof buildProfilePage>[0] = null;
+  try {
+    const res = await usersService.getPublicAdmin();
+    if (res?.success) profile = res.data;
+  } catch {}
+  const description = plainText(profile?.bio).slice(0, 155) || "Official profile of Nischay Sharma, a software engineer and architect specializing in scalable systems, cloud architecture, and AI orchestration.";
+  const image = '/og-image.jpg';
+  return {
+    title: "About Nischay Sharma | Official Profile",
+    description,
+    keywords: ["Nischay Sharma", "Nishchay Sharma", "Nischay", "Nishchay", "nischaysharma-me", "nischay.me", "Iamnischaysharma", "Edvanta", "Thoughtjumper", "Thought Jumper", "TaughtCode", "Software Engineering", "Technical Writing"],
+    alternates: {
+      canonical: '/about',
+    },
+    openGraph: {
+      title: "About Nischay Sharma | Official Profile",
+      description,
+      url: "https://nischaysharma.com/about",
+      type: "profile",
+      firstName: "Nischay",
+      lastName: "Sharma",
+      username: "nischaysharma-me",
+      images: [{ url: image, width: 1200, height: 630, alt: 'Nischay Sharma — AI Solution Architect and Technical Writer' }],
+    },
+    twitter: { card: 'summary_large_image', title: 'Nischay Sharma — Official Profile', description, images: [image] },
+  };
+}
 
 export default async function AboutPage() {
   let profile = null;
@@ -34,5 +48,5 @@ export default async function AboutPage() {
     console.error('Error fetching public admin profile:', err);
   }
 
-  return <AboutClient profile={profile} showBanner={true} />;
+  return <><StructuredData data={buildProfilePage(profile)} /><AboutClient profile={profile} showBanner={true} /></>;
 }

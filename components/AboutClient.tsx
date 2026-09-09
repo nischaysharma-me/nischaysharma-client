@@ -5,6 +5,7 @@ import ActivityHeatmap, { ActivityDay } from '@/components/ui/ActivityHeatmap';
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { getPublicSocialLinks } from '@/lib/seo/identity';
 
 interface GitHubStats {
   totalRepos: number;
@@ -72,8 +73,12 @@ interface Profile {
   education?: Education[];
   socialLinks?: {
     github?: string;
+    instagram?: string;
     linkedin?: string;
+    threads?: string;
     twitter?: string;
+    website?: string;
+    youtube?: string;
   };
   analytics?: {
     github?: {
@@ -102,6 +107,7 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
   const [hoveredPosition, setHoveredPosition] = useState<number | null>(null);
   const [hoveredEducation, setHoveredEducation] = useState<number | null>(null);
   const github = profile?.analytics?.github;
+  const publicSocialLinks = getPublicSocialLinks(profile?.socialLinks);
 
   const rawPositions = profile?.experience || [];
 
@@ -242,6 +248,41 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="about-facts" aria-labelledby="about-facts-title">
+          <div className="about-facts__container">
+            <header className="about-facts__header">
+              <span className="section-label">Verified profile</span>
+              <h2 id="about-facts-title">Nischay Sharma at a glance</h2>
+            </header>
+            <dl className="about-facts__grid">
+              <div className="about-facts__item">
+                <dt>Who is Nischay Sharma?</dt>
+                <dd>Nischay Sharma, also spelled Nishchay Sharma, is a {profile?.occupation || 'software engineer and architect'} who publishes technical writing, software projects, and educational content.</dd>
+              </div>
+              <div className="about-facts__item">
+                <dt>What does Nischay specialize in?</dt>
+                <dd>{expertise.slice(0, 6).join(', ')}.</dd>
+              </div>
+              {positions.length > 0 && (
+                <div className="about-facts__item">
+                  <dt>Which organizations are part of his experience?</dt>
+                  <dd>{positions.map(position => position.company).join(', ')}.</dd>
+                </div>
+              )}
+              <div className="about-facts__item">
+                <dt>Where are his official profiles?</dt>
+                <dd className="about-facts__links">
+                  <a href={publicSocialLinks.linkedin} rel="me">LinkedIn</a>
+                  <a href={publicSocialLinks.github} rel="me">GitHub</a>
+                  <a href={publicSocialLinks.instagram} rel="me">Instagram</a>
+                  <a href={publicSocialLinks.threads} rel="me">Threads</a>
+                  <a href={publicSocialLinks.youtube} rel="me">YouTube</a>
+                </dd>
+              </div>
+            </dl>
           </div>
         </section>
 
@@ -460,9 +501,12 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                 <span className="tagline">Built for the next era of development.</span>
               </div>
               <div className="about-footer__right">
-                {profile?.socialLinks?.github && <a href={profile.socialLinks.github} target="_blank">GITHUB</a>}
-                {profile?.socialLinks?.linkedin && <a href={profile.socialLinks.linkedin} target="_blank">LINKEDIN</a>}
-                {profile?.socialLinks?.twitter && <a href={profile.socialLinks.twitter} target="_blank">TWITTER</a>}
+                {publicSocialLinks.github && <a href={publicSocialLinks.github} target="_blank" rel="me noopener noreferrer">GITHUB</a>}
+                {publicSocialLinks.instagram && <a href={publicSocialLinks.instagram} target="_blank" rel="me noopener noreferrer">INSTAGRAM</a>}
+                {publicSocialLinks.linkedin && <a href={publicSocialLinks.linkedin} target="_blank" rel="me noopener noreferrer">LINKEDIN</a>}
+                {publicSocialLinks.threads && <a href={publicSocialLinks.threads} target="_blank" rel="me noopener noreferrer">THREADS</a>}
+                {publicSocialLinks.twitter && <a href={publicSocialLinks.twitter} target="_blank" rel="me noopener noreferrer">X</a>}
+                {publicSocialLinks.youtube && <a href={publicSocialLinks.youtube} target="_blank" rel="me noopener noreferrer">YOUTUBE</a>}
               </div>
            </div>
         </footer>

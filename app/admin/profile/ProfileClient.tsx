@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import TiptapEditor from '@/components/editor/TiptapEditor';
 import { useDialogStore } from '@/store/useDialogStore';
 import ResumeImportDialog from '@/components/admin/ResumeImportDialog';
+import { getPublicSocialLinks } from '@/lib/seo/identity';
 
 export default function ProfileClient() {
   const router = useRouter();
@@ -56,7 +57,8 @@ export default function ProfileClient() {
   const [skillInput, setSkillInput] = useState('');
   const [expertise, setExpertise] = useState<string[]>([]);
   const [expertiseInput, setExpertiseInput] = useState('');
-  const [socialLinks, setSocialLinks] = useState({ twitter: '', linkedin: '', github: '', website: '' });
+  const emptySocialLinks = { twitter: '', linkedin: '', github: '', instagram: '', threads: '', youtube: '', website: '' };
+  const [socialLinks, setSocialLinks] = useState(emptySocialLinks);
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [showProjectModal, setShowProjectModal] = useState(false);
@@ -147,7 +149,7 @@ export default function ProfileClient() {
         setFeatured(userData.featured || []);
         setSkills(userData.skills || []);
         setExpertise(userData.expertise || []);
-        setSocialLinks(userData.socialLinks || { twitter: '', linkedin: '', github: '', website: '' });
+        setSocialLinks({ ...emptySocialLinks, ...getPublicSocialLinks(userData.socialLinks) });
       }
 
       if (expRes?.success) {
@@ -967,6 +969,29 @@ export default function ProfileClient() {
                 isCompact={true}
               />
             </div>
+
+            <div className="form-divider" style={{ borderTop: '1px solid var(--color-border)', margin: '2rem 0' }}></div>
+
+            <section aria-labelledby="public-profiles-heading">
+              <h3 id="public-profiles-heading" className="label" style={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}>Public Profiles</h3>
+              <p style={{ margin: '0 0 1.5rem', color: 'var(--color-text-secondary)', fontSize: '0.875rem' }}>Use the exact public URLs you want search engines to associate with your identity.</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                {([
+                  ['linkedin', 'LinkedIn', 'https://www.linkedin.com/in/nischaysharma-me'],
+                  ['instagram', 'Instagram', 'https://www.instagram.com/nischay.me/'],
+                  ['threads', 'Threads', 'https://www.threads.net/@nischay.me'],
+                  ['youtube', 'YouTube', 'https://www.youtube.com/@Iamnischaysharma'],
+                  ['github', 'GitHub', 'https://github.com/nischaysharma-me'],
+                  ['twitter', 'X / Twitter', 'https://x.com/your-handle'],
+                  ['website', 'Other website', 'https://example.com'],
+                ] as const).map(([key, label, placeholder]) => (
+                  <div className="form-group" key={key}>
+                    <label className="label" htmlFor={`social-${key}`}>{label}</label>
+                    <Input id={`social-${key}`} type="url" inputMode="url" value={socialLinks[key]} onChange={(event) => setSocialLinks({ ...socialLinks, [key]: event.target.value })} placeholder={placeholder} />
+                  </div>
+                ))}
+              </div>
+            </section>
 
             <div className="form-divider" style={{ borderTop: '1px solid var(--color-border)', margin: '2rem 0' }}></div>
 

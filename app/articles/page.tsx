@@ -3,6 +3,8 @@ import ArticlesIndexClient from '@/components/ArticlesIndexClient';
 import { articlesService } from '@/services/articles.service';
 import { Article } from '@/lib/types/article';
 import { Metadata } from 'next';
+import StructuredData from '@/components/seo/StructuredData';
+import { PERSON_ID, SITE_URL } from '@/lib/seo/identity';
 
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
@@ -38,8 +40,25 @@ export default async function ArticlesIndexPage() {
   }
 
   return (
-    <ArticlesIndexClient 
-      initialArticles={articles} 
-    />
+    <>
+      <StructuredData data={{
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        '@id': `${SITE_URL}/articles#collection`,
+        url: `${SITE_URL}/articles`,
+        name: 'Articles by Nischay Sharma',
+        author: { '@id': PERSON_ID },
+        mainEntity: {
+          '@type': 'ItemList',
+          itemListElement: articles.map((article, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            url: `${SITE_URL}/articles/${article.slug}`,
+            name: article.title,
+          })),
+        },
+      }} />
+      <ArticlesIndexClient initialArticles={articles} />
+    </>
   );
 }
