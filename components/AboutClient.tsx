@@ -245,6 +245,36 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
           </div>
         </section>
 
+        {(skills.length > 0 || expertise.length > 0) && (
+          <section className="about-competencies" aria-labelledby="about-competencies-title">
+            <div className="about-competencies__container">
+              <header className="about-competencies__header">
+                <span className="section-label">Capabilities</span>
+                <h2 id="about-competencies-title" className="section-title">Technical skills & expertise</h2>
+                <p>The technologies I work with and the disciplines where I bring deeper experience.</p>
+              </header>
+              <div className="about-competencies__grid">
+                {skills.length > 0 && (
+                  <div className="about-competencies__group">
+                    <div className="about-competencies__group-title"><span>Technical skills</span><small>{skills.length}</small></div>
+                    <div className="about-competencies__tags">
+                      {skills.map(skill => <span key={skill} className="about-competencies__tag">{skill}</span>)}
+                    </div>
+                  </div>
+                )}
+                {expertise.length > 0 && (
+                  <div className="about-competencies__group about-competencies__group--expertise">
+                    <div className="about-competencies__group-title"><span>Areas of expertise</span><small>{expertise.length}</small></div>
+                    <div className="about-competencies__tags">
+                      {expertise.map(item => <span key={item} className="about-competencies__tag">{item}</span>)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* --- Activity Visualization --- */}
         {github?.contributionCalendar && (
           <section className="about-activity">
@@ -419,22 +449,6 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
                   </div>
                 ))}
               </div>
-            </div>
-          </section>
-        )}
-
-        {/* --- Skills & Expertise Footer --- */}
-        {skills.length > 0 && (
-          <section className="about-skills">
-            <div className="about-skills__container">
-               <div className="skills-marquee">
-                  <div className="skills-track">
-                     {/* Double the skills for seamless loop if needed, for now just a cloud */}
-                     {skills.map(skill => (
-                       <span key={skill} className="skill-chip">{skill.toUpperCase()}</span>
-                     ))}
-                  </div>
-               </div>
             </div>
           </section>
         )}

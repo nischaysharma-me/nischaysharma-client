@@ -832,6 +832,94 @@
         text-transform: uppercase
 
   /* --- Skills Section --- */
+  .about-competencies
+    padding: 4rem 0
+    border-top: 1px solid $color-border
+    border-bottom: 1px solid $color-border
+    background: $color-bg-secondary
+
+    @include desktop
+      padding: 7rem 0
+
+    &__container
+      max-width: 1400px
+      margin: 0 auto
+      padding: 0 $spacing-lg
+      @include desktop
+        padding: 0 4rem
+
+    &__header
+      max-width: 780px
+      margin-bottom: 2.5rem
+      .section-title
+        margin-bottom: 1rem
+      > p
+        color: $color-text-secondary
+        font-size: 1rem
+        line-height: 1.65
+
+    &__grid
+      display: grid
+      grid-template-columns: minmax(0, 1fr)
+      gap: 1rem
+      @include desktop
+        grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr)
+        gap: 1.5rem
+
+    &__group
+      padding: 1.25rem
+      border: 1px solid $color-border
+      border-radius: $radius-lg
+      background: $color-bg-primary
+      @include desktop
+        padding: 1.75rem
+      &--expertise
+        background: $color-text-primary
+        border-color: $color-text-primary
+        .about-competencies__group-title
+          color: $color-white
+          small
+            border-color: rgba(255,255,255,.25)
+            color: rgba(255,255,255,.7)
+        .about-competencies__tag
+          border-color: rgba(255,255,255,.18)
+          background: rgba(255,255,255,.08)
+          color: $color-white
+
+    &__group-title
+      display: flex
+      align-items: center
+      justify-content: space-between
+      gap: 1rem
+      margin-bottom: 1.1rem
+      color: $color-text-primary
+      font-size: .75rem
+      font-weight: 800
+      letter-spacing: .1em
+      text-transform: uppercase
+      small
+        min-width: 30px
+        padding: .25rem .45rem
+        border: 1px solid $color-border
+        border-radius: $radius-pill
+        color: $color-text-muted
+        text-align: center
+
+    &__tags
+      display: flex
+      flex-wrap: wrap
+      gap: .55rem
+
+    &__tag
+      padding: .55rem .8rem
+      border: 1px solid $color-border
+      border-radius: $radius-pill
+      background: $color-bg-secondary
+      color: $color-text-primary
+      font-size: .75rem
+      font-weight: 650
+      line-height: 1.25
+
   .about-skills
     padding: 4rem 0 8rem
 
