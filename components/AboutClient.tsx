@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import ActivityHeatmap, { ActivityDay } from '@/components/ui/ActivityHeatmap';
 
 import ReactMarkdown from 'react-markdown';
@@ -101,7 +101,6 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
   const [hoveredPosition, setHoveredPosition] = useState<number | null>(null);
   const [hoveredEducation, setHoveredEducation] = useState<number | null>(null);
-  const [mounted, setMounted] = useState(false);
   const github = profile?.analytics?.github;
 
   const rawPositions = profile?.experience || [];
@@ -160,22 +159,6 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
   const skills = profile?.skills?.length ? profile.skills : ['TypeScript', 'Node.js', 'Next.js', 'React', 'Python', 'Go', 'Docker', 'Kubernetes', 'AWS', 'Firebase', 'PostgreSQL', 'MongoDB', 'GraphQL', 'REST APIs', 'System Design'];
   const expertise = profile?.expertise?.length ? profile.expertise : ['System Architecture', 'Cloud Infrastructure', 'API Design', 'Database Modeling', 'DevOps', 'Security'];
   const projects = profile?.projects || [];
-
-  // Animation effect for career items
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.1 });
-
-    const careerItems = document.querySelectorAll('.career-item');
-    careerItems.forEach(item => observer.observe(item));
-
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <div className="about-wrapper">
@@ -299,41 +282,48 @@ export default function AboutClient({ profile, showBanner = false }: AboutClient
             <div className="about-projects__container">
               <h2 className="section-title">Selected Works</h2>
               <div className="projects-wall">
-                {projects.map((project, i) => (
-                  <div
-                    key={i}
+                {projects.map((project, i) => {
+                  const technologies = [...new Set([...(project.tags || []), ...(project.skills || [])])].slice(0, 4);
+
+                  return (
+                  <article
+                    key={project.id || `${project.title}-${i}`}
                     className="project-node"
                     onMouseEnter={() => setHoveredProject(i)}
                     onMouseLeave={() => setHoveredProject(null)}
                   >
                     <div className="project-node__image-wrapper">
                        {project.image ? (
-                         <img src={project.image} alt={project.title} className="project-node__img" />
+                         <img src={project.image} alt={project.title} className="project-node__img" loading="lazy" decoding="async" />
                        ) : (
                          <div className="project-node__placeholder" />
                        )}
                        <div className="project-node__overlay">
+                          <div className="project-node__topline">
+                            <span>Selected project</span>
+                            <span>{String(i + 1).padStart(2, '0')}</span>
+                          </div>
                           <div className="project-node__content">
                              <h3 className="project-node__title">{project.title}</h3>
                              <div className="project-node__desc">
                                <MarkdownContent content={project.description} />
                              </div>
-                             {(project.tags?.length || project.skills?.length) && (
-                               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', margin: '0.8rem 0' }}>
-                                 {project.tags?.map(t => <span key={t} style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.1)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '0.3rem', border: '1px solid rgba(255,255,255,0.2)' }}>{t}</span>)}
-                                 {project.skills?.map(s => <span key={s} style={{ fontSize: '0.65rem', background: 'rgba(255,255,255,0.2)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '0.3rem' }}>{s}</span>)}
+                             {technologies.length > 0 && (
+                               <div className="project-node__tags">
+                                 {technologies.map(technology => <span key={technology}>{technology}</span>)}
                                </div>
                              )}
                              {project.link && (
-                               <a href={project.link} target="_blank" className="project-node__link">
-                                 EXPLORE <i className="ph ph-arrow-right" />
+                               <a href={project.link} target="_blank" rel="noopener noreferrer" className="project-node__link" aria-label={`Explore ${project.title}`}>
+                                 <span>Explore project</span><i className="ph ph-arrow-up-right" />
                                </a>
                              )}
                           </div>
                        </div>
                     </div>
-                  </div>
-                ))}
+                  </article>
+                  );
+                })}
               </div>
             </div>
           </section>

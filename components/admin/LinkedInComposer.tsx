@@ -10,6 +10,7 @@ import {
   LinkedInSlide
 } from '@/services/integrations.service';
 import { toast } from 'sonner';
+import { useImageCrop } from '@/components/image/ImageCropProvider';
 
 interface LinkedInComposerProps {
   connected: boolean;
@@ -62,6 +63,7 @@ export default function LinkedInComposer({
   const [needsReconnect, setNeedsReconnect] = useState(false);
   const [reconnecting, setReconnecting] = useState(false);
   const [portalReady, setPortalReady] = useState(false);
+  const { cropImageUrl } = useImageCrop();
 
   useEffect(() => {
     setPortalReady(true);
@@ -197,6 +199,27 @@ export default function LinkedInComposer({
       await setSlideImage(index, file);
     } catch (error) {
       toast.error((error as Error).message);
+    }
+  };
+
+  const cropCurrentImage = async () => {
+    if (!imagePreview) return;
+    try {
+      const cropped = await cropImageUrl(imagePreview, { aspect: 4 / 5, label: 'LinkedIn post image', maxWidth: 1200 });
+      if (cropped) selectImage(cropped);
+    } catch (error) {
+      toast.error(`Unable to crop current image: ${(error as Error).message}`);
+    }
+  };
+
+  const cropCurrentSlideImage = async (index: number) => {
+    const preview = slides[index]?.imagePreview;
+    if (!preview) return;
+    try {
+      const cropped = await cropImageUrl(preview, { aspect: 4 / 5, label: `LinkedIn slide ${index + 1}`, maxWidth: 1200 });
+      if (cropped) await setSlideImage(index, cropped);
+    } catch (error) {
+      toast.error(`Unable to crop slide image: ${(error as Error).message}`);
     }
   };
 
@@ -403,8 +426,9 @@ export default function LinkedInComposer({
                     <label className="linkedin-composer__upload">
                       <i className="ph ph-upload-simple" />
                       <span><strong>{imageFile ? imageFile.name : 'Choose an image'}</strong><small>PNG, JPG, GIF — up to 20 MB</small></span>
-                      <input type="file" accept="image/*" onChange={(event) => selectImage(event.target.files?.[0])} />
+                      <input type="file" accept="image/*" data-crop-aspect="4/5" data-crop-label="LinkedIn post image" data-crop-max-width="1200" onChange={(event) => selectImage(event.target.files?.[0])} />
                     </label>
+                    {imagePreview && <button className="linkedin-composer__crop-image" type="button" onClick={cropCurrentImage}><i className="ph ph-crop" /> Crop current image</button>}
                     {initialImageUrl && !imageFile && <span className="linkedin-composer__cover-note"><i className="ph ph-check-circle" /> Current cover selected</span>}
                     <label htmlFor="linkedin-alt-text">Image alt text</label>
                     <input id="linkedin-alt-text" value={altText} maxLength={300} onChange={(event) => setAltText(event.target.value)} placeholder="Describe the image for accessibility" />
@@ -441,8 +465,13 @@ export default function LinkedInComposer({
                             </button>
                             <label>
                               <i className="ph ph-upload-simple" /> Upload
-                              <input type="file" accept="image/*" onChange={(event) => selectSlideImage(index, event.target.files?.[0])} />
+                              <input type="file" accept="image/*" data-crop-aspect="4/5" data-crop-label={`LinkedIn slide ${index + 1}`} data-crop-max-width="1200" onChange={(event) => selectSlideImage(index, event.target.files?.[0])} />
                             </label>
+                            {slide.imagePreview && (
+                              <button type="button" onClick={() => cropCurrentSlideImage(index)}>
+                                <i className="ph ph-crop" /> Crop
+                              </button>
+                            )}
                           </div>
                         </div>
                         <div className="linkedin-slide-editor__actions">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
@@ -9,6 +9,8 @@ import { postsService } from '@/services/posts.service';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { toast } from 'sonner';
+import { usersService } from '@/services/users.service';
+import { useImageCrop } from '@/components/image/ImageCropProvider';
 
 const emptyForm: PostInput = {
   title: '',
@@ -28,7 +30,10 @@ export default function PostEditor({ postId }: { postId?: string }) {
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [visualDirection, setVisualDirection] = useState('');
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const { cropImageUrl } = useImageCrop();
 
   useEffect(() => {
     if (!postId) return;
@@ -143,6 +148,34 @@ export default function PostEditor({ postId }: { postId?: string }) {
     }
   };
 
+  const uploadImage = async (file?: File) => {
+    if (!file) return;
+    try {
+      setUploadingImage(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error('No authentication token');
+      const response = await usersService.uploadAsset(file, 'posts', token);
+      if (!response.success || !response.url) throw new Error('Upload failed');
+      update('imageUrl', response.url);
+      toast.success('Cropped post image uploaded');
+    } catch (uploadError) {
+      toast.error(`Image upload failed: ${(uploadError as Error).message}`);
+    } finally {
+      setUploadingImage(false);
+      if (imageInputRef.current) imageInputRef.current.value = '';
+    }
+  };
+
+  const cropCurrentImage = async () => {
+    if (!form.imageUrl) return;
+    try {
+      const cropped = await cropImageUrl(form.imageUrl, { aspect: 16 / 10, label: 'post image', maxWidth: 1800 });
+      if (cropped) await uploadImage(cropped);
+    } catch (cropError) {
+      toast.error(`Unable to crop current image: ${(cropError as Error).message}`);
+    }
+  };
+
   const update = <K extends keyof PostInput>(key: K, value: PostInput[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
   };
@@ -191,6 +224,24 @@ export default function PostEditor({ postId }: { postId?: string }) {
               <Button type="button" variant="secondary" size="full" onClick={generateImage} loading={generatingImage} disabled={!postId} leftIcon={<i className="ph ph-magic-wand" />}>
                 {form.imageUrl ? 'Regenerate post image' : 'Generate post image'}
               </Button>
+              <Button type="button" variant="secondary" size="full" onClick={() => imageInputRef.current?.click()} loading={uploadingImage} leftIcon={<i className="ph ph-crop" />}>
+                Upload and crop image
+              </Button>
+              {form.imageUrl && (
+                <Button type="button" variant="secondary" size="full" onClick={cropCurrentImage} disabled={uploadingImage} leftIcon={<i className="ph ph-corners-out" />}>
+                  Crop current image
+                </Button>
+              )}
+              <input
+                ref={imageInputRef}
+                type="file"
+                hidden
+                accept="image/*"
+                data-crop-aspect="16/10"
+                data-crop-label="post image"
+                data-crop-max-width="1800"
+                onChange={(event) => uploadImage(event.target.files?.[0])}
+              />
               {!postId && <small>Save the draft to enable image generation.</small>}
               <Link href="/admin/prompt-library?prompt=post.image">Tune the post image prompt</Link>
             </div>

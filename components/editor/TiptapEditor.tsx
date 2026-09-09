@@ -20,6 +20,7 @@ import React, { useEffect, useState } from 'react';
 import { usersService } from '@/services/users.service';
 import { useStore } from '@/store/useStore';
 import { toast } from 'sonner';
+import { useImageCrop } from '@/components/image/ImageCropProvider';
 
 const lowlight = createLowlight(common);
 
@@ -40,6 +41,7 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
   const [mermaidEditData, setMermaidEditData] = useState<{ code: string; pos?: number } | null>(null);
 
   const { user } = useStore();
+  const { cropImage } = useImageCrop();
 
   const editor = useEditor({
     extensions: [
@@ -116,7 +118,9 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
         if (imageItem && user) {
           const file = imageItem.getAsFile();
           if (file) {
-            handleImageUpload(file);
+            void cropImage(file, { label: 'article image', maxWidth: 1800 }).then((cropped) => {
+              if (cropped) handleImageUpload(cropped);
+            });
             return true;
           }
         }
@@ -152,7 +156,9 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
         if (imageItem && user) {
           const file = imageItem.getAsFile();
           if (file) {
-            handleImageUpload(file);
+            void cropImage(file, { label: 'article image', maxWidth: 1800 }).then((cropped) => {
+              if (cropped) handleImageUpload(cropped);
+            });
             return true;
           }
         }

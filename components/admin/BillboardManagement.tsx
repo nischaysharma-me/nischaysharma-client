@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { Billboard } from '@/lib/types/billboard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDialogStore } from '@/store/useDialogStore';
+import { useImageCrop } from '@/components/image/ImageCropProvider';
 
 export default function BillboardManagement() {
   const {
@@ -21,6 +22,7 @@ export default function BillboardManagement() {
     generateImage
   } = useBillboardStore();
   const { openDialog } = useDialogStore();
+  const { cropImageUrl } = useImageCrop();
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -108,6 +110,19 @@ export default function BillboardManagement() {
     if (file) {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleCropCurrent = async () => {
+    if (!previewUrl) return;
+    try {
+      const aspect = formData.layoutType === 'lead' ? 16 / 9 : formData.layoutType === 'middle' ? 4 / 3 : 1;
+      const cropped = await cropImageUrl(previewUrl, { aspect, label: `${formData.layoutType} billboard image`, maxWidth: 1800 });
+      if (!cropped) return;
+      setSelectedFile(cropped);
+      setPreviewUrl(URL.createObjectURL(cropped));
+    } catch (cropError) {
+      toast.error(`Unable to crop current billboard image: ${(cropError as Error).message}`);
     }
   };
 
@@ -234,7 +249,7 @@ export default function BillboardManagement() {
 
                   <div className="field full">
                     <label>Headline Image</label>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
                       <div className="billboard-admin__form-image-preview">
                         {previewUrl ? (
                           <img src={previewUrl} alt="Preview" style={{ width: '100px', height: '100px', objectFit: 'cover', border: '1px solid #ddd' }} />
@@ -253,6 +268,11 @@ export default function BillboardManagement() {
                         >
                           {selectedFile ? 'Change Image' : 'Upload Custom Image'}
                         </Button>
+                        {previewUrl && (
+                          <Button type="button" variant="secondary" size="sm" onClick={handleCropCurrent}>
+                            Crop Current Image
+                          </Button>
+                        )}
                         <p style={{ fontSize: '0.65rem', color: '#737373' }}>
                           {selectedFile ? `Selected: ${selectedFile.name}` : 'Or use the AI generator after publishing.'}
                         </p>
@@ -261,6 +281,9 @@ export default function BillboardManagement() {
                           ref={fileInputRef}
                           onChange={handleFileChange}
                           accept="image/*"
+                          data-crop-aspect={formData.layoutType === 'lead' ? '16/9' : formData.layoutType === 'middle' ? '4/3' : '1/1'}
+                          data-crop-label={`${formData.layoutType} billboard image`}
+                          data-crop-max-width="1800"
                           style={{ display: 'none' }}
                         />
                       </div>

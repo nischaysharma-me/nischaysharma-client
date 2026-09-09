@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/lib/firebase';
@@ -15,6 +15,8 @@ import { toast } from 'sonner';
 import { useDialogStore } from '@/store/useDialogStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import MarkdownView from '@/components/ui/MarkdownView';
+import { usersService } from '@/services/users.service';
+import { useImageCrop } from '@/components/image/ImageCropProvider';
 
 export default function ArticleEditPage() {
   const { id } = useParams() as { id: string };
@@ -24,6 +26,8 @@ export default function ArticleEditPage() {
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [isRegeneratingBackground, setIsRegeneratingBackground] = useState(false);
+  const [isUploadingBackground, setIsUploadingBackground] = useState(false);
+  const backgroundInputRef = useRef<HTMLInputElement>(null);
   const [regenerationJobId, setRegenerationJobId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [content, setContent] = useState('');
@@ -33,6 +37,7 @@ export default function ArticleEditPage() {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { openDialog } = useDialogStore();
+  const { cropImageUrl } = useImageCrop();
 
   useEffect(() => {
     fetchArticle();
@@ -127,6 +132,34 @@ export default function ArticleEditPage() {
       console.error('Background image generation error:', error);
     } finally {
       setIsRegeneratingBackground(false);
+    }
+  };
+
+  const handleBackgroundUpload = async (file?: File) => {
+    if (!file) return;
+    try {
+      setIsUploadingBackground(true);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error('No authentication token');
+      const response = await usersService.uploadAsset(file, 'articles', token);
+      if (!response.success || !response.url) throw new Error('Upload failed');
+      setBackgroundImage(response.url);
+      toast.success('Cropped article background uploaded');
+    } catch (uploadError) {
+      toast.error(`Background upload failed: ${(uploadError as Error).message}`);
+    } finally {
+      setIsUploadingBackground(false);
+      if (backgroundInputRef.current) backgroundInputRef.current.value = '';
+    }
+  };
+
+  const cropCurrentBackground = async () => {
+    if (!backgroundImage) return;
+    try {
+      const cropped = await cropImageUrl(backgroundImage, { aspect: 16 / 9, label: 'article background', maxWidth: 2200 });
+      if (cropped) await handleBackgroundUpload(cropped);
+    } catch (cropError) {
+      toast.error(`Unable to crop current image: ${(cropError as Error).message}`);
     }
   };
 
@@ -261,12 +294,12 @@ export default function ArticleEditPage() {
                   
                   <div className="organization__form-group">
                     <label className="label">Background Image URL</label>
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <Input 
                         value={backgroundImage} 
                         onChange={(e) => setBackgroundImage(e.target.value)}
                         placeholder="https://..."
-                        style={{ flex: 1 }}
+                        style={{ flex: '1 1 180px', minWidth: 0 }}
                       />
                       <button 
                         onClick={handleRegenerateBackgroundImage} 
@@ -289,6 +322,30 @@ export default function ArticleEditPage() {
                         {isRegeneratingBackground ? <i className="ph ph-spinner animate-spin" /> : <i className="ph ph-sparkle" />}
                         <span>Generate</span>
                       </button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => backgroundInputRef.current?.click()}
+                        loading={isUploadingBackground}
+                      >
+                        Upload
+                      </Button>
+                      {backgroundImage && (
+                        <Button type="button" variant="secondary" size="sm" onClick={cropCurrentBackground} disabled={isUploadingBackground}>
+                          Crop
+                        </Button>
+                      )}
+                      <input
+                        ref={backgroundInputRef}
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        data-crop-aspect="16/9"
+                        data-crop-label="article background"
+                        data-crop-max-width="2200"
+                        onChange={(event) => handleBackgroundUpload(event.target.files?.[0])}
+                      />
                     </div>
                     {backgroundImage && (
                       <div className="article-edit__sidebar-image">

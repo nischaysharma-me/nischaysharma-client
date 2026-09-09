@@ -887,7 +887,7 @@ export default function ProfileClient() {
           }}
         >
           <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
-             <input type="file" ref={coverInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload('cover', e.target.files[0])} />
+             <input type="file" ref={coverInputRef} hidden accept="image/*" data-crop-aspect="16/7" data-crop-label="profile cover" data-crop-max-width="2200" onChange={(e) => e.target.files?.[0] && handleFileUpload('cover', e.target.files[0])} />
              <Button variant="secondary" onClick={() => coverInputRef.current?.click()} loading={uploadingCover}>
                <i className="ph ph-image" style={{ marginRight: '0.5rem' }} />
                Change Cover
@@ -915,7 +915,7 @@ export default function ProfileClient() {
               >
                 <i className={uploadingPhoto ? "ph ph-spinner animate-spin" : "ph ph-camera"} />
               </button>
-              <input type="file" ref={photoInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleFileUpload('photo', e.target.files[0])} />
+              <input type="file" ref={photoInputRef} hidden accept="image/*" data-crop-aspect="1/1" data-crop-label="profile photo" data-crop-max-width="1200" onChange={(e) => e.target.files?.[0] && handleFileUpload('photo', e.target.files[0])} />
             </div>
           </div>
           <div style={{ paddingTop: '1rem', flex: 1 }}>
@@ -1256,7 +1256,7 @@ export default function ProfileClient() {
                           <img src={expForm.logo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         </div>
                       )}
-                      <input type="file" ref={experienceInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('experience', e.target.files[0])} />
+                      <input type="file" ref={experienceInputRef} hidden accept="image/*" data-crop-aspect="1/1" data-crop-label="company logo" data-crop-max-width="1000" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('experience', e.target.files[0])} />
                     </div>
                   </div>
                 </div>
@@ -1354,7 +1354,7 @@ export default function ProfileClient() {
                           <img src={eduForm.logo} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         </div>
                       )}
-                      <input type="file" ref={educationInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('education', e.target.files[0])} />
+                      <input type="file" ref={educationInputRef} hidden accept="image/*" data-crop-aspect="1/1" data-crop-label="institute logo" data-crop-max-width="1000" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('education', e.target.files[0])} />
                     </div>
                   </div>
                 </div>
@@ -1516,7 +1516,7 @@ export default function ProfileClient() {
                       <Button variant="secondary" onClick={() => projectInputRef.current?.click()} loading={isUploadingNested === 'project'} style={{ flex: 1, height: '48px' }}>
                         {projForm.image ? 'Change Image' : 'Upload Image'}
                       </Button>
-                      <input type="file" ref={projectInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('project', e.target.files[0])} />
+                      <input type="file" ref={projectInputRef} hidden accept="image/*" data-crop-aspect="16/10" data-crop-label="project image" data-crop-max-width="1800" onChange={(e) => e.target.files?.[0] && handleNestedFileUpload('project', e.target.files[0])} />
                     </div>
                     {projForm.image && <img src={projForm.image} style={{ width: '100%', height: '220px', objectFit: 'cover', borderRadius: '1.5rem', marginTop: '2rem', border: '1px solid #eee' }} />}
                   </div>
