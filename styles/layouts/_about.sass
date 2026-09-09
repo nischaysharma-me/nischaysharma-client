@@ -319,28 +319,29 @@
 
   /* --- Projects --- */
   .about-projects
-    padding: 6rem 0
+    padding: 5rem 0 7rem
     position: relative
     overflow: hidden
+    background: #f4f4f1
 
     @include desktop
-      padding: 12rem 0
+      padding: 8rem 0 10rem
 
     &__dynamic-bg
       position: absolute
       inset: 0
       background-size: cover
       background-position: center
-      filter: blur(40px) saturate(2)
+      filter: blur(70px) saturate(1.2)
       z-index: 0
       @include transition(all)
       transition-duration: 0.8s
-      transform: scale(1.1)
+      transform: scale(1.15)
 
     &__container
       position: relative
       z-index: 1
-      max-width: 1400px
+      max-width: 1280px
       margin: 0 auto
       padding: 0 $spacing-lg
 
@@ -350,24 +351,28 @@
     .projects-wall
       display: grid
       grid-template-columns: 1fr
-      gap: $spacing-xl
+      gap: 1.25rem
 
       @include desktop
         grid-template-columns: repeat(2, 1fr)
-        gap: 4rem
+        gap: 1.5rem
 
     .project-node
       position: relative
-      aspect-ratio: 16/10
+      min-height: 410px
       background-color: #000
       overflow: hidden
-      border-radius: $radius-lg
+      border-radius: 1.5rem
+      border: 1px solid rgba(255,255,255,0.12)
       @include transition(all)
-      cursor: pointer
+      box-shadow: 0 16px 45px rgba(15, 15, 15, 0.08)
+
+      @include desktop
+        min-height: 440px
 
       &:hover
-        transform: translateY(-12px) scale(1.02)
-        box-shadow: 0 30px 60px rgba(0,0,0,0.2)
+        transform: translateY(-6px)
+        box-shadow: 0 28px 70px rgba(15,15,15,0.16)
 
       &__image-wrapper
         width: 100%
@@ -378,66 +383,100 @@
         width: 100%
         height: 100%
         object-fit: cover
-        opacity: 0.8
+        opacity: 0.72
         @include transition(all)
         transition-duration: 1.2s
 
       &:hover &__img
-        transform: scale(1.1)
-        opacity: 0.3
+        transform: scale(1.045)
+        opacity: 0.58
+
+      &__placeholder
+        width: 100%
+        height: 100%
+        background: radial-gradient(circle at 80% 10%, #353535, transparent 40%), linear-gradient(145deg, #181818, #050505)
 
       &__overlay
         position: absolute
         inset: 0
-        padding: 3rem
+        padding: 1.5rem
         display: flex
         flex-direction: column
-        justify-content: flex-end
-        background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 40%, transparent 80%)
+        justify-content: space-between
+        background: linear-gradient(to top, rgba(4,4,4,0.96) 0%, rgba(4,4,4,0.72) 48%, rgba(4,4,4,0.08) 100%)
         color: $color-white
         @include transition(all)
 
-      &__content
-        transform: translateY(20px)
-        @include transition(all)
-        transition-duration: 0.5s
+        @include desktop
+          padding: 2rem
 
-      &:hover &__content
+      &__topline
+        display: flex
+        justify-content: space-between
+        align-items: center
+        font-size: 0.65rem
+        font-weight: 700
+        letter-spacing: 0.18em
+        text-transform: uppercase
+        color: rgba(255,255,255,0.72)
+
+      &__content
         transform: translateY(0)
 
       &__title
-        font-size: 2.25rem
-        font-weight: 900
-        margin-bottom: $spacing-md
-        letter-spacing: -0.03em
-        line-height: 1.1
+        font-size: clamp(1.55rem, 3vw, 2.25rem)
+        font-weight: 800
+        margin-bottom: 0.75rem
+        letter-spacing: -0.035em
+        line-height: 1.08
+        overflow-wrap: anywhere
 
       &__desc
-        font-size: 1.1rem
-        color: rgba(255, 255, 255, 0.7)
-        line-height: 1.6
-        max-width: 480px
-        margin-bottom: 2rem
-        opacity: 0
-        @include transition(all)
-        transition-delay: 100ms
-
-      &:hover &__desc
+        font-size: 0.9rem
+        color: rgba(255, 255, 255, 0.76)
+        line-height: 1.55
+        max-width: 38rem
+        margin-bottom: 1rem
         opacity: 1
+        display: -webkit-box
+        -webkit-line-clamp: 3
+        -webkit-box-orient: vertical
+        overflow: hidden
+
+        p
+          margin: 0
+
+      &__tags
+        display: flex
+        flex-wrap: wrap
+        gap: 0.4rem
+        margin-bottom: 1.25rem
+
+        span
+          padding: 0.35rem 0.65rem
+          border: 1px solid rgba(255,255,255,0.18)
+          border-radius: $radius-pill
+          background: rgba(255,255,255,0.08)
+          color: rgba(255,255,255,0.82)
+          font-size: 0.62rem
+          font-weight: 700
+          letter-spacing: 0.08em
+          text-transform: uppercase
 
       &__link
         text-decoration: none
         color: $color-white
         font-weight: 800
-        font-size: 0.8rem
-        letter-spacing: 0.25em
+        font-size: 0.7rem
+        letter-spacing: 0.16em
         display: flex
         align-items: center
         gap: $spacing-sm
         text-transform: uppercase
         width: fit-content
-        padding: 0.75rem 1.5rem
-        background: rgba(255, 255, 255, 0.1)
+        min-height: 44px
+        padding: 0.75rem 1.1rem
+        background: rgba(255, 255, 255, 0.12)
         backdrop-filter: blur(10px)
         border-radius: $radius-pill
         border: 1px solid rgba(255, 255, 255, 0.2)
@@ -446,7 +485,7 @@
         &:hover
           background: $color-white
           color: $color-black
-          transform: translateX(10px)
+          transform: translateY(-2px)
 
   /* --- Career Timeline --- */
   .about-career
