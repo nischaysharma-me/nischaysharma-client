@@ -25,19 +25,82 @@
   @media (min-width: 768px)
     padding: 7rem 3rem 4rem
 
-  &__nav-links
+  &__sections-bar
+    margin-top: 1.25rem
+    padding-top: 0.85rem
+    border-top: 1px solid rgba($color-black, 0.2)
     display: flex
-    gap: 1.5rem
-    
-  &__nav-link
+    flex-wrap: wrap
+    align-items: center
+    justify-content: center
+    gap: 0.5rem 1.25rem
+    font-family: $font-sans
+
+  &__sections-eyebrow
+    font-size: 0.65rem
+    font-weight: 800
+    text-transform: uppercase
+    letter-spacing: 1.5px
+    color: rgba($color-black, 0.5)
+    margin-right: 0.25rem
+
+  &__sections-list
+    display: flex
+    flex-wrap: wrap
+    align-items: center
+    justify-content: center
+    gap: 0.5rem 1rem
+
+  &__section-link
+    display: inline-flex
+    align-items: center
+    gap: 0.4rem
     text-decoration: none
     color: inherit
+    padding: 0.35rem 0.65rem
+    border: 1px solid rgba($color-black, 0.15)
+    border-radius: 2px
+    background-color: rgba(255, 255, 255, 0.6)
+    font-size: 0.72rem
     font-weight: 700
-    font-size: 0.7rem
-    transition: opacity 0.2s
-    
+    letter-spacing: 0.5px
+    text-transform: uppercase
+    transition: all 0.2s ease
+    cursor: pointer
+
     &:hover
-      opacity: 0.6
+      background-color: $color-black
+      color: #fff
+      border-color: $color-black
+      transform: translateY(-1px)
+
+    &.is-active
+      background-color: $color-black
+      color: #fff
+      border-color: $color-black
+
+    &--stack
+      background: none
+      border: 1px dashed rgba($color-black, 0.35)
+      color: inherit
+
+      &:hover
+        background-color: $color-black
+        color: #fff
+        border-style: solid
+
+  &__section-num
+    font-size: 0.6rem
+    opacity: 0.6
+    letter-spacing: 0.5px
+
+  &__section-name
+    font-weight: 800
+
+  &__section-active-bullet
+    font-size: 0.5rem
+    color: #e53e3e
+    margin-left: 0.15rem
 
   &__close-btn
     cursor: pointer
@@ -101,6 +164,11 @@
     
     @media (min-width: 768px)
       grid-template-columns: 2fr 1.2fr 1fr
+
+  &__lead-column
+    display: flex
+    flex-direction: column
+    gap: 2rem
       
   &__middle-column
     display: flex
@@ -133,7 +201,15 @@
     &--lead
       .billboard__headline
         font-size: clamp(2rem, 4vw, 3.5rem)
-        margin-top: 1rem
+        margin-top: 0.75rem
+
+    &--sublead
+      border-top: 1px solid rgba($color-black, 0.15)
+      padding-top: 1.5rem
+
+      .billboard__headline
+        font-size: clamp(1.4rem, 2.5vw, 2rem)
+        margin: 0.4rem 0
 
     &--mini
       border-bottom: 1px dashed rgba($color-black, 0.2)
@@ -149,8 +225,8 @@
         align-items: start
 
       .billboard__headline
-        font-size: 1.1rem
-        line-height: 1.2
+        font-size: 1.05rem
+        line-height: 1.25
         margin: 0
 
   &__link
@@ -182,16 +258,55 @@
       aspect-ratio: 1/1
       margin: 0
 
+  &__tag-row
+    display: flex
+    align-items: center
+    justify-content: space-between
+    gap: 0.5rem
+    margin-bottom: 0.5rem
+
   &__label
     display: inline-block
     background-color: $color-black
     color: white
     font-family: $font-sans
     font-size: 0.65rem
+    font-weight: 700
     padding: 0.2rem 0.5rem
     text-transform: uppercase
     letter-spacing: 1px
-    margin-bottom: 0.75rem
+    margin: 0
+
+  &__destination-badge
+    display: inline-flex
+    align-items: center
+    gap: 0.3rem
+    font-family: $font-sans
+    font-size: 0.65rem
+    font-weight: 700
+    text-transform: uppercase
+    letter-spacing: 0.5px
+    color: rgba($color-black, 0.6)
+    border: 1px solid rgba($color-black, 0.15)
+    padding: 0.15rem 0.45rem
+    background-color: rgba($color-black, 0.03)
+    transition: all 0.2s ease
+
+    i
+      font-size: 0.75rem
+      transition: transform 0.2s ease
+
+    &--mini
+      padding: 0.15rem 0.35rem
+
+  &__link:hover
+    .billboard__destination-badge
+      color: $color-black
+      border-color: $color-black
+      background-color: rgba($color-black, 0.08)
+
+      i
+        transform: translate(2px, -2px)
 
   &__headline
     font-family: $font-serif
@@ -200,6 +315,9 @@
     font-weight: 800
     margin: 0.5rem 0
     letter-spacing: -0.5px
+
+    &--sublead
+      font-size: 1.35rem
 
   &__summary
     font-family: $font-sans
@@ -215,15 +333,102 @@
     text-transform: uppercase
     color: #999
 
-  &__ad
+  &__directory
     margin-top: auto
     border: 2px solid $color-black
-    padding: 1rem
-    text-align: center
+    background-color: #f6f3eb
+    padding: 1.25rem 1rem
+    font-family: $font-sans
+
+  &__directory-header
+    border-bottom: 1px solid $color-black
+    padding-bottom: 0.5rem
+    margin-bottom: 0.75rem
+
+  &__directory-eyebrow
+    display: block
+    font-size: 0.6rem
+    font-weight: 800
+    text-transform: uppercase
+    letter-spacing: 1.5px
+    color: rgba($color-black, 0.6)
+
+  &__directory-title
     font-family: $font-serif
-    font-weight: 700
+    font-size: 1.2rem
+    font-weight: 800
+    margin: 0.15rem 0 0
+    text-transform: uppercase
+    letter-spacing: -0.5px
+
+  &__directory-list
+    list-style: none
+    padding: 0
+    margin: 0
+    display: flex
+    flex-direction: column
+    gap: 0.5rem
+
+  &__directory-item
+    margin: 0
+
+  &__directory-link
+    display: flex
+    align-items: baseline
+    text-decoration: none
+    color: inherit
     font-size: 0.75rem
-    background: #f0f0f0
+    font-weight: 700
+    transition: color 0.15s ease
+    width: 100%
+
+    &:hover
+      color: #000
+
+      .billboard__directory-name
+        text-decoration: underline
+
+      .billboard__directory-dest
+        font-weight: 800
+        color: $color-black
+
+  &__directory-button
+    background: none
+    border: none
+    padding: 0
+    text-align: left
+    cursor: pointer
+    font-family: inherit
+
+  &__directory-name
+    white-space: nowrap
+    text-transform: uppercase
+    letter-spacing: 0.5px
+
+  &__directory-dots
+    flex: 1
+    margin: 0 0.4rem
+    border-bottom: 1px dotted rgba($color-black, 0.4)
+    height: 1px
+    position: relative
+    top: -2px
+
+  &__directory-dest
+    white-space: nowrap
+    font-size: 0.65rem
+    color: rgba($color-black, 0.5)
+    letter-spacing: 0.5px
+    transition: color 0.15s ease
+
+  &__directory-footer
+    margin-top: 0.85rem
+    padding-top: 0.6rem
+    border-top: 1px solid rgba($color-black, 0.15)
+    font-size: 0.62rem
+    text-transform: uppercase
+    letter-spacing: 1px
+    color: rgba($color-black, 0.5)
+    text-align: center
 
   &__footer
     margin-top: 4rem

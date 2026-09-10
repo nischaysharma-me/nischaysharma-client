@@ -223,12 +223,15 @@ export default function BillboardManagement() {
                     <label>Layout Style</label>
                     <select
                       value={formData.layoutType}
-                      onChange={e => setFormData({...formData, layoutType: e.target.value as any})}
+                      onChange={e => setFormData({...formData, layoutType: e.target.value as Billboard['layoutType']})}
                     >
-                      <option value="lead">Lead Story (Centerpiece)</option>
-                      <option value="middle">Standard Article (Column)</option>
+                      <option value="lead">Lead Story (Centerpiece / Twin Lead)</option>
+                      <option value="middle">Standard Article (Middle Column)</option>
                       <option value="mini">Mini Snippet (Sidebar)</option>
                     </select>
+                    <p style={{ fontSize: '0.7rem', color: '#737373', marginTop: '0.25rem' }}>
+                      Lead stories appear as the front-page centerpiece. If 2 items are marked as lead, they form twin leads.
+                    </p>
                   </div>
                   <div className="field">
                     <label>Position Order</label>
@@ -319,7 +322,9 @@ export default function BillboardManagement() {
 
             <div className="billboard-admin__item-content">
               <div className="meta">
-                <span className="type">{item.layoutType}</span>
+                <span className="type" style={item.layoutType === 'lead' ? { background: '#000', color: '#fff', fontWeight: 600 } : {}}>
+                  {item.layoutType === 'lead' ? '★ Lead Story' : item.layoutType}
+                </span>
                 <span className="label">{item.label}</span>
                 <span className="href">{item.href}</span>
               </div>
