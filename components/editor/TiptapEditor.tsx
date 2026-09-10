@@ -1,8 +1,8 @@
 'use client';
 
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, type JSONContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import ImageResize from 'tiptap-extension-resize-image';
+import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
@@ -15,7 +15,6 @@ import { TableHeader } from '@tiptap/extension-table-header';
 import Mermaid from './extensions/Mermaid';
 import { MermaidDialog } from './MermaidDialog';
 import { common, createLowlight } from 'lowlight';
-import { marked } from 'marked';
 import React, { useEffect, useState } from 'react';
 import { usersService } from '@/services/users.service';
 import { useStore } from '@/store/useStore';
@@ -45,31 +44,32 @@ const TiptapEditor = ({ content, onChange, isCompact = false }: TiptapEditorProp
 
   const editor = useEditor({
     extensions: [
-      ImageResize.configure({
+      Image.configure({
         allowBase64: true,
         HTMLAttributes: {
           class: 'editor-image',
         },
+        resize: {
+          enabled: true,
+          alwaysPreserveAspectRatio: true,
+        },
       }).extend({
-        addAttributes() {
-          return {
-            ...this.parent?.(),
-            width: {
-              default: null,
-              renderHTML: attributes => ({ width: attributes.width }),
-              parseHTML: element => element.getAttribute('width'),
-            },
-            height: {
-              default: null,
-              renderHTML: attributes => ({ height: attributes.height }),
-              parseHTML: element => element.getAttribute('height'),
-            },
-            style: {
-              default: null,
-              renderHTML: attributes => ({ style: attributes.style }),
-              parseHTML: element => element.getAttribute('style'),
-            },
-          };
+        renderMarkdown(node: JSONContent) {
+          const src = node.attrs?.src ?? '';
+          const alt = node.attrs?.alt ?? '';
+          const title = node.attrs?.title ?? '';
+          const width = node.attrs?.width;
+          const height = node.attrs?.height;
+
+          if (width || height) {
+            const widthAttr = width ? ` width="${width}"` : '';
+            const heightAttr = height ? ` height="${height}"` : '';
+            const altAttr = alt ? ` alt="${alt}"` : '';
+            const titleAttr = title ? ` title="${title}"` : '';
+            return `<img src="${src}"${altAttr}${titleAttr}${widthAttr}${heightAttr} />`;
+          }
+
+          return title ? `![${alt}](${src} "${title}")` : `![${alt}](${src})`;
         },
       }),
       Markdown.configure({
